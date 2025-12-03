@@ -1,48 +1,107 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-class FrostGlass extends StatelessWidget {
+class FrostGlassAnimated extends StatefulWidget {
   final double width;
   final double height;
   final Widget child;
   final double blur;
-  final int opacity;
+  final int maxAlpha; // nilai alpha akhir untuk gradient
+  final int maxAlphaBorder; // alpha akhir untuk border
   final BorderRadius borderRadius;
+  final Duration duration;
 
-  const FrostGlass({
+  const FrostGlassAnimated({
     super.key,
     required this.width,
     required this.height,
     required this.child,
     this.blur = 20.0,
-    this.opacity = 50,
+    this.maxAlpha = 60,
+    this.maxAlphaBorder = 40,
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),
+    this.duration = const Duration(milliseconds: 1000),
   });
 
   @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            borderRadius: borderRadius,
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFF999999).withAlpha(opacity),
-                Colors.white.withAlpha(opacity),
-              ],
-              begin: AlignmentGeometry.bottomCenter,
-              end: AlignmentGeometry.topCenter,
-            ), // efek kaca
-            border: Border.all(color: Colors.white.withAlpha(40), width: 1.2),
-          ),
-          child: child,
-        ),
+  State<FrostGlassAnimated> createState() => _FrostGlassAnimatedState();
+}
+
+class _FrostGlassAnimatedState extends State<FrostGlassAnimated>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late Animation<double> borderAlphaAnim;
+  late Animation<double> gradientAlphaAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    );
+
+    borderAlphaAnim = Tween<double>(begin: 0, end: widget.maxAlphaBorder.toDouble())
+        .animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
       ),
+    );
+
+    gradientAlphaAnim =
+        Tween<double>(begin: 0, end: widget.maxAlpha.toDouble()).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: const Interval(0.4, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
+    controller.forward();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (_, __) {
+        return ClipRRect(
+          borderRadius: widget.borderRadius,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: widget.blur,
+              sigmaY: widget.blur,
+            ),
+            child: Container(
+              width: widget.width,
+              height: widget.height,
+              decoration: BoxDecoration(
+                borderRadius: widget.borderRadius,
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF999999).withAlpha(gradientAlphaAnim.value.toInt()),
+                    Colors.white.withAlpha(gradientAlphaAnim.value.toInt()),
+                  ],
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                ),
+                border: Border.all(
+                  color: Colors.white
+                      .withAlpha(borderAlphaAnim.value.toInt()),
+                  width: 1.3,
+                ),
+              ),
+              child: widget.child,
+            ),
+          ),
+        );
+      },
     );
   }
 }

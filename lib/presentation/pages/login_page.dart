@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
+import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/appbars.dart';
+import 'package:waven/presentation/widget/fadeup.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
+import 'package:waven/presentation/widget/slidedirection.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -22,7 +26,7 @@ class LoginPage extends StatelessWidget {
                   bottom: BorderSide(color: Colors.white, width: 0.5),
                 ),
               ),
-              child: Appbars(isloginpage: true,),
+              child: Appbars(isloginpage: true),
             );
           },
         ),
@@ -38,7 +42,7 @@ class LoginPage extends StatelessWidget {
               left: 0,
               top: 0,
               child: Center(
-                child: FrostGlass(
+                child: FrostGlassAnimated(
                   width: 800,
                   height: 500,
                   child: Padding(
@@ -48,54 +52,108 @@ class LoginPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          "LOGIN",
+                        FadeInUpText(
+                          text: "LOGIN",
                           style: GoogleFonts.robotoFlex(
                             color: Colors.white,
                             fontSize: 32,
                           ),
+                          duration: Duration(milliseconds: 800),
+                          delay: Duration(milliseconds: 300), // opsional
+                          offsetY: 30, // jarak start dari bawah
                         ),
-                        Text(
-                          "Masukkan password dan username untuk masuk",
+                        FadeInUpText(
+                          text:"Masukkan password dan username untuk masuk",
                           style: GoogleFonts.robotoFlex(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.w100,
                           ),
+
+                          duration: Duration(milliseconds: 800),
+                          delay: Duration(milliseconds: 400), // opsional
+                          offsetY: 30, 
+
                         ),
-                        BlocBuilder<AuthCubit, AuthState>(
-                          builder: (context, state) {
-                            if (state is AuthInitial) {
-                              return FormLogin();
-                            }else if(state is AuthLoading){
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }else if(state is AuthError){
-                              return Center(
-                                child: Column(
-                                  children: [Text(
-                                    state.message
-                                  ),
-                                  ElevatedButton(onPressed: (){
-                                    context.read<AuthCubit>().onInit();
-                                  }, child: Text("Coba Lagi"))
-                                  ],
-                                ),
-                              );
-                            }else if(state is AuthLoaded){
-                              return Center(
-                                child: Text("Sukses",style: GoogleFonts.robotoFlex(
-                                  color: Colors.white
-                                )),
-                              );
-                            }else{
-                              return Center(
-                                child: Text("terjadi kesalahan tak terduga",style: GoogleFonts.robotoFlex(
-                                  color: Colors.white
-                                ),),
-                              );
+                        BlocConsumer<AuthCubit, AuthState>(
+                          listener: (context, state) async {
+                            if (state is AuthLoaded) {
+                              context.read<TokenauthCubit>().getTokens();
+                              context.go('/home');
+                              context.read<AuthCubit>().onInit();
                             }
+                          },
+                          builder: (context, state) {
+                            return AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                switchInCurve: Curves.easeIn,
+                                switchOutCurve: Curves.easeOut,
+                                transitionBuilder: (child, animation) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                                child: Builder(
+                                  key: ValueKey(
+                                    state.runtimeType,
+                                  ), // penting untuk AnimatedSwitcher
+                                  builder: (_) {
+                                    if (state is AuthInitial) {
+                                      return FormLogin();
+                                    } else if (state is AuthLoading) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } else if (state is AuthError) {
+                                      return Center(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              state.message,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                context
+                                                    .read<AuthCubit>()
+                                                    .onInit();
+                                              },
+                                              child: const Text("Coba Lagi"),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    } else if (state is AuthLoaded) {
+                                      return Center(
+                                        child: Text(
+                                          state.message,
+                                          style: GoogleFonts.robotoFlex(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      return Center(
+                                        child: Text(
+                                          "Terjadi kesalahan tak terduga",
+                                          style: GoogleFonts.robotoFlex(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
                           },
                         ),
                       ],
@@ -138,79 +196,83 @@ class _FormLoginState extends State<FormLogin> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _keyform,
-      child: Column(
-        spacing: 10,
-        children: [
-          TextFormField(
-            controller: ur,
-            style: TextStyle(color: Colors.white),
-            textInputAction: TextInputAction.next,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return "email tidak boleh kosong";
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-
-              label: Text(
-                "username",
-                style: GoogleFonts.robotoFlex(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              suffix: Icon(Icons.person, color: Colors.white),
-            ),
-          ),
-          TextFormField(
-            obscureText: showpw,
-            controller: pw,
-            style: TextStyle(color: Colors.white),
-            textInputAction: TextInputAction.done,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return "password tidak boleh kososng";
-              }
-              if (value.length < 8) {
-                return "password tidak boleh kurang dari 8 huruf";
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              label: Text(
-                "password",
-                style: GoogleFonts.robotoFlex(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              suffix: InkWell(
-                onTap: () {
-                  showpw = !showpw;
+    return FadeInSlide(
+      direction: SlideDirection.up,
+      child: Form(
+        key: _keyform,
+        child: Column(
+          spacing: 10,
+          children: [
+            TextFormField(
+              controller: ur,
+              style: TextStyle(color: Colors.white),
+              textInputAction: TextInputAction.next,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "email tidak boleh kosong";
                 }
-                ,child: Icon(Icons.visibility, color: Colors.white)),
+                return null;
+              },
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+      
+                label: Text(
+                  "username",
+                  style: GoogleFonts.robotoFlex(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                suffix: Icon(Icons.person, color: Colors.white),
+              ),
             ),
-          ),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(backgroundColor: Color(0xFF00A76F)),
-            onPressed: () {
-              if (_keyform.currentState!.validate()) {
-                context.read<AuthCubit>().onLogin(ur.text, pw.text);
-              }
-            },
-            child: Text(
-              "Login",
-              style: GoogleFonts.robotoFlex(color: Colors.white),
+            TextFormField(
+              obscureText: showpw,
+              controller: pw,
+              style: TextStyle(color: Colors.white),
+              textInputAction: TextInputAction.done,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "password tidak boleh kososng";
+                }
+                if (value.length < 8) {
+                  return "password tidak boleh kurang dari 8 huruf";
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                label: Text(
+                  "password",
+                  style: GoogleFonts.robotoFlex(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                suffix: InkWell(
+                  onTap: () {
+                    showpw = !showpw;
+                  },
+                  child: Icon(Icons.visibility, color: Colors.white),
+                ),
+              ),
             ),
-          ),
-        ],
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(backgroundColor: Color(0xFF00A76F)),
+              onPressed: () {
+                if (_keyform.currentState!.validate()) {
+                  context.read<AuthCubit>().onLogin(ur.text, pw.text);
+                }
+              },
+              child: Text(
+                "Login",
+                style: GoogleFonts.robotoFlex(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

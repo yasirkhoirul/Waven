@@ -18,13 +18,13 @@ class Appbars extends StatelessWidget{
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SvgPicture.asset(ImagesPath.logoteks,width: 50,height: 50,),
+            Image.asset(ImagesPath.logotekspng,),
             isloginpage? ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF00A76F)
               ),
               onPressed: (){
-                context.push("/signup");
+                context.go("/signup");
               }, child: Text("Signup",style: GoogleFonts.robotoFlex(
               color: Colors.white,
               fontWeight: FontWeight.bold
@@ -33,7 +33,7 @@ class Appbars extends StatelessWidget{
                 backgroundColor: Color(0xFF00A76F)
               ),
               onPressed: (){
-                context.pop();
+                context.go("/login");
               }, child: Text("Login",style: GoogleFonts.robotoFlex(
               color: Colors.white,
               fontWeight: FontWeight.bold

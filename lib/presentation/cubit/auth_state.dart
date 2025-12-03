@@ -11,5 +11,6 @@ final class AuthError extends AuthState {
 }
 final class AuthLoaded extends AuthState {
   final String message;
-  AuthLoaded(this.message);
+  final String data;
+  AuthLoaded(this.message, {required this.data});
 }

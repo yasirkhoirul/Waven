@@ -40,12 +40,12 @@ class SignupPage extends StatelessWidget {
               left: 0,
               top: 0,
               child: Center(
-                child: FrostGlass(
+                child: FrostGlassAnimated(
                   width: 800,
                   height: 800,
                   child: SingleChildScrollView(
                     child: SizedBox(
-                      height: 900,
+                      height: 800,
                       child: Padding(
                         padding: const EdgeInsets.all(50),
                         child: Column(
@@ -69,42 +69,45 @@ class SignupPage extends StatelessWidget {
                               ),
                             ),
                             Expanded(
-                              child: BlocBuilder<SignupCubit, SignupState>(
-                                builder: (context, state) {
-                                  if (state is SignupLoading) {
-                                    return Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  } else if (state is SignupError) {
-                                    return Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.error),
-                                        Text(
-                                          state.message,
-                                          style: GoogleFonts.robotoFlex(
-                                            color: Colors.white,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
+                              child: Container(
+                                color: Colors.amber,
+                                child: BlocBuilder<SignupCubit, SignupState>(
+                                  builder: (context, state) {
+                                    if (state is SignupLoading) {
+                                      return Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } else if (state is SignupError) {
+                                      return Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.error),
+                                          Text(
+                                            state.message,
+                                            style: GoogleFonts.robotoFlex(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            context.read<SignupCubit>().init();
-                                          },
-                                          child: Text("Coba Lagi"),
-                                        ),
-                                      ],
-                                    );
-                                  } else if (state is SignupLoaded) {
-                                    return Center(child: Text("Sukses"));
-                                  } else {
-                                    return FormSignUp();
-                                  }
-                                },
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              context.read<SignupCubit>().init();
+                                            },
+                                            child: Text("Coba Lagi"),
+                                          ),
+                                        ],
+                                      );
+                                    } else if (state is SignupLoaded) {
+                                      return Center(child: Text("Sukses"));
+                                    } else {
+                                      return FormSignUp();
+                                    }
+                                  },
+                                ),
                               ),
                             ),
                           ],
