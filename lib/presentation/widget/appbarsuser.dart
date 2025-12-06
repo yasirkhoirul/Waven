@@ -3,22 +3,24 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/common/imageconstant.dart';
 
 class AppbarsUser extends StatelessWidget {
+  final VoidCallback? onmenupress;
   final Function(int) onpress;
   final bool alreadylogin;
-  const AppbarsUser({super.key, required this.alreadylogin, required this.onpress});
+  const AppbarsUser({super.key, required this.alreadylogin, required this.onpress, this.onmenupress});
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = MediaQuery.of(context).size.width<800;
     return SizedBox(
       height: double.maxFinite,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
+        child:  Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset(ImagesPath.logotekspng),
-            Row(
+            !isSmall? Row(
               children: [
                 TextButton(
                         onPressed: () {
@@ -86,9 +88,9 @@ class AppbarsUser extends StatelessWidget {
                     ),
                   ),
               ],
-            )
-          ],
-        ),
+            ):IconButton(onPressed: onmenupress, icon: Icon(Icons.menu,color: Colors.white,)),
+          ]
+        )
       ),
     );
   }

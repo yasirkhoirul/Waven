@@ -8,6 +8,7 @@ import 'package:waven/presentation/cubit/package_all_cubit.dart';
 import 'package:waven/presentation/cubit/porto_all_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/fadeup.dart';
+import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/image_button.dart';
 import 'package:waven/presentation/widget/slidedirection.dart';
 
@@ -75,146 +76,7 @@ class _WavenHomePageState extends State<WavenHomePage> {
   }
 }
 
-class Footer extends StatelessWidget {
-  const Footer({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 540,
-      child: Padding(
-        padding: const EdgeInsets.only(right: 100, left: 100),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Let’s Have a Moment \nwith waven moment",
-                    style: GoogleFonts.plusJakartaSans(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 32,
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF18181B),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(115),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        "Book Now",
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 30),
-            Divider(height: 2, color: Colors.white),
-            SizedBox(height: 30),
-            Row(
-              children: [
-                Expanded(
-                  flex: 4,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        "About \nRareblocks",
-                        textAlign: TextAlign.start,
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      Text(
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam dictum aliquet accumsan porta lectus ridiculus in mattis. Netus sodales in volutpat ullamcorper amet adipiscing fermentum.",
-                        textAlign: TextAlign.start,
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w100,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 6,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "  Waven",
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-
-                      SizedBox(height: 20),
-                      TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          "Home",
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w100,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          "package",
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w100,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          "About",
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w100,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class AboutUs extends StatelessWidget {
   const AboutUs({super.key, required this.accentColor});
@@ -223,8 +85,9 @@ class AboutUs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = MediaQuery.of(context).size.width<800;
     return SizedBox(
-      height: 1080,
+      height: isSmall? 700:1080,
       child: Stack(
         children: [
           Positioned.fill(
@@ -232,12 +95,13 @@ class AboutUs extends StatelessWidget {
             child: Image.asset(ImagesPath.bgwavenmoment, fit: BoxFit.fitHeight),
           ),
           Positioned(
-            right: 100,
+            left: isSmall?0:null,
+            right: isSmall?0:100,
             bottom: 0,
             top: 0,
             child: SizedBox(
-              width: 700,
-              height: 400,
+              width: isSmall?MediaQuery.of(context).size.width:700,
+              height: isSmall?200:400,
               child: Center(
                 child: Container(
                   decoration: BoxDecoration(
@@ -329,20 +193,21 @@ class WidgetPortofolio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = MediaQuery.of(context).size.width<800;
     return SizedBox(
-      height: 1080,
+      height:isSmall?700: 1080,
       child: Column(
         children: [
           FadeInUpText(
             delay: Duration(seconds: 1),
             text: "A Glimpse of joy, moment, elegance, a story of happiness",
+            alig: TextAlign.center,
             style: GoogleFonts.robotoFlex(
               color: Colors.white,
-              fontSize: 32,
+              fontSize:isSmall?16: 32,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 50),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -423,10 +288,11 @@ class WidgetChoose extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = MediaQuery.of(context).size.width<800;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 50),
       child: SizedBox(
-        height: 1080,
+        height: isSmall?700:1080,
         child: Column(
           spacing: 20,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -444,15 +310,16 @@ class WidgetChoose extends StatelessWidget {
                     "Package",
                     style: GoogleFonts.robotoFlex(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: isSmall?9: 18,
                       fontWeight: FontWeight.w100,
                     ),
                   ),
                   Text(
                     "A memorable graduation moment start here",
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.robotoFlex(
                       color: Colors.white,
-                      fontSize: 32,
+                      fontSize:isSmall?16: 32,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -460,7 +327,7 @@ class WidgetChoose extends StatelessWidget {
                     "Choose what your suitable needs",
                     style: GoogleFonts.robotoFlex(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: isSmall?9: 18,
                       fontWeight: FontWeight.w100,
                     ),
                   ),
@@ -530,6 +397,8 @@ class AppSliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lebarlayar = MediaQuery.of(context).size.width>585;
+    final iskecil = MediaQuery.of(context).size.width>350;
     return SliverAppBar(
       expandedHeight: MediaQuery.of(context).size.height,
       flexibleSpace: FlexibleSpaceBar(
@@ -546,19 +415,20 @@ class AppSliver extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Stack(
+                    iskecil? Stack(
+                      clipBehavior: Clip.none,
                       children: [
                         FadeInUpText(
                           text: "Capture Your Precious \nMoment with",
                           style: GoogleFonts.robotoFlex(
                             color: Colors.white,
-                            fontSize: 48,
+                            fontSize: lebarlayar?48:24,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         Positioned(
-                          bottom: 10,
-                          right: 30,
+                          bottom:lebarlayar?10:0,
+                          right:lebarlayar? 30:-60,
                           child: FadeInSlide(
                             delay: Duration(milliseconds: 500),
                             direction: SlideDirection.up,
@@ -570,6 +440,26 @@ class AppSliver extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ):Column(
+                      children: [
+                        FadeInUpText(
+                          text: "Capture Your Precious \nMoment with",
+                          style: GoogleFonts.robotoFlex(
+                            color: Colors.white,
+                            fontSize: lebarlayar?48:24,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        FadeInSlide(
+                            delay: Duration(milliseconds: 500),
+                            direction: SlideDirection.up,
+                            child: Image.asset(
+                              ImagesPath.logotekspng,
+                              height: 29,
+                              width: 198,
+                            ),
+                          ),
+                      ],
                     ),
                     FadeInUpText(
                       delay: Duration(milliseconds: 500),
@@ -577,7 +467,7 @@ class AppSliver extends StatelessWidget {
                           "We transform your precious memories into timeless, visually \ncaptivating art. Reserve your spot today!",
                       style: GoogleFonts.robotoFlex(
                         color: Colors.white,
-                        fontSize: 22,
+                        fontSize: lebarlayar? 22:11,
                         fontWeight: FontWeight.w300,
                       ),
                     ),
@@ -599,7 +489,7 @@ class AppSliver extends StatelessWidget {
                             "Book Now",
                             style: GoogleFonts.robotoFlex(
                               color: Colors.white,
-                              fontSize: 22,
+                              fontSize:lebarlayar? 22:11,
                               fontWeight: FontWeight.w700,
                             ),
                           ),

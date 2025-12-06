@@ -1,5 +1,5 @@
-import 'package:waven/data/data_local_impl.dart';
-import 'package:waven/data/data_remote_impl.dart';
+import 'package:waven/data/remote/data_local_impl.dart';
+import 'package:waven/data/remote/data_remote_impl.dart';
 import 'package:waven/domain/entity/user.dart';
 import 'package:waven/domain/repository/auth_repository.dart';
 

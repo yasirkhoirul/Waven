@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:waven/data/model/addonsmodel.dart';
 import 'package:waven/data/model/detailportomodel.dart';
 import 'package:waven/data/model/packagemodel.dart';
 import 'package:waven/data/model/portomodel.dart';
 import 'package:waven/data/model/signup.dart';
 import 'package:waven/data/model/singin.dart';
+import 'package:waven/data/model/univ_drop_model.dart';
 import 'package:waven/domain/entity/user.dart';
 
 abstract class DataRemote {
@@ -13,22 +15,28 @@ abstract class DataRemote {
   Future<ResposeSIgnup> signUP(User data);
   Future<Packagemodel> getPackage();
   Future<Portomodel> getPorto();
+  Future<UnivDropModel> getUnivDropDown();
   Future<DetailPortoModel> getDetailPorto(String idpackage);
+  Future<Addonsmodel> getAddons();
 }
 
 class DataRemoteImpl implements DataRemote {
-  final baseurl = "https://6dec8615-b2a0-4cdb-b036-5913fb42266b.mock.pstmn.io/";
+  final baseurl = "http://157.10.252.202:3000/";
+  final baseuri= "157.10.252.202:3000";
   @override
   Future<Signinresonse> onLogin(String email, String password) async {
     String basicAuth = 'Basic ${base64Encode(utf8.encode('$email:$password'))}';
+    final uri = Uri.http(baseuri,"/v1/auth/login");
     try {
       final response = await http.post(
-        Uri.parse("${baseurl}v1/auth/login"),
+        uri,
+        
         headers: {
           'Authorization': basicAuth,
           'content-type': 'application/json',
         },
       );
+      Logger().d(response.body);
       if (response.statusCode == 200) {
         return Signinresonse(
           response.headers['x-access-token']!,
@@ -81,7 +89,7 @@ class DataRemoteImpl implements DataRemote {
   @override
   Future<Portomodel> getPorto({String? idpackage}) async {
     try {
-      final uri = Uri.https("6dec8615-b2a0-4cdb-b036-5913fb42266b.mock.pstmn.io",'/v1/master/portfolios',{
+      final uri = Uri.http(baseuri,'/v1/master/portfolios',{
         "package":idpackage
       });
       final response = await http.get(
@@ -111,6 +119,38 @@ class DataRemoteImpl implements DataRemote {
         throw Exception(
           DetailPortoModel.fromJson(jsonDecode(response.body)).message,
         );
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+  
+  @override
+  Future<UnivDropModel> getUnivDropDown() async{
+    try {
+      final uri = Uri.http(baseuri,'/v1/master/universities/dropdown');
+      final response = await http.get(uri);
+      
+      if (response.statusCode  == 200) {
+        return UnivDropModel.fromJson(jsonDecode(response.body));
+      }else{
+        throw response.statusCode.toString();
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+  
+  @override
+  Future<Addonsmodel> getAddons()async {
+    try {
+      final uri = Uri.http(baseuri,'/v1/addons');
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        return Addonsmodel.fromJson(jsonDecode(response.body));
+      }else{
+        throw Exception(response.statusCode);
       }
     } catch (e) {
       throw Exception(e);

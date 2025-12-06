@@ -6,6 +6,7 @@ class FadeInUpText extends StatefulWidget {
   final Duration duration;
   final Duration delay;
   final double offsetY;
+  final TextAlign? alig;
 
   const FadeInUpText({
     super.key,
@@ -13,6 +14,7 @@ class FadeInUpText extends StatefulWidget {
     this.style,
     this.duration = const Duration(milliseconds: 600),
     this.delay = Duration.zero,
+    this.alig,
     this.offsetY = 20.0, // jarak awal dari bawah
   });
 
@@ -69,7 +71,7 @@ class _FadeInUpTextState extends State<FadeInUpText>
           ),
         );
       },
-      child: Text(widget.text, style: widget.style),
+      child: Text(widget.text, style: widget.style,textAlign: widget.alig,),
     );
   }
 }

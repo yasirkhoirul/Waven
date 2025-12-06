@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
+import 'package:waven/presentation/cubit/booking_cubit.dart';
 import 'package:waven/presentation/cubit/package_all_cubit.dart';
 import 'package:waven/presentation/cubit/package_detail_cubit.dart';
 import 'package:waven/presentation/cubit/porto_all_cubit.dart';
@@ -22,6 +23,7 @@ void main() async{
       BlocProvider(create: (context) => getisinstance<PortoAllCubit>()..getAllporto(),),
       BlocProvider(create: (context) => getisinstance<PackageAllCubit>()..getAllpackage(),),
       BlocProvider(create: (context) => getisinstance<PackageDetailCubit>(),),
+      BlocProvider(create: (context) => getisinstance<BookingCubit>(),),
     ], child: const MainApp())
   );
 }

@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/notifier/auth_notifier.dart';
+import 'package:waven/presentation/pages/booking_page.dart';
 import 'package:waven/presentation/pages/home_page.dart';
 import 'package:waven/presentation/pages/login_page.dart';
 import 'package:waven/presentation/pages/main_scaffold_user_page.dart';
@@ -33,6 +34,16 @@ class MyRouter {
                         final id = state.pathParameters['id'];
                         return PackagePage(idpackage: id!);
                       },
+                      routes: [
+                        GoRoute(
+                          path: '/booking',
+                          name: 'booking',
+                          builder: (context, state) {
+                            final data = state.pathParameters['id'];
+                            return BookingPage(idpackage: data!,);
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),

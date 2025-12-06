@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/presentation/widget/appbarsuser.dart';
 
 class MainScaffoldUserPage extends StatefulWidget {
@@ -14,6 +15,7 @@ class MainScaffoldUserPage extends StatefulWidget {
 }
 
 class _MainScaffoldUserPageState extends State<MainScaffoldUserPage> {
+  final GlobalKey<ScaffoldState> scaffoldkey = GlobalKey<ScaffoldState>();
   void gobranch(int index) {
     widget.statefulNavigationShell.goBranch(
       index,
@@ -24,6 +26,44 @@ class _MainScaffoldUserPageState extends State<MainScaffoldUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldkey,
+      drawer: Drawer(
+        backgroundColor: Colors.black,
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: [
+            ListTile(
+              title: Text(
+                "Home",
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w100,
+                  fontSize: 14,
+                ),
+              ),
+              onTap: () {
+                context.pop();
+                gobranch(0);
+              },
+            ),
+            ListTile(
+              title: Text(
+                "Package",
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w100,
+                  fontSize: 14,
+                ),
+              ),
+              onTap: () {
+                context.pop();
+                gobranch(0);
+              },
+            ),
+          ],
+        ),
+      ),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -32,12 +72,20 @@ class _MainScaffoldUserPageState extends State<MainScaffoldUserPage> {
         scrolledUnderElevation: 0,
         flexibleSpace: Container(
           decoration: BoxDecoration(color: Colors.black.withAlpha(56)),
-          child: AppbarsUser(alreadylogin: true, onpress: (int p1) { 
-            gobranch(p1);
-           },),
+          child: AppbarsUser(
+            alreadylogin: true,
+            onpress: (int p1) {
+              gobranch(p1);
+            },
+            onmenupress: () {
+              scaffoldkey.currentState?.openDrawer();
+            },
+          ),
         ),
       ),
-      body: widget.statefulNavigationShell,
+      body: Container(
+        color: Colors.black,
+        child: SafeArea(child: widget.statefulNavigationShell)),
     );
   }
 }

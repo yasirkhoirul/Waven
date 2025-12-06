@@ -1,4 +1,4 @@
-import 'package:waven/data/data_remote_impl.dart';
+import 'package:waven/data/remote/data_remote_impl.dart';
 import 'package:waven/data/model/packagemodel.dart';
 import 'package:waven/domain/entity/detail_package.dart';
 import 'package:waven/domain/entity/package.dart';
