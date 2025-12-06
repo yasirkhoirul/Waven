@@ -4,6 +4,7 @@ import 'package:waven/presentation/notifier/auth_notifier.dart';
 import 'package:waven/presentation/pages/home_page.dart';
 import 'package:waven/presentation/pages/login_page.dart';
 import 'package:waven/presentation/pages/main_scaffold_user_page.dart';
+import 'package:waven/presentation/pages/package_page.dart';
 import 'package:waven/presentation/pages/signup_page.dart';
 
 class MyRouter {
@@ -24,6 +25,16 @@ class MyRouter {
                 GoRoute(
                   path: '/home',
                   builder: (context, state) => WavenHomePage(),
+                  routes: [
+                    GoRoute(
+                      path: '/package/:id',
+                      name: 'package',
+                      builder: (context, state) {
+                        final id = state.pathParameters['id'];
+                        return PackagePage(idpackage: id!);
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

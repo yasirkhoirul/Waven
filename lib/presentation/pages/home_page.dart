@@ -1,8 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/common/imageconstant.dart';
+import 'package:waven/presentation/cubit/package_all_cubit.dart';
+import 'package:waven/presentation/cubit/porto_all_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/fadeup.dart';
 import 'package:waven/presentation/widget/image_button.dart';
@@ -19,15 +22,13 @@ class _WavenHomePageState extends State<WavenHomePage> {
   @override
   void initState() {
     context.read<TokenauthCubit>().getTokens();
-
+    context.read<PackageAllCubit>().getAllpackage();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Warna Utama
-    // Hijau tombol
-    const backgroundColor = Color(0xFF0D0D0D); // Hitam pekat
+    // Hitam pekat
     const accentColor = Color(0xFF00C853);
     return Scaffold(
       backgroundColor: Colors.black,
@@ -368,24 +369,44 @@ class WidgetPortofolio extends StatelessWidget {
                   // Hitung aspect ratio yang diperlukan
                   double ratio = itemWidth / itemHeight;
 
-                  return GridView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    // Hapus shrinkWrap: true agar dia memenuhi Expanded
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      mainAxisSpacing: spacing,
-                      crossAxisSpacing: spacing,
-                      childAspectRatio: ratio, // Gunakan rasio dinamis ini
-                    ),
-                    itemCount: 6,
-                    itemBuilder: (context, index) => SizedBox(
-                      height: double.maxFinite,
-                      width: double.maxFinite,
-                      child: Image.asset(
-                        ImagesPath.buttonimage1,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                  return BlocBuilder<PortoAllCubit, PortoAllState>(
+                    builder: (context, state) {
+                      if (state is PortoAllLoaded) {
+                        return GridView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          // Hapus shrinkWrap: true agar dia memenuhi Expanded
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                mainAxisSpacing: spacing,
+                                crossAxisSpacing: spacing,
+                                childAspectRatio:
+                                    ratio, // Gunakan rasio dinamis ini
+                              ),
+                          itemCount: state.data.length,
+                          itemBuilder: (context, index) => SizedBox(
+                            height: double.maxFinite,
+                            width: double.maxFinite,
+                            child: CachedNetworkImage(
+                              imageUrl: state.data[index].url,
+                              placeholder: (context, url) => Center(child: CircularProgressIndicator(),),
+                              errorListener: (value) => Center(child: Icon(Icons.error),),
+                            ),
+                          ),
+                        );
+                      } else if (state is PortoAllLoading) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (state is PortoAllError) {
+                        return Center(
+                          child: Text(
+                            state.message,
+                            style: GoogleFonts.robotoFlex(color: Colors.white),
+                          ),
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
                   );
                 },
               ),
@@ -447,63 +468,52 @@ class WidgetChoose extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 3,
-              child: Row(
-                spacing: 20,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  HoverLiftButton(
-                    onClik: () {},
-                    imagepath: ImagesPath.buttonimage1,
-                    nama: "Person Session",
-                    height: 300,
-                    width: 300,
-                  ),
-                  HoverLiftButton(
-                    onClik: () {},
-                    imagepath: ImagesPath.buttonimage2,
-                    nama: "Couple Session",
-                    height: 300,
-                    width: 300,
-                  ),
-                  HoverLiftButton(
-                    onClik: () {},
-                    imagepath: ImagesPath.buttonimage3,
-                    nama: "Group Session",
-                    height: 300,
-                    width: 300,
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Row(
-                spacing: 20,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  HoverLiftButton(
-                    onClik: () {},
-                    imagepath: ImagesPath.buttonimage1,
-                    nama: "Personal 2 + Video",
-                    height: 300,
-                    width: 300,
-                  ),
-                  HoverLiftButton(
-                    onClik: () {},
-                    imagepath: ImagesPath.buttonimage2,
-                    nama: "Couple 2 + Video",
-                    height: 300,
-                    width: 300,
-                  ),
-                  HoverLiftButton(
-                    onClik: () {},
-                    imagepath: ImagesPath.buttonimage3,
-                    nama: "Group 2 + Video",
-                    height: 300,
-                    width: 300,
-                  ),
-                ],
+              flex: 7,
+              child: BlocBuilder<PackageAllCubit, PackageAllState>(
+                builder: (context, state) {
+                  if (state is PackageAllLoaded) {
+                    return SizedBox(
+                      width: 900,
+                      child: GridView.builder(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 300,
+                          childAspectRatio: 1,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                        ),
+                        itemCount: state.data.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            alignment: Alignment.center,
+                            height: 300,
+                            width: 300,
+                            child: HoverLiftButton(
+                              height: 300,
+                              width: 300,
+                              imagepath: state.data[index].bannerUrl,
+                              nama: state.data[index].tittle,
+                              onClik: () {
+                                context.goNamed(
+                                  'package',
+                                  pathParameters: {
+                                    'id':state.data[index].id
+                                  }
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  } else if (state is PackageAllError) {
+                    return Center(
+                      child: Text("Terjadi kesalahan ${state.message}"),
+                    );
+                  } else {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                },
               ),
             ),
           ],
@@ -539,7 +549,6 @@ class AppSliver extends StatelessWidget {
                     Stack(
                       children: [
                         FadeInUpText(
-                          
                           text: "Capture Your Precious \nMoment with",
                           style: GoogleFonts.robotoFlex(
                             color: Colors.white,
@@ -564,7 +573,8 @@ class AppSliver extends StatelessWidget {
                     ),
                     FadeInUpText(
                       delay: Duration(milliseconds: 500),
-                      text: "We transform your precious memories into timeless, visually \ncaptivating art. Reserve your spot today!",
+                      text:
+                          "We transform your precious memories into timeless, visually \ncaptivating art. Reserve your spot today!",
                       style: GoogleFonts.robotoFlex(
                         color: Colors.white,
                         fontSize: 22,
@@ -581,7 +591,7 @@ class AppSliver extends StatelessWidget {
                           ),
                           backgroundColor: accentColor,
                         ),
-                      
+
                         onPressed: () {},
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),

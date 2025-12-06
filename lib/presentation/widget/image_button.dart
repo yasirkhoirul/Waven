@@ -1,6 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:waven/common/imageconstant.dart';
 
 class HoverLiftButton extends StatefulWidget {
   const HoverLiftButton({super.key, required this.onClik, required this.imagepath, required this.nama, required this.height, required this.width});
@@ -55,8 +55,8 @@ class _HoverLiftButtonState extends State<HoverLiftButton> {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: Image.asset(
-                    widget.imagepath,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.imagepath,
                     fit: BoxFit.cover,
                   ),
                 ),

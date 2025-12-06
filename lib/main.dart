@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
+import 'package:waven/presentation/cubit/package_all_cubit.dart';
+import 'package:waven/presentation/cubit/package_detail_cubit.dart';
+import 'package:waven/presentation/cubit/porto_all_cubit.dart';
 import 'package:waven/presentation/cubit/signup_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/router/routerauth.dart';
@@ -15,7 +18,10 @@ void main() async{
     MultiBlocProvider(providers: [
       BlocProvider(create: (context) => getisinstance<SignupCubit>(),),
       BlocProvider(create: (context) => getisinstance<AuthCubit>(),),
-      BlocProvider(create: (context) => getisinstance<TokenauthCubit>()..getTokens(),)
+      BlocProvider(create: (context) => getisinstance<TokenauthCubit>()..getTokens(),),
+      BlocProvider(create: (context) => getisinstance<PortoAllCubit>()..getAllporto(),),
+      BlocProvider(create: (context) => getisinstance<PackageAllCubit>()..getAllpackage(),),
+      BlocProvider(create: (context) => getisinstance<PackageDetailCubit>(),),
     ], child: const MainApp())
   );
 }

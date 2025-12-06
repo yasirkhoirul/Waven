@@ -3,8 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/common/imageconstant.dart';
 
 class AppbarsUser extends StatelessWidget {
+  final Function(int) onpress;
   final bool alreadylogin;
-  const AppbarsUser({super.key, required this.alreadylogin});
+  const AppbarsUser({super.key, required this.alreadylogin, required this.onpress});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,9 @@ class AppbarsUser extends StatelessWidget {
             Row(
               children: [
                 TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          onpress(0);
+                        },
                         child: Text("Home",style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
                           fontWeight: FontWeight.w100,
@@ -28,7 +31,9 @@ class AppbarsUser extends StatelessWidget {
                         ),),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          // onpress(1);
+                        },
                         child: Text("package",style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
                           fontWeight: FontWeight.w100,

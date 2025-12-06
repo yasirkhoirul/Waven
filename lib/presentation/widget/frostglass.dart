@@ -70,7 +70,7 @@ class _FrostGlassAnimatedState extends State<FrostGlassAnimated>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: controller,
-      builder: (_, __) {
+      builder: (_, _) {
         return ClipRRect(
           borderRadius: widget.borderRadius,
           child: BackdropFilter(
