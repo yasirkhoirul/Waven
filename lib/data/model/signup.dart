@@ -9,16 +9,16 @@ class SignUp {
   final String email;
   final String password;
   final String name;
-  final String university;
-  final String phonenumber;
+  final String university_id;
+  final String phone_number;
 
   SignUp(
     this.username,
     this.email,
     this.password,
     this.name,
-    this.phonenumber,
-    this.university,
+    this.phone_number,
+    this.university_id,
   );
 
   Map<String, dynamic> toJson() => _$SignUpToJson(this);
@@ -37,6 +37,7 @@ class SignUp {
 
 class ResposeSIgnup {
   final String message;
+  
   const ResposeSIgnup(this.message);
   
   factory ResposeSIgnup.fromJson(Map<String,dynamic> json){

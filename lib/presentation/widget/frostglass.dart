@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class FrostGlassAnimated extends StatefulWidget {
   final double width;
-  final double height;
+  final double? height ;
   final Widget child;
   final double blur;
   final int maxAlpha; // nilai alpha akhir untuk gradient
@@ -14,9 +14,9 @@ class FrostGlassAnimated extends StatefulWidget {
   const FrostGlassAnimated({
     super.key,
     required this.width,
-    required this.height,
+    this.height,
     required this.child,
-    this.blur = 20.0,
+    this.blur = 15.0,
     this.maxAlpha = 60,
     this.maxAlphaBorder = 40,
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),
@@ -80,7 +80,6 @@ class _FrostGlassAnimatedState extends State<FrostGlassAnimated>
             ),
             child: Container(
               width: widget.width,
-              height: widget.height,
               decoration: BoxDecoration(
                 borderRadius: widget.borderRadius,
                 gradient: LinearGradient(

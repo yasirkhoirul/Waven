@@ -2,13 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:waven/common/constant.dart';
+import 'package:waven/domain/entity/univ_dropdown.dart';
 import 'package:waven/domain/entity/user.dart';
 import 'package:waven/presentation/cubit/signup_cubit.dart';
+import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/appbars.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
 
-class SignupPage extends StatelessWidget {
+class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
+
+  @override
+  State<SignupPage> createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  @override
+  void initState() {
+    context.read<SignupCubit>().getUnivdrop();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,45 +83,52 @@ class SignupPage extends StatelessWidget {
                               ),
                             ),
                             Expanded(
-                              child: Container(
-                                color: Colors.amber,
-                                child: BlocBuilder<SignupCubit, SignupState>(
-                                  builder: (context, state) {
-                                    if (state is SignupLoading) {
-                                      return Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (state is SignupError) {
-                                      return Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.error),
-                                          Text(
-                                            state.message,
-                                            style: GoogleFonts.robotoFlex(
-                                              color: Colors.white,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                              child: BlocConsumer<SignupCubit, SignupState>(
+                                listener: (context, state) {
+                                  if (state is SignupLoaded) {
+                                    context.read<TokenauthCubit>().getTokens();
+                                  }
+                                },
+                                builder: (context, state) {
+                                  if (state is SignupLoading) {
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (state is SignupError) {
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.error),
+                                        Text(
+                                          state.message,
+                                          style: GoogleFonts.robotoFlex(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              context.read<SignupCubit>().init();
-                                            },
-                                            child: Text("Coba Lagi"),
-                                          ),
-                                        ],
-                                      );
-                                    } else if (state is SignupLoaded) {
-                                      return Center(child: Text("Sukses"));
-                                    } else {
-                                      return FormSignUp();
-                                    }
-                                  },
-                                ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            context.read<SignupCubit>().init();
+                                          },
+                                          child: Text("Coba Lagi"),
+                                        ),
+                                      ],
+                                    );
+                                  } else if (state is SignupLoaded) {
+                                    return Center(child: Text("Sukses"));
+                                  } else if (state is SignupInitial) {
+                                    return FormSignUp(
+                                      reqstate: state.constantclass,
+                                      univ: state.datauniv,
+                                    );
+                                  } else {
+                                    return Container();
+                                  }
+                                },
                               ),
                             ),
                           ],
@@ -126,8 +147,9 @@ class SignupPage extends StatelessWidget {
 }
 
 class FormSignUp extends StatefulWidget {
-  const FormSignUp({super.key});
-
+  const FormSignUp({super.key, required this.reqstate, required this.univ});
+  final List<UnivDropdown> univ;
+  final RequestState reqstate;
   @override
   State<FormSignUp> createState() => _FormSignUpState();
 }
@@ -135,11 +157,11 @@ class FormSignUp extends StatefulWidget {
 class _FormSignUpState extends State<FormSignUp> {
   bool showpw = true;
   bool showrepw = true;
+  String? selectedUniversity;
   final GlobalKey<FormState> _keyform = GlobalKey<FormState>();
   final TextEditingController ur = TextEditingController();
   final TextEditingController email = TextEditingController();
   final TextEditingController name = TextEditingController();
-  final TextEditingController university = TextEditingController();
   final TextEditingController phone = TextEditingController();
   final TextEditingController pw = TextEditingController();
   final TextEditingController repw = TextEditingController();
@@ -154,7 +176,6 @@ class _FormSignUpState extends State<FormSignUp> {
     ur.dispose();
     email.dispose();
     name.dispose();
-    university.dispose();
     phone.dispose();
     pw.dispose();
     repw.dispose();
@@ -241,29 +262,23 @@ class _FormSignUpState extends State<FormSignUp> {
               suffix: Icon(Icons.person, color: Colors.white),
             ),
           ),
-          TextFormField(
-            controller: university,
-            style: TextStyle(color: Colors.white),
-            textInputAction: TextInputAction.next,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return "university tidak boleh kosong";
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-
-              label: Text(
-                "university",
-                style: GoogleFonts.robotoFlex(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              suffix: Icon(Icons.location_city, color: Colors.white),
-            ),
+          DropdownButtonFormField<String>(
+            value: selectedUniversity,
+            hint: widget.reqstate == RequestState.loading
+                ? const Text("Loading...")
+                : const Text("Pilih Universitas"),
+            onChanged: widget.reqstate == RequestState.loading
+                ? null // Disable
+                : (value) {
+                    setState(() {
+                      selectedUniversity = value;
+                    });
+                  },
+            items: widget.reqstate == RequestState.loaded
+                ? widget.univ.map((e) {
+                    return DropdownMenuItem(value: e.id, child: Text(e.name));
+                  }).toList()
+                : const [], // Tidak ada item saat loading
           ),
           TextFormField(
             controller: phone,
@@ -375,12 +390,22 @@ class _FormSignUpState extends State<FormSignUp> {
             style: OutlinedButton.styleFrom(backgroundColor: Color(0xFF00A76F)),
             onPressed: () {
               if (_keyform.currentState!.validate()) {
+                if (selectedUniversity == null) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      icon: Icon(Icons.error),
+                      content: Text("silahkan pilih univ"),
+                    ),
+                  );
+                  return;
+                }
                 final User data = User(
                   email: email.text,
                   username: ur.text,
                   password: pw.text,
                   name: name.text,
-                  university: university.text,
+                  university: selectedUniversity!,
                   phonenumber: phone.text,
                 );
                 context.read<SignupCubit>().onSignup(data);

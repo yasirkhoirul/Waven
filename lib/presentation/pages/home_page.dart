@@ -76,8 +76,6 @@ class _WavenHomePageState extends State<WavenHomePage> {
   }
 }
 
-
-
 class AboutUs extends StatelessWidget {
   const AboutUs({super.key, required this.accentColor});
 
@@ -85,9 +83,9 @@ class AboutUs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSmall = MediaQuery.of(context).size.width<800;
+    final isSmall = MediaQuery.of(context).size.width < 800;
     return SizedBox(
-      height: isSmall? 700:1080,
+      height: isSmall ? 700 : 1080,
       child: Stack(
         children: [
           Positioned.fill(
@@ -95,13 +93,13 @@ class AboutUs extends StatelessWidget {
             child: Image.asset(ImagesPath.bgwavenmoment, fit: BoxFit.fitHeight),
           ),
           Positioned(
-            left: isSmall?0:null,
-            right: isSmall?0:100,
+            left: isSmall ? 0 : null,
+            right: isSmall ? 0 : 100,
             bottom: 0,
             top: 0,
             child: SizedBox(
-              width: isSmall?MediaQuery.of(context).size.width:700,
-              height: isSmall?200:400,
+              width: isSmall ? MediaQuery.of(context).size.width : 700,
+              height: isSmall ? 200 : 400,
               child: Center(
                 child: Container(
                   decoration: BoxDecoration(
@@ -122,6 +120,7 @@ class AboutUs extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      
                       ClipRRect(
                         borderRadius: BorderRadiusGeometry.only(
                           topLeft: Radius.circular(15),
@@ -193,10 +192,14 @@ class WidgetPortofolio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSmall = MediaQuery.of(context).size.width<800;
-    return SizedBox(
-      height:isSmall?700: 1080,
+    final isSmall = MediaQuery.of(context).size.width < 800;
+
+    // Tips: Tidak perlu bungkus SizedBox jika tidak ada height/width khusus
+    // Langsung return Column atau Padding saja
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           FadeInUpText(
             delay: Duration(seconds: 1),
@@ -204,77 +207,87 @@ class WidgetPortofolio extends StatelessWidget {
             alig: TextAlign.center,
             style: GoogleFonts.robotoFlex(
               color: Colors.white,
-              fontSize:isSmall?16: 32,
+              fontSize: isSmall ? 16 : 32,
               fontWeight: FontWeight.w500,
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  // Hitung lebar dan tinggi item agar pas di layar
-                  // Kita ingin 3 kolom dan 2 baris (itemCount: 6)
+          SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                int crossAxisCount = 3;
+                double spacing = 5;
 
-                  int crossAxisCount = 3; // Jumlah Kolom
-                  int rowCount = 2; // Jumlah Baris (karena item ada 6)
+                // Hitung lebar item
+                double totalWidth =
+                    constraints.maxWidth - ((crossAxisCount - 1) * spacing);
+                double itemWidth = totalWidth / crossAxisCount;
 
-                  double spacing = 20; // Spacing yang kamu tentukan
+                // Hitung tinggi item (Logic Anda: Tinggi = Lebar * 1.3) -> Portrait
+                double itemHeight = itemWidth * 1.3;
 
-                  // Hitung lebar total tersedia dikurangi spacing antar kolom
-                  double totalWidth =
-                      constraints.maxWidth - ((crossAxisCount - 1) * spacing);
-                  double itemWidth = totalWidth / crossAxisCount;
+                // Hitung Aspect Ratio
+                double ratio = itemWidth / itemHeight;
 
-                  // Hitung tinggi total tersedia dikurangi spacing antar baris
-                  double totalHeight =
-                      constraints.maxHeight - ((rowCount - 1) * spacing);
-                  double itemHeight = totalHeight / rowCount;
+                return BlocBuilder<PortoAllCubit, PortoAllState>(
+                  builder: (context, state) {
+                    if (state is PortoAllLoaded) {
+                      final displayData = state.data.take(6).toList();
 
-                  // Hitung aspect ratio yang diperlukan
-                  double ratio = itemWidth / itemHeight;
+                      return GridView.builder(
+                        physics: NeverScrollableScrollPhysics(),
 
-                  return BlocBuilder<PortoAllCubit, PortoAllState>(
-                    builder: (context, state) {
-                      if (state is PortoAllLoaded) {
-                        return GridView.builder(
-                          physics: NeverScrollableScrollPhysics(),
-                          // Hapus shrinkWrap: true agar dia memenuhi Expanded
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                mainAxisSpacing: spacing,
-                                crossAxisSpacing: spacing,
-                                childAspectRatio:
-                                    ratio, // Gunakan rasio dinamis ini
-                              ),
-                          itemCount: state.data.length,
-                          itemBuilder: (context, index) => SizedBox(
-                            height: double.maxFinite,
-                            width: double.maxFinite,
+                        // --- PERBAIKAN DI SINI ---
+                        // WAJIB TRUE karena Expanded sudah dihapus
+                        // Agar tinggi GridView mengikuti isinya (children)
+                        shrinkWrap: true,
+
+                        // -------------------------
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: spacing,
+                          crossAxisSpacing: spacing,
+                          childAspectRatio: ratio, // Ratio dinamis sudah benar
+                        ),
+                        itemCount: displayData.length,
+                        itemBuilder: (context, index) => ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            8,
+                          ), // Opsional: Biar manis
+                          child: FadeInSlide(
+                            direction: SlideDirection.up,
+                            delay: Duration(milliseconds: (index * 300)),
                             child: CachedNetworkImage(
                               imageUrl: state.data[index].url,
-                              placeholder: (context, url) => Center(child: CircularProgressIndicator(),),
-                              errorListener: (value) => Center(child: Icon(Icons.error),),
+                              // Tips: Gunakan cover agar gambar tidak gepeng mengikuti rasio
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  Center(child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) =>
+                                  Center(child: Icon(Icons.error)),
                             ),
                           ),
-                        );
-                      } else if (state is PortoAllLoading) {
-                        return Center(child: CircularProgressIndicator());
-                      } else if (state is PortoAllError) {
-                        return Center(
-                          child: Text(
-                            state.message,
-                            style: GoogleFonts.robotoFlex(color: Colors.white),
-                          ),
-                        );
-                      } else {
-                        return Container();
-                      }
-                    },
-                  );
-                },
-              ),
+                        ),
+                      );
+                    } else if (state is PortoAllLoading) {
+                      return SizedBox(
+                        height: 200,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    } else if (state is PortoAllError) {
+                      return Center(
+                        child: Text(
+                          state.message,
+                          style: GoogleFonts.robotoFlex(color: Colors.white),
+                        ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -288,73 +301,69 @@ class WidgetChoose extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSmall = MediaQuery.of(context).size.width<800;
+    final isSmall = MediaQuery.of(context).size.width < 800;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 50),
       child: SizedBox(
-        height: isSmall?700:1080,
         child: Column(
           spacing: 20,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: 10,
-                children: [
-                  Text(
-                    "Package",
-                    style: GoogleFonts.robotoFlex(
-                      color: Colors.white,
-                      fontSize: isSmall?9: 18,
-                      fontWeight: FontWeight.w100,
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 10,
+              children: [
+                Text(
+                  "Package",
+                  style: GoogleFonts.robotoFlex(
+                    color: Colors.white,
+                    fontSize: isSmall ? 9 : 18,
+                    fontWeight: FontWeight.w100,
                   ),
-                  Text(
-                    "A memorable graduation moment start here",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.robotoFlex(
-                      color: Colors.white,
-                      fontSize:isSmall?16: 32,
-                      fontWeight: FontWeight.w500,
-                    ),
+                ),
+                Text(
+                  "A memorable graduation moment start here",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.robotoFlex(
+                    color: Colors.white,
+                    fontSize: isSmall ? 16 : 32,
+                    fontWeight: FontWeight.w500,
                   ),
-                  Text(
-                    "Choose what your suitable needs",
-                    style: GoogleFonts.robotoFlex(
-                      color: Colors.white,
-                      fontSize: isSmall?9: 18,
-                      fontWeight: FontWeight.w100,
-                    ),
+                ),
+                Text(
+                  "Choose what your suitable needs",
+                  style: GoogleFonts.robotoFlex(
+                    color: Colors.white,
+                    fontSize: isSmall ? 9 : 18,
+                    fontWeight: FontWeight.w100,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Expanded(
-              flex: 7,
-              child: BlocBuilder<PackageAllCubit, PackageAllState>(
-                builder: (context, state) {
-                  if (state is PackageAllLoaded) {
-                    return SizedBox(
-                      width: 900,
-                      child: GridView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 300,
-                          childAspectRatio: 1,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                        ),
-                        itemCount: state.data.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            alignment: Alignment.center,
-                            height: 300,
-                            width: 300,
+            BlocBuilder<PackageAllCubit, PackageAllState>(
+              builder: (context, state) {
+                if (state is PackageAllLoaded) {
+                  return SizedBox(
+                    width: 900,
+                    child: GridView.builder(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 300,
+                        childAspectRatio: 1,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                      ),
+                      shrinkWrap: true,
+                      itemCount: state.data.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          alignment: Alignment.center,
+                          height: 500,
+                          width: 500,
+                          child: Center(
                             child: HoverLiftButton(
                               height: 300,
                               width: 300,
@@ -363,25 +372,23 @@ class WidgetChoose extends StatelessWidget {
                               onClik: () {
                                 context.goNamed(
                                   'package',
-                                  pathParameters: {
-                                    'id':state.data[index].id
-                                  }
+                                  pathParameters: {'id': state.data[index].id},
                                 );
                               },
                             ),
-                          );
-                        },
-                      ),
-                    );
-                  } else if (state is PackageAllError) {
-                    return Center(
-                      child: Text("Terjadi kesalahan ${state.message}"),
-                    );
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                } else if (state is PackageAllError) {
+                  return Center(
+                    child: Text("Terjadi kesalahan ${state.message}"),
+                  );
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
+              },
             ),
           ],
         ),
@@ -397,8 +404,8 @@ class AppSliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lebarlayar = MediaQuery.of(context).size.width>585;
-    final iskecil = MediaQuery.of(context).size.width>350;
+    final lebarlayar = MediaQuery.of(context).size.width > 585;
+    final iskecil = MediaQuery.of(context).size.width > 350;
     return SliverAppBar(
       expandedHeight: MediaQuery.of(context).size.height,
       flexibleSpace: FlexibleSpaceBar(
@@ -415,59 +422,61 @@ class AppSliver extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    iskecil? Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        FadeInUpText(
-                          text: "Capture Your Precious \nMoment with",
-                          style: GoogleFonts.robotoFlex(
-                            color: Colors.white,
-                            fontSize: lebarlayar?48:24,
-                            fontWeight: FontWeight.w600,
+                    iskecil
+                        ? Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              FadeInUpText(
+                                text: "Capture Your Precious \nMoment with",
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontSize: lebarlayar ? 48 : 24,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: lebarlayar ? 10 : 0,
+                                right: lebarlayar ? 30 : -60,
+                                child: FadeInSlide(
+                                  delay: Duration(milliseconds: 500),
+                                  direction: SlideDirection.up,
+                                  child: Image.asset(
+                                    ImagesPath.logotekspng,
+                                    height: 29,
+                                    width: 198,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              FadeInUpText(
+                                text: "Capture Your Precious \nMoment with",
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontSize: lebarlayar ? 48 : 24,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              FadeInSlide(
+                                delay: Duration(milliseconds: 500),
+                                direction: SlideDirection.up,
+                                child: Image.asset(
+                                  ImagesPath.logotekspng,
+                                  height: 29,
+                                  width: 198,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Positioned(
-                          bottom:lebarlayar?10:0,
-                          right:lebarlayar? 30:-60,
-                          child: FadeInSlide(
-                            delay: Duration(milliseconds: 500),
-                            direction: SlideDirection.up,
-                            child: Image.asset(
-                              ImagesPath.logotekspng,
-                              height: 29,
-                              width: 198,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ):Column(
-                      children: [
-                        FadeInUpText(
-                          text: "Capture Your Precious \nMoment with",
-                          style: GoogleFonts.robotoFlex(
-                            color: Colors.white,
-                            fontSize: lebarlayar?48:24,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        FadeInSlide(
-                            delay: Duration(milliseconds: 500),
-                            direction: SlideDirection.up,
-                            child: Image.asset(
-                              ImagesPath.logotekspng,
-                              height: 29,
-                              width: 198,
-                            ),
-                          ),
-                      ],
-                    ),
                     FadeInUpText(
                       delay: Duration(milliseconds: 500),
                       text:
                           "We transform your precious memories into timeless, visually \ncaptivating art. Reserve your spot today!",
                       style: GoogleFonts.robotoFlex(
                         color: Colors.white,
-                        fontSize: lebarlayar? 22:11,
+                        fontSize: lebarlayar ? 22 : 11,
                         fontWeight: FontWeight.w300,
                       ),
                     ),
@@ -489,7 +498,7 @@ class AppSliver extends StatelessWidget {
                             "Book Now",
                             style: GoogleFonts.robotoFlex(
                               color: Colors.white,
-                              fontSize:lebarlayar? 22:11,
+                              fontSize: lebarlayar ? 22 : 11,
                               fontWeight: FontWeight.w700,
                             ),
                           ),

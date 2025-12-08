@@ -2,9 +2,11 @@ import 'package:go_router/go_router.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/notifier/auth_notifier.dart';
 import 'package:waven/presentation/pages/booking_page.dart';
+import 'package:waven/presentation/pages/gallery_page.dart';
 import 'package:waven/presentation/pages/home_page.dart';
 import 'package:waven/presentation/pages/login_page.dart';
 import 'package:waven/presentation/pages/main_scaffold_user_page.dart';
+import 'package:waven/presentation/pages/package_list_page.dart';
 import 'package:waven/presentation/pages/package_page.dart';
 import 'package:waven/presentation/pages/signup_page.dart';
 
@@ -27,6 +29,18 @@ class MyRouter {
                   path: '/home',
                   builder: (context, state) => WavenHomePage(),
                   routes: [
+                    
+                  ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/packagelist',
+                  name: 'packagelist',
+                  builder: (context, state) => PackageListPage(),
+                  routes: [
                     GoRoute(
                       path: '/package/:id',
                       name: 'package',
@@ -40,11 +54,22 @@ class MyRouter {
                           name: 'booking',
                           builder: (context, state) {
                             final data = state.pathParameters['id'];
-                            return BookingPage(idpackage: data!,);
+                            return BookingPage(idpackage: data!);
                           },
                         ),
                       ],
                     ),
+                  ]
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/Gallery',
+                  builder: (context, state) => GalleryPage(),
+                  routes: [
+                    
                   ],
                 ),
               ],

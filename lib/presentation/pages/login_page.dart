@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:waven/common/imageconstant.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/appbars.dart';
+import 'package:waven/presentation/widget/divider.dart';
 import 'package:waven/presentation/widget/fadeup.dart';
+import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
+import 'package:waven/presentation/widget/lottieanimation.dart';
 import 'package:waven/presentation/widget/slidedirection.dart';
 
 class LoginPage extends StatelessWidget {
@@ -14,7 +18,9 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tinggilottie = MediaQuery.of(context).size.height;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: 70,
         flexibleSpace: Builder(
@@ -32,139 +38,253 @@ class LoginPage extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned.fill(child: Container(color: Colors.black)),
+        child: LayoutBuilder(
+          builder: (context, constrains) {
+            if (constrains.maxHeight < 500) {
+              return SingleChildScrollView(
+                child: SizedBox(
+                  height: 600,
+                  child: LayoutLogin(
+                    tinggilottie: tinggilottie,
+                    runtimeType: runtimeType,
+                  ),
+                ),
+              );
+            } else {
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height-70,
+                      child: LayoutLogin(
+                        tinggilottie: tinggilottie,
+                        runtimeType: runtimeType,
+                      ),
+                    ),
+                    Container(
+                      color: Colors.black,
+                      child: Footer())
+                  ],
+                ),
+              );
+            }
+          },
+        ),
+      ),
+    );
+  }
+}
 
-            Positioned(
-              bottom: 0,
-              right: 0,
-              left: 0,
-              top: 0,
+class LayoutLogin extends StatelessWidget {
+  const LayoutLogin({
+    super.key,
+    required this.tinggilottie,
+    required this.runtimeType,
+  });
+
+  final double tinggilottie;
+  final Type runtimeType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(child: Container(color: Colors.black)),
+        Positioned(
+          bottom: tinggilottie * -0.25,
+          left: 0,
+          child: SizedBox(
+            height: tinggilottie,
+            width: tinggilottie,
+
+            child: MyLottie(aset: ImagesPath.bgleftlottie),
+          ),
+        ),
+        Positioned(
+          top: tinggilottie * -0.25,
+          right: 0,
+          child: SizedBox(
+            height: tinggilottie,
+            width: tinggilottie,
+
+            child: MyLottie(aset: ImagesPath.bgrightlottie),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          right: 0,
+          left: 0,
+          top: 0,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              
+              
+              SizedBox(             
+              width: MediaQuery.of(context).size.width * 0.7,
+              height: 150,
               child: Center(
-                child: FrostGlassAnimated(
-                  width: 800,
-                  height: 500,
-                  child: Padding(
-                    padding: const EdgeInsets.all(50),
-                    child: Column(
-                      spacing: 20,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        FadeInUpText(
-                          text: "LOGIN",
-                          style: GoogleFonts.robotoFlex(
-                            color: Colors.white,
-                            fontSize: 32,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text("Sign In",style: GoogleFonts.robotoFlex(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 48
+                    ),),
+                    Text("Home/login",style: GoogleFonts.robotoFlex(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w100,
+                      fontSize: 18
+                    ),),
+                    
+                  ],
+                ),
+                    AnimatedDividerCurve(
+                      color: Colors.white,
+                      height: 1,
+                      duration: Duration(seconds: 1),
+                      curve: Curves.easeOutBack,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+              Expanded(
+                child: Center(
+                  child: FrostGlassAnimated(
+                    width: 800,
+                    height: 500,
+                    child: Padding(
+                      padding: const EdgeInsets.all(50),
+                      child: Column(
+                        spacing: 20,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FadeInUpText(
+                            text: "LOGIN",
+                            style: GoogleFonts.robotoFlex(
+                              color: Colors.white,
+                              fontSize: 32,
+                            ),
+                            duration: Duration(milliseconds: 800),
+                            delay: Duration(milliseconds: 300), // opsional
+                            offsetY: 30, // jarak start dari bawah
                           ),
-                          duration: Duration(milliseconds: 800),
-                          delay: Duration(milliseconds: 300), // opsional
-                          offsetY: 30, // jarak start dari bawah
-                        ),
-                        FadeInUpText(
-                          text:"Masukkan password dan username untuk masuk",
-                          style: GoogleFonts.robotoFlex(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w100,
+                          FadeInUpText(
+                            text: "Masukkan password dan username untuk masuk",
+                            style: GoogleFonts.robotoFlex(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w100,
+                            ),
+                  
+                            duration: Duration(milliseconds: 800),
+                            delay: Duration(milliseconds: 400), // opsional
+                            offsetY: 30,
                           ),
-
-                          duration: Duration(milliseconds: 800),
-                          delay: Duration(milliseconds: 400), // opsional
-                          offsetY: 30, 
-
-                        ),
-                        BlocConsumer<AuthCubit, AuthState>(
-                          listener: (context, state) async {
-                            if (state is AuthLoaded) {
-                              context.read<TokenauthCubit>().getTokens();
-                              context.go('/home');
-                              context.read<AuthCubit>().onInit();
-                            }
-                          },
-                          builder: (context, state) {
-                            return AnimatedSize(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              child: AnimatedSwitcher(
+                          BlocConsumer<AuthCubit, AuthState>(
+                            listener: (context, state) async {
+                              if (state is AuthLoaded) {
+                                context.read<TokenauthCubit>().getTokens();
+                                context.go('/home');
+                                context.read<AuthCubit>().onInit();
+                              }
+                            },
+                            builder: (context, state) {
+                              return AnimatedSize(
                                 duration: const Duration(milliseconds: 300),
-                                switchInCurve: Curves.easeIn,
-                                switchOutCurve: Curves.easeOut,
-                                transitionBuilder: (child, animation) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
-                                child: Builder(
-                                  key: ValueKey(
-                                    state.runtimeType,
-                                  ), // penting untuk AnimatedSwitcher
-                                  builder: (_) {
-                                    if (state is AuthInitial) {
-                                      return FormLogin();
-                                    } else if (state is AuthLoading) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (state is AuthError) {
-                                      return Center(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              state.message,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                context
-                                                    .read<AuthCubit>()
-                                                    .onInit();
-                                              },
-                                              child: const Text("Coba Lagi"),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    } else if (state is AuthLoaded) {
-                                      return Center(
-                                        child: Text(
-                                          state.message,
-                                          style: GoogleFonts.robotoFlex(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      return Center(
-                                        child: Text(
-                                          "Terjadi kesalahan tak terduga",
-                                          style: GoogleFonts.robotoFlex(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      );
-                                    }
+                                curve: Curves.easeInOut,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  switchInCurve: Curves.easeIn,
+                                  switchOutCurve: Curves.easeOut,
+                                  transitionBuilder: (child, animation) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
                                   },
+                                  child: Builder(
+                                    key: ValueKey(
+                                      state.runtimeType,
+                                    ), // penting untuk AnimatedSwitcher
+                                    builder: (_) {
+                                      if (state is AuthInitial) {
+                                        return FormLogin();
+                                      } else if (state is AuthLoading) {
+                                        return Center(
+                                          child: SizedBox(
+                                            height: 100,
+                                            width: 100,
+                                            child: MyLottie(
+                                              aset: ImagesPath.loadinglottie,
+                                            ),
+                                          ),
+                                        );
+                                      } else if (state is AuthError) {
+                                        return Center(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                state.message,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  context
+                                                      .read<AuthCubit>()
+                                                      .onInit();
+                                                },
+                                                child: const Text("Coba Lagi"),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      } else if (state is AuthLoaded) {
+                                        return Center(
+                                          child: Text(
+                                            state.message,
+                                            style: GoogleFonts.robotoFlex(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        return Center(
+                                          child: Text(
+                                            "Terjadi kesalahan tak terduga",
+                                            style: GoogleFonts.robotoFlex(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -215,7 +335,7 @@ class _FormLoginState extends State<FormLogin> {
               },
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-      
+
                 label: Text(
                   "username",
                   style: GoogleFonts.robotoFlex(
@@ -253,14 +373,19 @@ class _FormLoginState extends State<FormLogin> {
                 ),
                 suffix: InkWell(
                   onTap: () {
+                    setState(() {
                     showpw = !showpw;
+                      
+                    });
                   },
-                  child: Icon(Icons.visibility, color: Colors.white),
+                  child: Icon(showpw?Icons.visibility:Icons.visibility_off, color: Colors.white),
                 ),
               ),
             ),
             OutlinedButton(
-              style: OutlinedButton.styleFrom(backgroundColor: Color(0xFF00A76F)),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Color(0xFF00A76F),
+              ),
               onPressed: () {
                 if (_keyform.currentState!.validate()) {
                   context.read<AuthCubit>().onLogin(ur.text, pw.text);

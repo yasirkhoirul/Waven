@@ -11,8 +11,8 @@ SignUp _$SignUpFromJson(Map<String, dynamic> json) => SignUp(
   json['email'] as String,
   json['password'] as String,
   json['name'] as String,
-  json['phonenumber'] as String,
-  json['university'] as String,
+  json['phone_number'] as String,
+  json['university_id'] as String,
 );
 
 Map<String, dynamic> _$SignUpToJson(SignUp instance) => <String, dynamic>{
@@ -20,6 +20,6 @@ Map<String, dynamic> _$SignUpToJson(SignUp instance) => <String, dynamic>{
   'email': instance.email,
   'password': instance.password,
   'name': instance.name,
-  'university': instance.university,
-  'phonenumber': instance.phonenumber,
+  'university_id': instance.university_id,
+  'phone_number': instance.phone_number,
 };

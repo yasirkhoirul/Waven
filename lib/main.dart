@@ -21,7 +21,7 @@ void main() async{
       BlocProvider(create: (context) => getisinstance<AuthCubit>(),),
       BlocProvider(create: (context) => getisinstance<TokenauthCubit>()..getTokens(),),
       BlocProvider(create: (context) => getisinstance<PortoAllCubit>()..getAllporto(),),
-      BlocProvider(create: (context) => getisinstance<PackageAllCubit>()..getAllpackage(),),
+      BlocProvider(create: (context) => getisinstance<PackageAllCubit>(),),
       BlocProvider(create: (context) => getisinstance<PackageDetailCubit>(),),
       BlocProvider(create: (context) => getisinstance<BookingCubit>(),),
     ], child: const MainApp())

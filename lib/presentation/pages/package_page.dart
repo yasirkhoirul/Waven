@@ -55,6 +55,8 @@ class _PackagePageState extends State<PackagePage> {
                           return PackagePortoContent(panjang: panjang);
                         } else if (index == 2) {
                           return Footer();
+                        }else{
+                          return Container();
                         }
                       },
                     ),
@@ -86,14 +88,15 @@ class PackagePortoContent extends StatelessWidget {
       padding: const EdgeInsets.only(top: 20),
       child: FrostGlassAnimated(
         width: panjang,
-        height: 1200,
+        height: 800,
         child: BlocBuilder<PortoAllCubit, PortoAllState>(
           builder: (context, state) {
             if (state is PortoAllLoaded) {
               return GridView.builder(
+                shrinkWrap: true,
                 itemCount: state.data.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
+                  crossAxisCount: 4,
                   childAspectRatio: 3 / 4,
                   crossAxisSpacing: 5,
                   mainAxisSpacing: 5,

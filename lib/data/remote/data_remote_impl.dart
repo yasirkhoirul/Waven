@@ -1,28 +1,38 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:waven/data/model/addonsmodel.dart';
+import 'package:waven/data/model/booking_request_model.dart';
 import 'package:waven/data/model/detailportomodel.dart';
+import 'package:waven/data/model/invoicemodel.dart';
 import 'package:waven/data/model/packagemodel.dart';
 import 'package:waven/data/model/portomodel.dart';
 import 'package:waven/data/model/signup.dart';
 import 'package:waven/data/model/singin.dart';
 import 'package:waven/data/model/univ_drop_model.dart';
+import 'package:waven/data/remote/dio.dart';
 import 'package:waven/domain/entity/user.dart';
 
 abstract class DataRemote {
   Future<Signinresonse> onLogin(String email, String password);
-  Future<ResposeSIgnup> signUP(User data);
+  Future<String> logout(String accestoken);
+  Future<Signinresonse> signUP(User data);
   Future<Packagemodel> getPackage();
   Future<Portomodel> getPorto();
   Future<UnivDropModel> getUnivDropDown();
   Future<DetailPortoModel> getDetailPorto(String idpackage);
   Future<Addonsmodel> getAddons();
+  Future<InvoiceModel> postBooking( BookingRequestModel bookingreq);
+  
 }
 
 class DataRemoteImpl implements DataRemote {
-  final baseurl = "http://157.10.252.202:3000/";
-  final baseuri= "157.10.252.202:3000";
+
+  final DioClient dio;
+  DataRemoteImpl(this.dio);
+  final baseurl = "http://waven-development.site/";
+  final baseuri= "waven-development.site";
   @override
   Future<Signinresonse> onLogin(String email, String password) async {
     String basicAuth = 'Basic ${base64Encode(utf8.encode('$email:$password'))}';
@@ -51,7 +61,7 @@ class DataRemoteImpl implements DataRemote {
   }
 
   @override
-  Future<ResposeSIgnup> signUP(User datas) async {
+  Future<Signinresonse> signUP(User datas) async {
     final SignUp dataready = SignUp.fromEntity(datas);
     final data = dataready.toJson();
     try {
@@ -61,7 +71,11 @@ class DataRemoteImpl implements DataRemote {
         body: jsonEncode(data),
       );
       if (response.statusCode == 201) {
-        return ResposeSIgnup.fromJson(jsonDecode(response.body));
+        return Signinresonse(
+          response.headers['x-access-token']!,
+          response.headers['x-refresh-token']!,
+        );
+        
       } else {
         throw Exception(response.statusCode);
       }
@@ -156,4 +170,48 @@ class DataRemoteImpl implements DataRemote {
       throw Exception(e);
     }
   }
+  
+  
+  @override
+  Future<InvoiceModel> postBooking(BookingRequestModel payload) async {
+  try {
+    FormData formData = FormData.fromMap({
+        // Kita jsonEncode biar sama persis kayak logika http bapak yang lama
+        'data': jsonEncode(payload.toJson()), 
+      });
+    final response = await dio.dio.post(
+        'v1/bookings', // Cukup tulis endpoint belakangnya aja
+        data: formData,
+      );
+    Logger().d("ini adalah data ${response.data}");
+    Logger().d("ini adalah extra ${response.extra}");
+    final data = InvoiceModel.fromJson(response.data);
+    return data;
+  } on DioException catch (e) {
+      final errorMessage = e.response?.data['message'] ?? e.message;
+      throw Exception(errorMessage);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+}
+
+  @override
+  Future<String> logout(String refreshtoken) async{
+    final uri = Uri.parse("${baseurl}v1/auth/logout");
+    final response = await http.post(uri
+    ,
+    headers: {
+      "Content-Type": "application/json",
+    }
+    ,body: jsonEncode({
+      "refresh_token":refreshtoken
+    }));
+    if (response.statusCode == 200) {
+      return "logout sukses";
+    }else{
+      throw "logoutgagal";
+    }
+  }
+  
+ 
 }

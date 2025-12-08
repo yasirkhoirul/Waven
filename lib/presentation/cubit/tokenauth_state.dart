@@ -7,6 +7,6 @@ class TokenauthState {
   const TokenauthState({this.tokens, this.message = ''});
 
   TokenauthState copywith(String? data, String message) {
-    return TokenauthState(tokens: data ?? tokens, message: message);
+    return TokenauthState(tokens: data, message: message);
   }
 }

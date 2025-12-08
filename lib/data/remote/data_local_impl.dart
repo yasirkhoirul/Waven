@@ -1,5 +1,4 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:waven/data/model/packagemodel.dart';
 abstract class DataLocal {
   Future<void> saveTokens(String acces,String refresh);
   Future<void> deleteTokens();

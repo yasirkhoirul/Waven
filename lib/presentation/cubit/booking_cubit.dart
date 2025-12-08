@@ -1,32 +1,45 @@
-import 'dart:math';
-
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:logger/web.dart';
-import 'package:meta/meta.dart';
+import 'package:waven/common/constant.dart';
+import 'package:waven/domain/entity/additional_info.dart';
 import 'package:waven/domain/entity/addons.dart';
 import 'package:waven/domain/entity/booking.dart';
+import 'package:waven/domain/entity/customer.dart';
+import 'package:waven/domain/entity/invoice.dart';
 import 'package:waven/domain/entity/package.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
 import 'package:waven/domain/usecase/get_addons_all.dart';
 import 'package:waven/domain/usecase/get_univdropdown.dart';
+import 'package:waven/domain/usecase/post_booking.dart';
 
 part 'booking_state.dart';
 
 class BookingCubit extends Cubit<BookingState> {
   final GetUnivdropdown getUnivdropdown;
   final GetAddonsAll getAddonsAll;
-  BookingCubit(this.getUnivdropdown, {required this.getAddonsAll})
-    : super(BookingInitial());
+  final PostBooking postBooking;
+  BookingCubit(
+    this.getUnivdropdown, {
+    required this.getAddonsAll,
+    required this.postBooking,
+  }) : super(BookingState());
 
   Future getAllDropDown() async {
-    emit(BookingLoading());
+    emit(state.copyWith(step: BookingStep.loading));
     try {
       final renpse = await getUnivdropdown.execute();
       Logger().d("hasil ${renpse.first.name} ${renpse.last.name}");
       final addons = await getAddonsAll.execute();
-      emit(BookingReady(data: renpse, dataaddons: addons));
+      emit(
+        state.copyWith(
+          step: BookingStep.loaded,
+          data: renpse,
+          dataaddons: addons,
+        ),
+      );
     } catch (e) {
-      emit(BookingError(e.toString()));
+      emit(state.copyWith(errorMessage: e.toString()));
     }
   }
 
@@ -41,7 +54,8 @@ class BookingCubit extends Cubit<BookingState> {
         endtime.isNotEmpty &&
         tanggal.isNotEmpty) {
       emit(
-        Bookingtahap1(
+        state.copyWith(
+          step: BookingStep.tahap1,
           univ: univ,
           starttime: starttime,
           endtime: endtime,
@@ -52,7 +66,7 @@ class BookingCubit extends Cubit<BookingState> {
   }
 
   void onTahapTwo(
-    String packageEntity,
+    PackageEntity packageEntity,
     String nama,
     String nowa,
     String lokasi,
@@ -60,27 +74,103 @@ class BookingCubit extends Cubit<BookingState> {
     String catatan,
     List<Addons> datadiplih,
   ) {
+    final addonTotal = datadiplih.fold<double>(
+      0,
+      (sum, item) => sum + item.price,
+    );
+    final amount = addonTotal + packageEntity.price;
+    Logger().d("jumlah $amount");
     emit(
-      Bookingtahap2(
-        catatan: catatan,
+      state.copyWith(
+        step: BookingStep.tahap2,
+        amount: amount,
         packageEntity: packageEntity,
+        datadiplih: datadiplih,
         nama: nama,
         nowa: nowa,
         lokasi: lokasi,
         ig: ig,
-        datadiplih: datadiplih,
+        catatan: catatan,
       ),
     );
-    
   }
 
-  void onTahapThree(
-    String paytype,
-    String paymethod
-  ){
-    emit(Bookingtahap3(
-      paymentMethod: paymethod,
-      paymentType: paytype
-    ));
+  void onTahapThree(String paytype, String paymethod) {
+    emit(
+      state.copyWith(
+        step: BookingStep.tahap3,
+        paymentMethod: paymethod,
+        paymentType: paytype,
+      ),
+    );
+  }
+
+  void onsubmit() async {
+    emit(state.copyWith(
+      step: BookingStep.loading
+    ) );
+    if (state.packageEntity == null ||
+        state.nama == null ||
+        state.nama!.isEmpty ||
+        state.nowa == null ||
+        state.nowa!.isEmpty ||
+        state.tanggal == null ||
+        state.starttime == null ||
+        state.endtime == null ||
+        state.paymentMethod == null ||
+        state.paymentType == null ||
+        state.univ == null ||
+        state.lokasi == null ||
+        state.lokasi!.isEmpty) {
+      emit(
+        state.copyWith(
+          step: BookingStep.error,
+          errorMessage: "Data belum lengkap! Silahkan isi semua field wajib.",
+        ),
+      );
+      return;
+    }
+
+    List<String> dataaddons = [];
+    if (state.datadiplih != null && state.datadiplih!.isNotEmpty) {
+      dataaddons = state.datadiplih!.map((e) => e.id).toList();
+    }
+
+    final customerdata = Customer(state.nama!, state.nowa!, state.ig!);
+    final bookingdata = Booking(
+      state.packageEntity!.id,
+      state.tanggal!,
+      state.starttime!,
+      state.endtime!,
+      state.paymentMethod!,
+      state.paymentType!,
+      state.amount.toInt(),
+      dataaddons,
+    );
+    final additonaldata = AdditionalInfo(
+      state.univ!,
+      state.lokasi!,
+      state.catatan ?? "",
+    );
+
+    try {
+      final invoice = await postBooking.execute(
+        customer: customerdata,
+        booking: bookingdata,
+        additionalData: additonaldata,
+      );
+      Logger().d("invoice di cubic = ${invoice.paymentQrUrl}");
+      emit(state.copyWith(step: BookingStep.submitted,invoice: invoice));
+    } catch (e) {
+            Logger().d("ini dari dio ${e}");
+      if (e.toString().contains("401") ||
+          e.toString().contains("Session Expired")) {
+        emit(BookingSessionExpired());
+      } else {
+        emit(
+          state.copyWith(step: BookingStep.error, errorMessage: e.toString()),
+        );
+      }
+    }
   }
 }

@@ -9,7 +9,6 @@ class Appbars extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    final isSmall = MediaQuery.of(context).size.width<800;
     return SizedBox(
       height: double.maxFinite,
       child: Padding(

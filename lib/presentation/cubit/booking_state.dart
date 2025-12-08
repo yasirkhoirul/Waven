@@ -1,11 +1,15 @@
 part of 'booking_cubit.dart';
 
-@immutable
-sealed class BookingState {
+
+class BookingState extends Equatable {
+  final BookingStep step; // Penanda kita ada di tahap mana
+  final String? errorMessage;
+  
+  // Data Form
   final List<UnivDropdown?>? data;
   final List<Addons>? dataaddons;
   final List<Addons>? datadiplih;
-  final String? packageEntity;
+  final PackageEntity? packageEntity;
   final String? paymentMethod;
   final String? paymentType;
   final String? nama;
@@ -17,63 +21,82 @@ sealed class BookingState {
   final String? tanggal;
   final String? starttime;
   final String? endtime;
+  final double amount;
+  final Invoice? invoice;
 
   const BookingState({
-    this.dataaddons,
-    this.univ,
-    this.tanggal,
-    this.starttime,
-    this.endtime,
+    this.step = BookingStep.initial,
+    this.amount = 0,
+    this.errorMessage,
     this.data,
-    this.packageEntity,
+    this.dataaddons,
     this.datadiplih,
+    this.packageEntity,
+    this.paymentMethod,
+    this.paymentType,
     this.nama,
     this.nowa,
     this.lokasi,
     this.ig,
     this.catatan,
-    this.paymentMethod,
-    this.paymentType,
+    this.univ,
+    this.tanggal,
+    this.starttime,
+    this.endtime, this.invoice,
   });
+
+  // Fitur KUNCI: copyWith
+  // Ini menduplikasi state lama dan hanya mengganti field yang kita mau
+  BookingState copyWith({
+    BookingStep? step,
+    String? errorMessage,
+    List<UnivDropdown?>? data,
+    List<Addons>? dataaddons,
+    List<Addons>? datadiplih,
+    PackageEntity? packageEntity,
+    String? paymentMethod,
+    String? paymentType,
+    String? nama,
+    String? nowa,
+    String? lokasi,
+    String? ig,
+    String? catatan,
+    String? univ,
+    String? tanggal,
+    String? starttime,
+    String? endtime,
+    double? amount,
+    Invoice? invoice,
+  }) {
+    return BookingState(
+      step: step ?? this.step,
+      errorMessage: errorMessage ?? this.errorMessage,
+      data: data ?? this.data,
+      dataaddons: dataaddons ?? this.dataaddons,
+      datadiplih: datadiplih ?? this.datadiplih,
+      packageEntity: packageEntity ?? this.packageEntity,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      paymentType: paymentType ?? this.paymentType,
+      nama: nama ?? this.nama,
+      nowa: nowa ?? this.nowa,
+      lokasi: lokasi ?? this.lokasi,
+      ig: ig ?? this.ig,
+      catatan: catatan ?? this.catatan,
+      univ: univ ?? this.univ,
+      tanggal: tanggal ?? this.tanggal,
+      starttime: starttime ?? this.starttime,
+      endtime: endtime ?? this.endtime,
+      amount: amount??this.amount,
+      invoice: invoice??this.invoice
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        step, errorMessage, data, dataaddons, datadiplih, packageEntity,
+        paymentMethod, paymentType, nama, nowa, lokasi, ig, catatan,
+        univ, tanggal, starttime, endtime,amount,invoice
+      ];
 }
 
-final class BookingInitial extends BookingState {}
-
-final class BookingLoading extends BookingState {}
-
-final class BookingError extends BookingState {
-  final String message;
-  const BookingError(this.message);
-}
-
-final class BookingReady extends BookingState {
-  const BookingReady({super.data, super.dataaddons});
-}
-
-final class Bookingtahap1 extends BookingState {
-  const Bookingtahap1({
-    super.univ,
-    super.starttime,
-    super.endtime,
-    super.tanggal,
-  });
-}
-
-final class Bookingtahap2 extends BookingState {
-  const Bookingtahap2({
-    super.packageEntity,
-    super.nama,
-    super.nowa,
-    super.lokasi,
-    super.ig,
-    super.catatan,
-    super.datadiplih,
-  });
-}
-final class Bookingtahap3 extends BookingState {
-  const Bookingtahap3({
-    super.paymentMethod,
-    super.paymentType,
-  });
-}
-
+final class BookingSessionExpired extends BookingState{}

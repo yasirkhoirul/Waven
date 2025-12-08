@@ -7,6 +7,7 @@ import 'package:waven/data/booking_repository_impl.dart';
 import 'package:waven/data/remote/data_local_impl.dart';
 import 'package:waven/data/remote/data_remote_impl.dart';
 import 'package:waven/data/package_repository_impl.dart';
+import 'package:waven/data/remote/dio.dart';
 import 'package:waven/domain/repository/auth_repository.dart';
 import 'package:waven/domain/repository/booking_repository.dart';
 import 'package:waven/domain/repository/package_repository.dart';
@@ -16,7 +17,9 @@ import 'package:waven/domain/usecase/get_package_all.dart';
 import 'package:waven/domain/usecase/get_porto_all.dart';
 import 'package:waven/domain/usecase/get_token.dart';
 import 'package:waven/domain/usecase/get_univdropdown.dart';
+import 'package:waven/domain/usecase/post_booking.dart';
 import 'package:waven/domain/usecase/post_login.dart';
+import 'package:waven/domain/usecase/post_logout.dart';
 import 'package:waven/domain/usecase/post_signup.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
@@ -31,13 +34,13 @@ final locator = GetIt.instance;
 
 Future<void> init()async{
   //cubic
-  locator.registerCachedFactory(() => AuthCubit(locator(), getToken: locator()),);
-  locator.registerCachedFactory(() => SignupCubit(locator()),);
-  locator.registerCachedFactory(() => TokenauthCubit(locator()),);
+  locator.registerCachedFactory(() => AuthCubit(locator(), getToken: locator(), postLogout: locator()),);
+  locator.registerCachedFactory(() => SignupCubit(locator(), getUnivdropdown: locator()),);
+  locator.registerCachedFactory(() => TokenauthCubit(locator(), postLogout: locator()),);
   locator.registerCachedFactory(() => PackageAllCubit(locator()),);
   locator.registerCachedFactory(() => PortoAllCubit(locator()),);
   locator.registerCachedFactory(() => PackageDetailCubit(locator()),);
-  locator.registerCachedFactory(() => BookingCubit(locator(), getAddonsAll: locator()),);
+  locator.registerCachedFactory(() => BookingCubit(locator(), getAddonsAll: locator(), postBooking: locator()),);
 
   //usecase
   locator.registerLazySingleton(() => PostLogin(locator()),);
@@ -48,17 +51,22 @@ Future<void> init()async{
   locator.registerLazySingleton(() => GetDetailPackage(locator()),);
   locator.registerLazySingleton(() => GetUnivdropdown(locator()),);
   locator.registerLazySingleton(() => GetAddonsAll(locator()),);
+  locator.registerLazySingleton(() => PostBooking(locator()),);
+  locator.registerLazySingleton(() => PostLogout(locator()),);
 
   //repositoy
   locator.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(dataRemote: locator(), dataLocal: locator()),);
   locator.registerLazySingleton<PackageRepository>(() => PackageRepositoryImpl(locator()),);
-  locator.registerLazySingleton<BookingRepository>(() => BookingRepositoryImpl(locator()),);
+  locator.registerLazySingleton<BookingRepository>(() => BookingRepositoryImpl(locator(), dataLocal: locator()),);
 
   //remote
-  locator.registerLazySingleton<DataRemote>(() => DataRemoteImpl(),);
+  locator.registerLazySingleton<DataRemote>(() => DataRemoteImpl(locator()),);
   locator.registerLazySingleton<DataLocal>(() => DataLocalImpl(locator()),);
 
   //storage secure
   locator.registerLazySingleton(() => FlutterSecureStorage(),);
+
+  //dio client 
+  locator.registerLazySingleton(() => DioClient(locator()) ,);
 
 }

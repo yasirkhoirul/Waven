@@ -1,3 +1,4 @@
+import 'package:logger/web.dart';
 import 'package:waven/data/remote/data_local_impl.dart';
 import 'package:waven/data/remote/data_remote_impl.dart';
 import 'package:waven/domain/entity/user.dart';
@@ -11,7 +12,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<String> onSignup(User data) async {
     try {
       final response = await dataRemote.signUP(data);
-      return response.message;
+      await dataLocal.saveTokens(response.acces, response.refresh);
+      return "sukses";
     } catch (e) {
       throw e.toString();
     }
@@ -41,8 +43,14 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<String> logout() async {
     try {
+      final refresh = await dataLocal.getRefreshToken();
+      if (refresh==null) {
+        return "refresh token tidak ada";
+      }
+      Logger().i(refresh);
+      final response = await dataRemote.logout(refresh);
       await dataLocal.deleteTokens();
-      return "sukses";
+      return response;
     } catch (e) {
       throw Exception("terjadi kesalahan");
     }

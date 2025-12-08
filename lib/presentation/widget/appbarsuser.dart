@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/common/imageconstant.dart';
+import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 
 class AppbarsUser extends StatelessWidget {
   final VoidCallback? onmenupress;
@@ -34,7 +36,7 @@ class AppbarsUser extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          // onpress(1);
+                          onpress(1);
                         },
                         child: Text("package",style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
@@ -43,7 +45,9 @@ class AppbarsUser extends StatelessWidget {
                         ),),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          onpress(2);
+                        },
                         child: Text("Gallery",style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
                           fontWeight: FontWeight.w100,
@@ -63,7 +67,9 @@ class AppbarsUser extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF00A76F),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      context.read<TokenauthCubit>().onLogout();
+                    },
                     child: Text(
                       "Logout",
                       style: GoogleFonts.robotoFlex(
