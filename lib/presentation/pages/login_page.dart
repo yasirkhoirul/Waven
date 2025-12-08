@@ -38,47 +38,51 @@ class LoginPage extends StatelessWidget {
           },
         ),
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constrains) {
-            final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-            if (!keyboardOpen&& constrains.maxHeight < 600) {
-              return SingleChildScrollView(
-                child: SizedBox(
-                  height: 600,
-                  child: LayoutLogin(
-                    tinggilottie: tinggilottie,
-                    runtimeType: runtimeType,
-                  ),
-                ),
-              );
-            } else {
-              if (kIsWeb) {
+      body: MediaQuery.removeViewInsets(
+        removeBottom: true,
+        context: context,
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constrains) {
+              final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+              if (!keyboardOpen&& constrains.maxHeight < 600) {
                 return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height - 70,
-                        child: LayoutLogin(
-                          tinggilottie: tinggilottie,
-                          runtimeType: runtimeType,
-                        ),
-                      ),
-                      Container(color: Colors.black, child: Footer()),
-                    ],
+                  child: SizedBox(
+                    height: 600,
+                    child: LayoutLogin(
+                      tinggilottie: tinggilottie,
+                      runtimeType: runtimeType,
+                    ),
                   ),
                 );
               } else {
-                return SizedBox(
-                  height: MediaQuery.of(context).size.height - 70,
-                  child: LayoutLogin(
-                    tinggilottie: tinggilottie,
-                    runtimeType: runtimeType,
-                  ),
-                );
+                if (kIsWeb) {
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height - 70,
+                          child: LayoutLogin(
+                            tinggilottie: tinggilottie,
+                            runtimeType: runtimeType,
+                          ),
+                        ),
+                        Container(color: Colors.black, child: Footer()),
+                      ],
+                    ),
+                  );
+                } else {
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height - 70,
+                    child: LayoutLogin(
+                      tinggilottie: tinggilottie,
+                      runtimeType: runtimeType,
+                    ),
+                  );
+                }
               }
-            }
-          },
+            },
+          ),
         ),
       ),
     );

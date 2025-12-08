@@ -79,6 +79,20 @@ class _MainScaffoldUserPageState extends State<MainScaffoldUserPage> {
             ),
             ListTile(
               title: Text(
+                "Profile",
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w100,
+                  fontSize: 14,
+                ),
+              ),
+              onTap: () {
+                context.pop();
+                gobranch(3);
+              },
+            ),
+            ListTile(
+              title: Text(
                 "Logout",
                 style: GoogleFonts.plusJakartaSans(
                   color: Colors.white,
