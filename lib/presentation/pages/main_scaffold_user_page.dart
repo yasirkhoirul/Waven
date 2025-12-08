@@ -96,6 +96,7 @@ class _MainScaffoldUserPageState extends State<MainScaffoldUserPage> {
       ),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
@@ -103,7 +104,6 @@ class _MainScaffoldUserPageState extends State<MainScaffoldUserPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(color: Colors.black.withAlpha(56)),
           child: AppbarsUser(
-            alreadylogin: true,
             onpress: (int p1) {
               gobranch(p1);
             },

@@ -1,16 +1,24 @@
+import 'dart:typed_data';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/web.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waven/common/color.dart';
 import 'package:waven/common/constant.dart';
+import 'package:waven/common/imageconstant.dart';
+import 'package:waven/data/remote/qr_image_handling_example.dart';
 import 'package:waven/domain/entity/addons.dart';
 import 'package:waven/domain/entity/package.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
 import 'package:waven/presentation/cubit/package_all_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
+import 'package:waven/presentation/widget/lottieanimation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BookingPage extends StatefulWidget {
   final String idpackage;
@@ -42,6 +50,23 @@ class _BookingPageState extends State<BookingPage> {
                   listener: (context, state) {
                     if (state is BookingSessionExpired) {
                       context.read<TokenauthCubit>().onLogout();
+                    } else if (state.step == BookingStep.error) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("Gagal"),
+                          content: Text("${state.errorMessage}"),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                context.read<BookingCubit>().goloaded();
+                                Navigator.pop(context);
+                              },
+                              child: Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
                     }
                   },
                   builder: (context, state) {
@@ -52,7 +77,12 @@ class _BookingPageState extends State<BookingPage> {
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Header(langkah: '1', sub: 'Pilih tanggal dan waktu'),
+                            Header(
+                              langkah: '1',
+                              sub: 'Pilih tanggal dan waktu',
+                              subsub:
+                                  "Pilih universitas asalmu, pilih tanggal, pilih jam yang tersedia",
+                            ),
                             Expanded(child: FormContent()),
                           ],
                         ),
@@ -64,7 +94,11 @@ class _BookingPageState extends State<BookingPage> {
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Header(langkah: '2', sub: 'Pilih Paket dan Isi form'),
+                            Header(
+                              langkah: '2',
+                              sub: 'Pilih Paket dan Isi form',
+                              subsub: 'Isi form lengkap untuk keep the slot!',
+                            ),
                             Expanded(
                               child: Form2Content(idpackage: widget.idpackage),
                             ),
@@ -78,16 +112,24 @@ class _BookingPageState extends State<BookingPage> {
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Header(
+                            HeaderWa(
                               langkah: '3',
                               sub: 'Bayar dan Upload Bukti Bayar',
                             ),
-                            Expanded(child: Form3Content()),
+                            Expanded(child: 
+                            Form3Content()
+                            )
                           ],
                         ),
                       );
                     } else if (state.step == BookingStep.loading) {
-                      return Center(child: CircularProgressIndicator());
+                      return Center(
+                        child: SizedBox(
+                          height: 300,
+                          width: 300,
+                          child: MyLottie(aset: ImagesPath.loadinglottie),
+                        ),
+                      );
                     } else if (state.step == BookingStep.error) {
                       return Center(
                         child: Text(
@@ -283,8 +325,17 @@ class _ListPackageState extends State<ListPackage> {
                         color: Colors.white,
                       ),
                     ),
-                    title: Text(state.dataaddons?[index].tittle ?? ""),
-                    trailing: Text(state.dataaddons![index].price.toString()),
+                    title: Text(
+                      state.dataaddons?[index].tittle ?? "",
+                      style: GoogleFonts.robotoFlex(color: Colors.white),
+                    ),
+                    trailing: Text(
+                      state.dataaddons![index].price.toString(),
+                      style: GoogleFonts.robotoFlex(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 ),
               );
@@ -348,6 +399,7 @@ class _Form2ContentState extends State<Form2Content> {
     return Form(
       key: _formkey,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
             child: BlocConsumer<PackageAllCubit, PackageAllState>(
@@ -372,7 +424,12 @@ class _Form2ContentState extends State<Form2Content> {
                             ),
                             child: RadioListTile(
                               value: state.data[index],
-                              title: Text(state.data[index].tittle),
+                              title: Text(
+                                state.data[index].tittle,
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         );
@@ -440,6 +497,9 @@ class _Form2ContentState extends State<Form2Content> {
           ),
           Center(
             child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                backgroundColor: ColorTema.accentColor,
+              ),
               onPressed: () {
                 if (_formkey.currentState!.validate()) {
                   context.read<BookingCubit>().onTahapTwo(
@@ -453,7 +513,10 @@ class _Form2ContentState extends State<Form2Content> {
                   );
                 }
               },
-              child: Text("Kirim"),
+              child: Text(
+                "Kirim",
+                style: GoogleFonts.robotoFlex(color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -489,9 +552,17 @@ class InputBox extends StatelessWidget {
         return null;
       },
       decoration: InputDecoration(
-        border: OutlineInputBorder(),
-        label: Text(label),
-        hint: Text(hint),
+        border: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white, width: 2),
+        ),
+        labelText: label,
+        labelStyle: GoogleFonts.robotoFlex(color: Colors.white),
+        hintText: hint,
+        hintStyle: GoogleFonts.robotoFlex(color: Colors.grey[400]),
       ),
       style: GoogleFonts.robotoFlex(color: Colors.white),
     );
@@ -536,7 +607,10 @@ class _FormContentState extends State<FormContent> {
 
     if (picked != null) {
       setState(() {
-        _dateController.text = "${picked.year}-${picked.month}-${picked.day}";
+        final month = picked.month.toString().padLeft(2, '0');
+        final day = picked.day.toString().padLeft(2, '0');
+
+        _dateController.text = "${picked.year}-$month-$day";
       });
     }
   }
@@ -549,8 +623,7 @@ class _FormContentState extends State<FormContent> {
         listener: (context, state) {
           if (state.step == BookingStep.loaded && state.data!.isNotEmpty) {
             setState(() {
-              _selectedUniversitas =
-                  state.data!.first!.name; // Jadikan default
+              _selectedUniversitas = state.data!.first!.name; // Jadikan default
             });
           }
         },
@@ -587,7 +660,7 @@ class _FormContentState extends State<FormContent> {
                 ),
                 TextFormField(
                   controller: _dateController,
-    
+
                   decoration: InputDecoration(
                     iconColor: Colors.white,
                     border: OutlineInputBorder(),
@@ -619,7 +692,7 @@ class _FormContentState extends State<FormContent> {
                       itemCount: timeSlots.length,
                       itemBuilder: (context, index) {
                         bool isSelected = index == _selectedWaktuIndex;
-    
+
                         return GestureDetector(
                           onTap: () {
                             setState(() {
@@ -655,14 +728,14 @@ class _FormContentState extends State<FormContent> {
                     style: OutlinedButton.styleFrom(
                       backgroundColor: ColorTema.accentColor,
                     ),
-    
+
                     onPressed: () {
                       if (_formkey.currentState!.validate()) {
                         Logger().d("selectedindex = $_selectedWaktuIndex");
                         if (_selectedWaktuIndex != null) {
                           String slot = timeSlots[_selectedWaktuIndex!];
                           List<String> parts = slot.split('-');
-    
+
                           String startTime = parts[0];
                           String endTime = parts[1];
                           context.read<BookingCubit>().onTahapOne(
@@ -715,7 +788,13 @@ class _FormContentState extends State<FormContent> {
 class Header extends StatelessWidget {
   final String langkah;
   final String sub;
-  const Header({super.key, required this.langkah, required this.sub});
+  final String subsub;
+  const Header({
+    super.key,
+    required this.langkah,
+    required this.sub,
+    required this.subsub,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -732,11 +811,70 @@ class Header extends StatelessWidget {
           ),
         ),
         Text(
-          "Pilih universitas asalmu, pilih tanggal, pilih jam yang tersedia",
+          subsub,
           style: GoogleFonts.robotoFlex(
             color: ColorTema.abu,
             fontWeight: FontWeight.w400,
             fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class HeaderWa extends StatelessWidget {
+  final String langkah;
+  final String sub;
+  const HeaderWa({super.key, required this.langkah, required this.sub});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "Langkah $langkah:\n$sub",
+          style: GoogleFonts.robotoFlex(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+        ),
+        RichText(
+          text: TextSpan(
+            style:  TextStyle(fontSize: 14, color: ColorTema.abu),
+            children: [
+              const TextSpan(
+                text:
+                    "Lakukan Pembayaran Sesuai Total, Kirim bukti bayar dengan klik upload bukti, atau dapat chat via admin ke ",
+              ),
+              TextSpan(
+                text: "wa.me/6285331973131",
+                style: const TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () async {
+                    // Aksi ketika link di klik, misal launch URL
+                    final Uri url = Uri.parse("https://wa.me/6285331973131");
+
+                    if (!await launchUrl(
+                      url,
+                      mode: LaunchMode.externalApplication,
+                      webOnlyWindowName: '_blank', // Untuk Web: buka tab baru
+                    )) {
+                      throw Exception('Gagal buka WA');
+                    }
+                  },
+              ),
+              const TextSpan(
+                text:
+                    ". Pastikan menerima tanda booking berhasil dari admin setelah konfirmasi bukti bayar",
+              ),
+            ],
           ),
         ),
       ],
@@ -809,27 +947,9 @@ class SubmittedPage extends StatelessWidget {
                   SizedBox(height: 12),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: CachedNetworkImage(
-                      imageUrl: state.invoice!.paymentQrUrl!,
-                      width: 250,
-                      height: 250,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        width: 250,
-                        height: 250,
-                        color: Colors.grey[800],
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        width: 250,
-                        height: 250,
-                        color: Colors.grey[800],
-                        child: Center(
-                          child: Icon(Icons.image_not_supported, color: Colors.grey),
-                        ),
-                      ),
+                    child: QrImageDisplay(
+                      imageBytes:
+                          state.invoice?.gambarqr ?? Uint8List.fromList([]),
                     ),
                   ),
                 ],
@@ -857,16 +977,48 @@ class SubmittedPage extends StatelessWidget {
                     ),
                   ),
                   Divider(color: Colors.white24),
-                  _DetailRow('Booking ID', state.invoice!.bookingDetail.bookingId),
-                  _DetailRow('Total Amount', 'Rp ${state.invoice!.bookingDetail.totalAmount}'),
-                  _DetailRow('Paid Amount', 'Rp ${state.invoice!.bookingDetail.paidAmount}'),
-                  _DetailRow('Currency', state.invoice!.bookingDetail.currency ?? '-'),
-                  _DetailRow('Payment Type', state.invoice!.bookingDetail.paymentType),
-                  _DetailRow('Payment Method', state.invoice!.bookingDetail.paymentMethod.toUpperCase()),
-                  _DetailRow('Status', state.invoice!.bookingDetail.paymentStatus),
-                  _DetailRow('Transaction Time', state.invoice!.bookingDetail.transactionTime),
+                  _DetailRow(
+                    'Booking ID',
+                    state.invoice!.bookingDetail.bookingId,
+                  ),
+                  if (state.invoice!.bookingDetail.midtransId != null)
+                    _DetailRow(
+                      'Midtrans ID',
+                      state.invoice!.bookingDetail.midtransId!,
+                    ),
+                  _DetailRow(
+                    'Total Amount',
+                    'Rp ${state.invoice!.bookingDetail.totalAmount}',
+                  ),
+                  _DetailRow(
+                    'Paid Amount',
+                    'Rp ${state.invoice!.bookingDetail.paidAmount}',
+                  ),
+                  _DetailRow(
+                    'Currency',
+                    state.invoice!.bookingDetail.currency ?? '-',
+                  ),
+                  _DetailRow(
+                    'Payment Type',
+                    state.invoice!.bookingDetail.paymentType,
+                  ),
+                  _DetailRow(
+                    'Payment Method',
+                    state.invoice!.bookingDetail.paymentMethod.toUpperCase(),
+                  ),
+                  _DetailRow(
+                    'Status',
+                    state.invoice!.bookingDetail.paymentStatus,
+                  ),
+                  _DetailRow(
+                    'Transaction Time',
+                    state.invoice!.bookingDetail.transactionTime,
+                  ),
                   if (state.invoice!.bookingDetail.acquirer != null)
-                    _DetailRow('Acquirer', state.invoice!.bookingDetail.acquirer!),
+                    _DetailRow(
+                      'Acquirer',
+                      state.invoice!.bookingDetail.acquirer!,
+                    ),
                 ],
               ),
             ),
@@ -911,10 +1063,7 @@ class _DetailRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.robotoFlex(
-            color: Colors.grey[400],
-            fontSize: 12,
-          ),
+          style: GoogleFonts.robotoFlex(color: Colors.grey[400], fontSize: 12),
         ),
         Flexible(
           child: Text(

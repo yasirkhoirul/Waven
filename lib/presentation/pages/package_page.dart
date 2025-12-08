@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:waven/common/color.dart';
+import 'package:waven/common/imageconstant.dart';
 import 'package:waven/domain/entity/detail_package.dart';
 import 'package:waven/presentation/cubit/package_detail_cubit.dart';
 import 'package:waven/presentation/cubit/porto_all_cubit.dart';
 import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
+import 'package:waven/presentation/widget/lottieanimation.dart';
 
 class PackagePage extends StatefulWidget {
   final String idpackage;
@@ -63,7 +65,7 @@ class _PackagePageState extends State<PackagePage> {
                   ),
                 );
               } else if (state is PackageDetailLoading) {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
               } else if (state is PackageDetailError) {
                 return Center(child: Text(state.message));
               } else {
@@ -105,7 +107,7 @@ class PackagePortoContent extends StatelessWidget {
                     CachedNetworkImage(imageUrl: state.data[index].url),
               );
             } else {
-              return Center(child: CircularProgressIndicator());
+              return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
             }
           },
         ),

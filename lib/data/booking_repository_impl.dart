@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:waven/data/model/booking_request_model.dart';
 import 'package:waven/data/remote/data_local_impl.dart';
@@ -66,9 +67,32 @@ class BookingRepositoryImpl implements BookingRepository {
           additionalData.note,
         ),
       );
+      
       final response = await dataRemote.postBooking(payload);
-      Logger().d(response.data.actions!.first.url);
-      return response.toEntity();
+      Logger().d("Booking response received with QR URL: ${response.data.actions?.first.url}");
+      List<int>? qrImageBytes;
+      // Fetch QR code image bytes if midtransId exists
+      if (response.data.bookingDetail.midtransId != null) {
+        try {
+          qrImageBytes = await dataRemote.getQris(response.data.bookingDetail.midtransId!);
+          Logger().d("QR code image fetched successfully: ${qrImageBytes.length} bytes");
+        } catch (e) {
+          Logger().w("Warning: Failed to fetch QR image - $e");
+          // Don't throw, continue with invoice response
+        }
+      }
+      
+      return response.toEntity(Uint8List.fromList(qrImageBytes??[]));
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<bool> checkTanggal(String tanggal, String start, String end) async{
+    try {
+      final response = await dataRemote.checkBooking(tanggal, start, end);
+      return response;
     } catch (e) {
       rethrow;
     }

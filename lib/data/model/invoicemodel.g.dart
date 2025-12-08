@@ -32,6 +32,7 @@ Map<String, dynamic> _$InvoiceDataToJson(InvoiceData instance) =>
 BookingDetail _$BookingDetailFromJson(Map<String, dynamic> json) =>
     BookingDetail(
       bookingId: json['booking_id'] as String,
+      midtransId: json['gateway_transaction_id'] as String?,
       totalAmount: (json['total_amount'] as num).toInt(),
       paidAmount: (json['paid_amount'] as num).toInt(),
       currency: json['currency'] as String?,
@@ -45,6 +46,7 @@ BookingDetail _$BookingDetailFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$BookingDetailToJson(BookingDetail instance) =>
     <String, dynamic>{
       'booking_id': instance.bookingId,
+      'gateway_transaction_id': instance.midtransId,
       'total_amount': instance.totalAmount,
       'paid_amount': instance.paidAmount,
       'currency': instance.currency,

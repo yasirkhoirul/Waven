@@ -7,7 +7,7 @@ class DioClient {
   final DataLocal dataLocal;
 
   // 1. Masukkan URL API Bapak disini
-  final String baseUrl = "http://waven-development.site/";
+  final String baseUrl = "https://waven-development.site/";
 
   // Variable untuk mencegah refresh token berkali-kali bersamaan
   bool _isRefreshing = false;
@@ -63,12 +63,7 @@ class DioClient {
               if (newToken != null) {
                 print("✅ Refresh Sukses! Mengirim ulang paket...");
 
-                // 1. Simpan token baru ke storage (GANTI SESUAI KODINGAN BAPAK)
-                await const FlutterSecureStorage().write(
-                  key: 'access_token',
-                  value: newToken,
-                );
-
+                
                 // 2. Update token di request yang tadi gagal
                 error.requestOptions.headers['Authorization'] =
                     'Bearer $newToken';
@@ -83,7 +78,6 @@ class DioClient {
                   return handler.next(error);
                 }
               } else {
-                await dataLocal.deleteTokens();
                 return handler.next(error);
               }
             }

@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:logger/web.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/domain/entity/additional_info.dart';
@@ -10,6 +12,7 @@ import 'package:waven/domain/entity/invoice.dart';
 import 'package:waven/domain/entity/package.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
 import 'package:waven/domain/usecase/get_addons_all.dart';
+import 'package:waven/domain/usecase/get_check_tanggal.dart';
 import 'package:waven/domain/usecase/get_univdropdown.dart';
 import 'package:waven/domain/usecase/post_booking.dart';
 
@@ -18,11 +21,14 @@ part 'booking_state.dart';
 class BookingCubit extends Cubit<BookingState> {
   final GetUnivdropdown getUnivdropdown;
   final GetAddonsAll getAddonsAll;
+
+  final GetCheckTanggal getCheckTanggal;
   final PostBooking postBooking;
   BookingCubit(
     this.getUnivdropdown, {
     required this.getAddonsAll,
     required this.postBooking,
+    required this.getCheckTanggal,
   }) : super(BookingState());
 
   Future getAllDropDown() async {
@@ -43,25 +49,61 @@ class BookingCubit extends Cubit<BookingState> {
     }
   }
 
+  void goloaded() {
+    emit(state.copyWith(step: BookingStep.loaded,amount: 0));
+  }
+
   void onTahapOne(
     String univ,
     String starttime,
     String endtime,
     String tanggal,
-  ) {
+  ) async {
+    emit(state.copyWith(step: BookingStep.loading));
     if (univ.isNotEmpty &&
         starttime.isNotEmpty &&
         endtime.isNotEmpty &&
         tanggal.isNotEmpty) {
-      emit(
-        state.copyWith(
-          step: BookingStep.tahap1,
-          univ: univ,
-          starttime: starttime,
-          endtime: endtime,
-          tanggal: tanggal,
-        ),
-      );
+      try {
+        final response = await getCheckTanggal.execute(
+          tanggal,
+          starttime,
+          endtime,
+        );
+        if (response) {
+          emit(
+            state.copyWith(
+              step: BookingStep.tahap1,
+              univ: univ,
+              starttime: starttime,
+              endtime: endtime,
+              tanggal: tanggal,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              step: BookingStep.error,
+              errorMessage: "Tanggal Penuh / jam sudah terlewat",
+            ),
+          );
+        }
+      }on DioException catch(e){
+        Logger().d(e.response!.statusCode.toString());
+      }  
+      
+      catch (e) {
+        if (e.toString().contains("401")
+          ||
+            e.toString().contains("missing authorization header")) {
+
+          Logger().d("session abis $e");
+          emit(BookingSessionExpired());
+        }
+        emit(
+          state.copyWith(step: BookingStep.error, errorMessage: e.toString()),
+        );
+      }
     }
   }
 
@@ -106,9 +148,7 @@ class BookingCubit extends Cubit<BookingState> {
   }
 
   void onsubmit() async {
-    emit(state.copyWith(
-      step: BookingStep.loading
-    ) );
+    emit(state.copyWith(step: BookingStep.loading));
     if (state.packageEntity == null ||
         state.nama == null ||
         state.nama!.isEmpty ||
@@ -160,9 +200,9 @@ class BookingCubit extends Cubit<BookingState> {
         additionalData: additonaldata,
       );
       Logger().d("invoice di cubic = ${invoice.paymentQrUrl}");
-      emit(state.copyWith(step: BookingStep.submitted,invoice: invoice));
+      emit(state.copyWith(step: BookingStep.submitted, invoice: invoice));
     } catch (e) {
-            Logger().d("ini dari dio ${e}");
+      Logger().d("ini dari dio ${e}");
       if (e.toString().contains("401") ||
           e.toString().contains("Session Expired")) {
         emit(BookingSessionExpired());

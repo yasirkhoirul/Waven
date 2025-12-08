@@ -45,6 +45,7 @@ class _GalleryPageState extends State<GalleryPage> {
             slivers: [
               // Header with Package Count
               SliverAppBar(
+                automaticallyImplyLeading: false,
                 floating: true,
                 snap: true,
                 backgroundColor: Colors.transparent,

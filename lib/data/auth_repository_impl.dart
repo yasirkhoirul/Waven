@@ -43,6 +43,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<String> logout() async {
     try {
+      
       final refresh = await dataLocal.getRefreshToken();
       if (refresh==null) {
         return "refresh token tidak ada";

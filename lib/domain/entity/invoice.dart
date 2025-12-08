@@ -1,14 +1,17 @@
+import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
 
 class Invoice extends Equatable {
   final String message;
   final BookingDetailEntity bookingDetail;
   final String? paymentQrUrl;
+  final Uint8List gambarqr;
 
   const Invoice({
     required this.message,
     required this.bookingDetail,
-    this.paymentQrUrl,
+    this.paymentQrUrl, required this.gambarqr,
   });
 
   @override
@@ -17,6 +20,7 @@ class Invoice extends Equatable {
 
 class BookingDetailEntity extends Equatable {
   final String bookingId;
+  final String? midtransId;
   final int totalAmount;
   final int paidAmount;
   final String? currency;
@@ -28,6 +32,7 @@ class BookingDetailEntity extends Equatable {
 
   const BookingDetailEntity({
     required this.bookingId,
+    this.midtransId,
     required this.totalAmount,
     required this.paidAmount,
     this.currency,
@@ -41,6 +46,7 @@ class BookingDetailEntity extends Equatable {
   @override
   List<Object?> get props => [
         bookingId,
+        midtransId,
         totalAmount,
         paidAmount,
         currency,

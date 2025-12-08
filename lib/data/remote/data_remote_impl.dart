@@ -23,20 +23,21 @@ abstract class DataRemote {
   Future<UnivDropModel> getUnivDropDown();
   Future<DetailPortoModel> getDetailPorto(String idpackage);
   Future<Addonsmodel> getAddons();
-  Future<InvoiceModel> postBooking( BookingRequestModel bookingreq);
-  
+  Future<InvoiceModel> postBooking(BookingRequestModel bookingreq);
+  Future<bool> checkBooking(String tanggal, String start, String end);
+  Future<List<int>> getQris(String transactionid); // Return bytes instead of String
 }
 
 class DataRemoteImpl implements DataRemote {
 
   final DioClient dio;
   DataRemoteImpl(this.dio);
-  final baseurl = "http://waven-development.site/";
+  final baseurl = "https://waven-development.site/";
   final baseuri= "waven-development.site";
   @override
   Future<Signinresonse> onLogin(String email, String password) async {
     String basicAuth = 'Basic ${base64Encode(utf8.encode('$email:$password'))}';
-    final uri = Uri.http(baseuri,"/v1/auth/login");
+    final uri = Uri.https(baseuri,"/v1/auth/login");
     try {
       final response = await http.post(
         uri,    
@@ -102,7 +103,7 @@ class DataRemoteImpl implements DataRemote {
   @override
   Future<Portomodel> getPorto({String? idpackage}) async {
     try {
-      final uri = Uri.http(baseuri,'/v1/master/portfolios',{
+      final uri = Uri.https(baseuri,'/v1/master/portfolios',{
         "package":idpackage
       });
       final response = await http.get(
@@ -141,7 +142,7 @@ class DataRemoteImpl implements DataRemote {
   @override
   Future<UnivDropModel> getUnivDropDown() async{
     try {
-      final uri = Uri.http(baseuri,'/v1/master/universities/dropdown');
+      final uri = Uri.https(baseuri,'/v1/master/universities/dropdown');
       final response = await http.get(uri);
       
       if (response.statusCode  == 200) {
@@ -157,7 +158,7 @@ class DataRemoteImpl implements DataRemote {
   @override
   Future<Addonsmodel> getAddons()async {
     try {
-      final uri = Uri.http(baseuri,'/v1/addons');
+      final uri = Uri.https(baseuri,'/v1/addons');
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
@@ -205,10 +206,64 @@ class DataRemoteImpl implements DataRemote {
     ,body: jsonEncode({
       "refresh_token":refreshtoken
     }));
+
+    Logger().d(response);
     if (response.statusCode == 200) {
       return "logout sukses";
     }else{
       throw "logoutgagal";
+    }
+  }
+  
+  @override
+  Future<bool> checkBooking(String tanggal, String starttime,String endtime) async{
+    try {
+      final response = await dio.dio.get('v1/bookings/availibility',queryParameters: {
+        'date':tanggal,
+        'start_time':starttime,
+        'end_time':endtime
+      });
+      if (response.statusCode!=200) {
+        return false;
+      }else{
+        return true;
+      }
+    }on DioException catch(e) {
+      if (e.response!=null) {
+        if (e.response?.statusCode!=401) {
+          return false;
+        }else if(e.response?.statusCode == 500){
+          throw "server sedang masalah";
+        }
+      }
+      throw e.toString();
+    } 
+    
+    catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+  
+  @override
+  Future<List<int>> getQris(String transactionid) async {
+    try {
+      final response = await dio.dio.get(
+        "/v1/bookings/$transactionid/qris",
+        options: Options(responseType: ResponseType.bytes), // Expect binary data
+      );
+      
+      if (response.statusCode == 200) {
+        Logger().d("QR Code image received: ${response.data.length} bytes");
+        return response.data; // Return raw bytes
+      } else {
+        throw Exception("Failed to fetch QR code: ${response.statusCode}");
+      }
+    } on DioException catch (e) {
+      Logger().e("DioException while fetching QR: ${e.message}");
+      throw Exception("Error fetching QR code: ${e.message}");
+    } catch (e) {
+      Logger().e("Exception while fetching QR: $e");
+      throw Exception("Unexpected error: $e");
     }
   }
   

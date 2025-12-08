@@ -20,7 +20,9 @@ class TokenauthCubit extends Cubit<TokenauthState> {
   void onLogout()async{
     try {
       Logger().d("logout dipanggil");
-      await postLogout.execute();
+      final postlogout = await postLogout.execute();
+
+      Logger().d("logout $postlogout");
       await getToken.execute();
       emit(TokenauthState().copywith(null,''));
       

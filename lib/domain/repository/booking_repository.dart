@@ -13,4 +13,5 @@ abstract class BookingRepository {
     required Booking bookingdata,
     required AdditionalInfo additionalData,
   });
+  Future<bool> checkTanggal(String tanggal,String start,String end);
 }

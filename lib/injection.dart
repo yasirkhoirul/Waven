@@ -12,6 +12,7 @@ import 'package:waven/domain/repository/auth_repository.dart';
 import 'package:waven/domain/repository/booking_repository.dart';
 import 'package:waven/domain/repository/package_repository.dart';
 import 'package:waven/domain/usecase/get_addons_all.dart';
+import 'package:waven/domain/usecase/get_check_tanggal.dart';
 import 'package:waven/domain/usecase/get_detail_package.dart';
 import 'package:waven/domain/usecase/get_package_all.dart';
 import 'package:waven/domain/usecase/get_porto_all.dart';
@@ -40,7 +41,7 @@ Future<void> init()async{
   locator.registerCachedFactory(() => PackageAllCubit(locator()),);
   locator.registerCachedFactory(() => PortoAllCubit(locator()),);
   locator.registerCachedFactory(() => PackageDetailCubit(locator()),);
-  locator.registerCachedFactory(() => BookingCubit(locator(), getAddonsAll: locator(), postBooking: locator()),);
+  locator.registerCachedFactory(() => BookingCubit(locator(), getAddonsAll: locator(), postBooking: locator(), getCheckTanggal: locator()),);
 
   //usecase
   locator.registerLazySingleton(() => PostLogin(locator()),);
@@ -53,6 +54,7 @@ Future<void> init()async{
   locator.registerLazySingleton(() => GetAddonsAll(locator()),);
   locator.registerLazySingleton(() => PostBooking(locator()),);
   locator.registerLazySingleton(() => PostLogout(locator()),);
+  locator.registerLazySingleton(() => GetCheckTanggal(locator()),);
 
   //repositoy
   locator.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(dataRemote: locator(), dataLocal: locator()),);

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:waven/domain/entity/invoice.dart';
 
@@ -18,13 +20,14 @@ class InvoiceModel {
 
   Map<String, dynamic> toJson() => _$InvoiceModelToJson(this);
 
-  Invoice toEntity() {
+  Invoice toEntity(Uint8List datagambar) {
     return Invoice(
       message: message,
       bookingDetail: data.bookingDetail.toEntity(),
       paymentQrUrl: data.actions != null && data.actions!.isNotEmpty
           ? data.actions!.first.url
           : null,
+      gambarqr: datagambar
     );
   }
 }
@@ -52,6 +55,9 @@ class BookingDetail {
   @JsonKey(name: 'booking_id')
   final String bookingId;
 
+  @JsonKey(name: 'gateway_transaction_id')
+  final String? midtransId;
+
   @JsonKey(name: 'total_amount')
   final int totalAmount;
 
@@ -76,6 +82,7 @@ class BookingDetail {
 
   BookingDetail({
     required this.bookingId,
+    this.midtransId,
     required this.totalAmount,
     required this.paidAmount,
     this.currency,
@@ -94,6 +101,7 @@ class BookingDetail {
   BookingDetailEntity toEntity() {
     return BookingDetailEntity(
       bookingId: bookingId,
+      midtransId: midtransId,
       totalAmount: totalAmount,
       paidAmount: paidAmount,
       currency: currency,
