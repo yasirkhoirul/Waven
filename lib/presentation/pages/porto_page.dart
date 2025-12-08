@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/domain/entity/porto.dart';
-import 'package:waven/presentation/cubit/package_all_cubit.dart';
 import 'package:waven/presentation/cubit/porto_all_cubit.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 import 'package:waven/common/imageconstant.dart';

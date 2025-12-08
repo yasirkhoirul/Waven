@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "http://waven-development.site/api/$1"
+    }
+  ]
+}

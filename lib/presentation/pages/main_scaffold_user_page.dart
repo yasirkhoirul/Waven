@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/appbarsuser.dart';
 
 class MainScaffoldUserPage extends StatefulWidget {
@@ -59,6 +61,34 @@ class _MainScaffoldUserPageState extends State<MainScaffoldUserPage> {
               onTap: () {
                 context.pop();
                 gobranch(1);
+              },
+            ),
+            ListTile(
+              title: Text(
+                "Gallery",
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w100,
+                  fontSize: 14,
+                ),
+              ),
+              onTap: () {
+                context.pop();
+                gobranch(2);
+              },
+            ),
+            ListTile(
+              title: Text(
+                "Logout",
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w100,
+                  fontSize: 14,
+                ),
+              ),
+              onTap: () {
+                context.pop();
+                context.read<TokenauthCubit>().onLogout();
               },
             ),
           ],

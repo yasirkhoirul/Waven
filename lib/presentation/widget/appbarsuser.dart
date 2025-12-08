@@ -55,8 +55,10 @@ class AppbarsUser extends StatelessWidget {
                         ),),
                       ),
                       TextButton(
-                        onPressed: () {},
-                        child: Text("About Us",style: GoogleFonts.plusJakartaSans(
+                        onPressed: () {
+                          onpress(3);
+                        },
+                        child: Text("Profile",style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
                           fontWeight: FontWeight.w100,
                           fontSize: 14

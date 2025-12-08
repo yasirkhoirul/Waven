@@ -8,13 +8,14 @@ import 'package:waven/presentation/pages/login_page.dart';
 import 'package:waven/presentation/pages/main_scaffold_user_page.dart';
 import 'package:waven/presentation/pages/package_list_page.dart';
 import 'package:waven/presentation/pages/package_page.dart';
+import 'package:waven/presentation/pages/profile_page.dart';
 import 'package:waven/presentation/pages/signup_page.dart';
 
 class MyRouter {
   static GoRouter getrouter(TokenauthCubit cubit) {
     return GoRouter(
       refreshListenable: CubitListenable(cubit),
-      initialLocation: "/login",
+      initialLocation: "/home",
       routes: [
         GoRoute(path: "/login", builder: (context, state) => LoginPage()),
         GoRoute(path: "/signup", builder: (context, state) => SignupPage()),
@@ -74,6 +75,17 @@ class MyRouter {
                 ),
               ],
             ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/Profile',
+                  builder: (context, state) => ProfilePage(),
+                  routes: [
+                    
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ],
@@ -81,7 +93,7 @@ class MyRouter {
         final token = cubit.state.tokens;
         final isLoggedIn = token != null;
         // Routes yang boleh diakses saat belum login
-        final allowedRoutesWhenLoggedOut = ['/login', '/signup'];
+        final allowedRoutesWhenLoggedOut = ['/login', '/signup','/home','/Profile','/Gallery'];
 
         // Jika belum login dan bukan salah satu route yang diizinkan → redirect ke login
         if (!isLoggedIn &&

@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/common/constant.dart';
+import 'package:waven/common/imageconstant.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
 import 'package:waven/domain/entity/user.dart';
 import 'package:waven/presentation/cubit/signup_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/appbars.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
+import 'package:waven/presentation/widget/lottieanimation.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -26,7 +28,9 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tinggilottie = MediaQuery.of(context).size.height;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: 70,
         flexibleSpace: Builder(
@@ -47,7 +51,27 @@ class _SignupPageState extends State<SignupPage> {
         child: Stack(
           children: [
             Positioned.fill(child: Container(color: Colors.black)),
-
+            Positioned(
+          bottom: tinggilottie * -0.40,
+          left: 0,
+          child: SizedBox(
+            height: tinggilottie,
+            width: tinggilottie,
+          
+            child: MyLottie(aset: ImagesPath.bgleftlottie),
+          ),
+        ),
+        Positioned(
+          
+          top: tinggilottie * -0.40,
+          right: 0,
+          child: SizedBox(
+            height: tinggilottie,
+            width: tinggilottie,
+          
+            child: MyLottie(aset: ImagesPath.bgrightlottie),
+          ),
+        ),
             Positioned(
               bottom: 0,
               right: 0,

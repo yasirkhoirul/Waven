@@ -159,7 +159,9 @@ class AboutUs extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.all(15),
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            context.goNamed('packagelist');
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: accentColor,
                             shape: RoundedRectangleBorder(
@@ -491,7 +493,9 @@ class AppSliver extends StatelessWidget {
                           backgroundColor: accentColor,
                         ),
 
-                        onPressed: () {},
+                        onPressed: () {
+                          context.goNamed('packagelist');
+                        },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(

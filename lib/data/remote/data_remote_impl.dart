@@ -39,8 +39,7 @@ class DataRemoteImpl implements DataRemote {
     final uri = Uri.http(baseuri,"/v1/auth/login");
     try {
       final response = await http.post(
-        uri,
-        
+        uri,    
         headers: {
           'Authorization': basicAuth,
           'content-type': 'application/json',
