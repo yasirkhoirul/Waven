@@ -20,68 +20,73 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tinggilottie = MediaQuery.of(context).size.height;
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        toolbarHeight: 70,
-        flexibleSpace: Builder(
-          builder: (context) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border(
-                  bottom: BorderSide(color: Colors.white, width: 0.5),
-                ),
-              ),
-              child: Appbars(isloginpage: true),
-            );
-          },
-        ),
-      ),
-      body: MediaQuery.removeViewInsets(
-        removeBottom: true,
-        context: context,
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constrains) {
-              final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-              if (!keyboardOpen&& constrains.maxHeight < 600) {
-                return SingleChildScrollView(
-                  child: SizedBox(
-                    height: 600,
-                    child: LayoutLogin(
-                      tinggilottie: tinggilottie,
-                      runtimeType: runtimeType,
-                    ),
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(viewInsets: EdgeInsets.zero),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          toolbarHeight: 70,
+          flexibleSpace: Builder(
+            builder: (context) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border(
+                    bottom: BorderSide(color: Colors.white, width: 0.5),
                   ),
-                );
-              } else {
-                if (kIsWeb) {
+                ),
+                child: Appbars(isloginpage: true),
+              );
+            },
+          ),
+        ),
+        body: MediaQuery.removeViewInsets(
+          removeBottom: true,
+
+          context: context,
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constrains) {
+                final keyboardOpen =
+                    MediaQuery.of(context).viewInsets.bottom > 0;
+                if (!keyboardOpen && constrains.maxHeight < 600) {
                   return SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height - 70,
-                          child: LayoutLogin(
-                            tinggilottie: tinggilottie,
-                            runtimeType: runtimeType,
-                          ),
-                        ),
-                        Container(color: Colors.black, child: Footer()),
-                      ],
+                    child: SizedBox(
+                      height: 600,
+                      child: LayoutLogin(
+                        tinggilottie: tinggilottie,
+                        runtimeType: runtimeType,
+                      ),
                     ),
                   );
                 } else {
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height - 70,
-                    child: LayoutLogin(
-                      tinggilottie: tinggilottie,
-                      runtimeType: runtimeType,
-                    ),
-                  );
+                  if (kIsWeb) {
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height - 70,
+                            child: LayoutLogin(
+                              tinggilottie: tinggilottie,
+                              runtimeType: runtimeType,
+                            ),
+                          ),
+                          Container(color: Colors.black, child: Footer()),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height - 70,
+                      child: LayoutLogin(
+                        tinggilottie: tinggilottie,
+                        runtimeType: runtimeType,
+                      ),
+                    );
+                  }
                 }
-              }
-            },
+              },
+            ),
           ),
         ),
       ),
