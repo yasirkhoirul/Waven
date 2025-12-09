@@ -14,75 +14,112 @@ import 'package:waven/presentation/widget/frostglass.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 import 'package:waven/presentation/widget/slidedirection.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    final bottomInset = View.of(context).viewInsets.bottom;
+
+    // 2. Cek apakah keyboard baru saja menutup (inset menjadi 0)
+    if (bottomInset == 0.0) {
+      // 3. JIKA KEYBOARD TUTUP -> PAKSA UNFOCUS
+      // Ini meniru perilaku "Tap di luar" secara otomatis
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+
+    // 4. Berikan sedikit delay untuk rebuild
+    // Browser butuh waktu ~100-300ms untuk animasi menutup keyboard
+    // Kita panggil setState berulang untuk memastikan frame terakhir tertangkap
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) setState(() {});
+    });
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) setState(() {});
+    });
+    super.didChangeMetrics();
+  }
 
   @override
   Widget build(BuildContext context) {
     final tinggilottie = MediaQuery.of(context).size.height;
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(viewInsets: EdgeInsets.zero),
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          toolbarHeight: 70,
-          flexibleSpace: Builder(
-            builder: (context) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border(
-                    bottom: BorderSide(color: Colors.white, width: 0.5),
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        toolbarHeight: 70,
+        flexibleSpace: Builder(
+          builder: (context) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border(
+                  bottom: BorderSide(color: Colors.white, width: 0.5),
+                ),
+              ),
+              child: Appbars(isloginpage: true),
+            );
+          },
+        ),
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constrains) {
+            final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+            if (!keyboardOpen && constrains.maxHeight < 600) {
+              return SingleChildScrollView(
+                child: SizedBox(
+                  height: 600,
+                  child: LayoutLogin(
+                    tinggilottie: tinggilottie,
+                    runtimeType: runtimeType,
                   ),
                 ),
-                child: Appbars(isloginpage: true),
               );
-            },
-          ),
-        ),
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constrains) {
-              final keyboardOpen =
-                  MediaQuery.of(context).viewInsets.bottom > 0;
-              if (!keyboardOpen && constrains.maxHeight < 600) {
+            } else {
+              if (kIsWeb) {
                 return SingleChildScrollView(
-                  child: SizedBox(
-                    height: 600,
-                    child: LayoutLogin(
-                      tinggilottie: tinggilottie,
-                      runtimeType: runtimeType,
-                    ),
-                  ),
-                ); 
-              } else {
-                if (kIsWeb) {
-                  return SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height - 70,
-                          child: LayoutLogin(
-                            tinggilottie: tinggilottie,
-                            runtimeType: runtimeType,
-                          ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height - 70,
+                        child: LayoutLogin(
+                          tinggilottie: tinggilottie,
+                          runtimeType: runtimeType,
                         ),
-                        Container(color: Colors.black, child: Footer()),
-                      ],
-                    ),
-                  );
-                } else {
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height - 70,
-                    child: LayoutLogin(
-                      tinggilottie: tinggilottie,
-                      runtimeType: runtimeType,
-                    ),
-                  );
-                }
+                      ),
+                      Container(color: Colors.black, child: Footer()),
+                    ],
+                  ),
+                );
+              } else {
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  child: LayoutLogin(
+                    tinggilottie: tinggilottie,
+                    runtimeType: runtimeType,
+                  ),
+                );
               }
-            },
-          ),
+            }
+          },
         ),
       ),
     );
