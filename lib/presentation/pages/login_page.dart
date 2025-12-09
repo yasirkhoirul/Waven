@@ -54,7 +54,7 @@ class LoginPage extends StatelessWidget {
                       runtimeType: runtimeType,
                     ),
                   ),
-                );
+                ); 
               } else {
                 if (kIsWeb) {
                   return SingleChildScrollView(
