@@ -23,6 +23,7 @@ class BookingState extends Equatable {
   final String? endtime;
   final double amount;
   final Invoice? invoice;
+  final XFile? dataimage;
 
   const BookingState({
     this.step = BookingStep.initial,
@@ -42,7 +43,9 @@ class BookingState extends Equatable {
     this.univ,
     this.tanggal,
     this.starttime,
-    this.endtime, this.invoice,
+    this.endtime, 
+    this.invoice, 
+    this.dataimage,
   });
 
   // Fitur KUNCI: copyWith
@@ -67,6 +70,7 @@ class BookingState extends Equatable {
     String? endtime,
     double? amount,
     Invoice? invoice,
+    XFile? dataimage
   }) {
     return BookingState(
       step: step ?? this.step,
@@ -87,7 +91,8 @@ class BookingState extends Equatable {
       starttime: starttime ?? this.starttime,
       endtime: endtime ?? this.endtime,
       amount: amount??this.amount,
-      invoice: invoice??this.invoice
+      invoice: invoice??this.invoice,
+      dataimage: dataimage??this.dataimage
     );
   }
 
@@ -95,7 +100,7 @@ class BookingState extends Equatable {
   List<Object?> get props => [
         step, errorMessage, data, dataaddons, datadiplih, packageEntity,
         paymentMethod, paymentType, nama, nowa, lokasi, ig, catatan,
-        univ, tanggal, starttime, endtime,amount,invoice
+        univ, tanggal, starttime, endtime,amount,invoice,dataimage
       ];
 }
 

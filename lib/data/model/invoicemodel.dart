@@ -66,8 +66,7 @@ class BookingDetail {
 
   final String? currency;
 
-  @JsonKey(name: 'payment_type')
-  final String paymentType;
+  
 
   @JsonKey(name: 'payment_method')
   final String paymentMethod;
@@ -75,7 +74,7 @@ class BookingDetail {
   @JsonKey(name: 'transaction_time')
   final String transactionTime;
 
-  @JsonKey(name: 'payment_status')
+  @JsonKey(name: 'status')
   final String paymentStatus;
 
   final String? acquirer;
@@ -86,7 +85,7 @@ class BookingDetail {
     required this.totalAmount,
     required this.paidAmount,
     this.currency,
-    required this.paymentType,
+    
     required this.paymentMethod,
     required this.transactionTime,
     required this.paymentStatus,
@@ -105,7 +104,6 @@ class BookingDetail {
       totalAmount: totalAmount,
       paidAmount: paidAmount,
       currency: currency,
-      paymentType: paymentType,
       paymentMethod: paymentMethod,
       transactionTime: transactionTime,
       paymentStatus: paymentStatus,

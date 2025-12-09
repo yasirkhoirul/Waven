@@ -36,10 +36,9 @@ BookingDetail _$BookingDetailFromJson(Map<String, dynamic> json) =>
       totalAmount: (json['total_amount'] as num).toInt(),
       paidAmount: (json['paid_amount'] as num).toInt(),
       currency: json['currency'] as String?,
-      paymentType: json['payment_type'] as String,
       paymentMethod: json['payment_method'] as String,
       transactionTime: json['transaction_time'] as String,
-      paymentStatus: json['payment_status'] as String,
+      paymentStatus: json['status'] as String,
       acquirer: json['acquirer'] as String?,
     );
 
@@ -50,10 +49,9 @@ Map<String, dynamic> _$BookingDetailToJson(BookingDetail instance) =>
       'total_amount': instance.totalAmount,
       'paid_amount': instance.paidAmount,
       'currency': instance.currency,
-      'payment_type': instance.paymentType,
       'payment_method': instance.paymentMethod,
       'transaction_time': instance.transactionTime,
-      'payment_status': instance.paymentStatus,
+      'status': instance.paymentStatus,
       'acquirer': instance.acquirer,
     };
 

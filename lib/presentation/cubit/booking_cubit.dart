@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/web.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/domain/entity/additional_info.dart';
@@ -21,14 +22,14 @@ part 'booking_state.dart';
 class BookingCubit extends Cubit<BookingState> {
   final GetUnivdropdown getUnivdropdown;
   final GetAddonsAll getAddonsAll;
-
+  final ImagePicker imagePickers;
   final GetCheckTanggal getCheckTanggal;
   final PostBooking postBooking;
   BookingCubit(
     this.getUnivdropdown, {
     required this.getAddonsAll,
     required this.postBooking,
-    required this.getCheckTanggal,
+    required this.getCheckTanggal, required this.imagePickers,
   }) : super(BookingState());
 
   Future getAllDropDown() async {
@@ -50,7 +51,7 @@ class BookingCubit extends Cubit<BookingState> {
   }
 
   void goloaded() {
-    emit(state.copyWith(step: BookingStep.loaded,amount: 0));
+    emit(state.copyWith(step: BookingStep.loaded,amount: 0,datadiplih: [],));
   }
 
   void onTahapOne(
@@ -194,7 +195,10 @@ class BookingCubit extends Cubit<BookingState> {
     );
 
     try {
+      final image = await state.dataimage?.readAsBytes();
+      Logger().d("image dikirim dari cubic $image");
       final invoice = await postBooking.execute(
+        image:  image,
         customer: customerdata,
         booking: bookingdata,
         additionalData: additonaldata,
@@ -212,5 +216,15 @@ class BookingCubit extends Cubit<BookingState> {
         );
       }
     }
+  }
+  void onTapImage()async{
+   try {
+    final XFile? dataimage = await imagePickers.pickImage(source: ImageSource.gallery);
+     Logger().d(dataimage);
+     emit(state.copyWith(dataimage: dataimage));
+
+   } catch (e) {
+     emit(state.copyWith(step: BookingStep.error,errorMessage: "gagal mendapatkan foto"));
+   }
   }
 }

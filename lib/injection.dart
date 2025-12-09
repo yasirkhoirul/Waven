@@ -2,6 +2,7 @@
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:waven/data/auth_repository_impl.dart';
 import 'package:waven/data/booking_repository_impl.dart';
 import 'package:waven/data/remote/data_local_impl.dart';
@@ -41,7 +42,7 @@ Future<void> init()async{
   locator.registerCachedFactory(() => PackageAllCubit(locator()),);
   locator.registerCachedFactory(() => PortoAllCubit(locator()),);
   locator.registerCachedFactory(() => PackageDetailCubit(locator()),);
-  locator.registerCachedFactory(() => BookingCubit(locator(), getAddonsAll: locator(), postBooking: locator(), getCheckTanggal: locator()),);
+  locator.registerCachedFactory(() => BookingCubit(locator(), getAddonsAll: locator(), postBooking: locator(), getCheckTanggal: locator(), imagePickers: locator()),);
 
   //usecase
   locator.registerLazySingleton(() => PostLogin(locator()),);
@@ -70,5 +71,9 @@ Future<void> init()async{
 
   //dio client 
   locator.registerLazySingleton(() => DioClient(locator()) ,);
+
+
+  //imgage picker
+  locator.registerLazySingleton(() => ImagePicker(),);
 
 }

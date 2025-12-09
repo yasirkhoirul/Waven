@@ -9,6 +9,7 @@ class PostBooking {
   const PostBooking(this.bookingRepository);
 
   Future<Invoice> execute({
+    List<int>? image,
     required Customer customer,
     required Booking booking,
     required AdditionalInfo additionalData,
@@ -17,6 +18,7 @@ class PostBooking {
       customer: customer,
       bookingdata: booking,
       additionalData: additionalData,
+      image: image
     );
   }
 }

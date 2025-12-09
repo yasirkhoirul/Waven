@@ -43,6 +43,7 @@ class BookingRepositoryImpl implements BookingRepository {
     required Customer customer,
     required Booking bookingdata,
     required AdditionalInfo additionalData,
+    List<int>? image
   }) async {
     try {
       final payload = BookingRequestModel(
@@ -68,7 +69,7 @@ class BookingRepositoryImpl implements BookingRepository {
         ),
       );
       
-      final response = await dataRemote.postBooking(payload);
+      final response = await dataRemote.postBooking(payload,image: image);
       Logger().d("Booking response received with QR URL: ${response.data.actions?.first.url}");
       List<int>? qrImageBytes;
       // Fetch QR code image bytes if midtransId exists

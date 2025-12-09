@@ -24,7 +24,6 @@ class BookingDetailEntity extends Equatable {
   final int totalAmount;
   final int paidAmount;
   final String? currency;
-  final String paymentType;
   final String paymentMethod;
   final String transactionTime;
   final String paymentStatus;
@@ -36,7 +35,6 @@ class BookingDetailEntity extends Equatable {
     required this.totalAmount,
     required this.paidAmount,
     this.currency,
-    required this.paymentType,
     required this.paymentMethod,
     required this.transactionTime,
     required this.paymentStatus,
@@ -50,7 +48,6 @@ class BookingDetailEntity extends Equatable {
         totalAmount,
         paidAmount,
         currency,
-        paymentType,
         paymentMethod,
         transactionTime,
         paymentStatus,

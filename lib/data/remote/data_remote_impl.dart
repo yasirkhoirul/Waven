@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:logger/logger.dart';
+import 'package:waven/common/constant.dart';
 import 'package:waven/data/model/addonsmodel.dart';
 import 'package:waven/data/model/booking_request_model.dart';
 import 'package:waven/data/model/detailportomodel.dart';
@@ -23,24 +25,28 @@ abstract class DataRemote {
   Future<UnivDropModel> getUnivDropDown();
   Future<DetailPortoModel> getDetailPorto(String idpackage);
   Future<Addonsmodel> getAddons();
-  Future<InvoiceModel> postBooking(BookingRequestModel bookingreq);
+  Future<InvoiceModel> postBooking(
+    BookingRequestModel bookingreq, {
+    List<int>? image,
+  });
   Future<bool> checkBooking(String tanggal, String start, String end);
-  Future<List<int>> getQris(String transactionid); // Return bytes instead of String
+  Future<List<int>> getQris(
+    String transactionid,
+  ); // Return bytes instead of String
 }
 
 class DataRemoteImpl implements DataRemote {
-
   final DioClient dio;
   DataRemoteImpl(this.dio);
   final baseurl = "https://waven-development.site/";
-  final baseuri= "waven-development.site";
+  final baseuri = "waven-development.site";
   @override
   Future<Signinresonse> onLogin(String email, String password) async {
     String basicAuth = 'Basic ${base64Encode(utf8.encode('$email:$password'))}';
-    final uri = Uri.https(baseuri,"/v1/auth/login");
+    final uri = Uri.https(baseuri, "/v1/auth/login");
     try {
       final response = await http.post(
-        uri,    
+        uri,
         headers: {
           'Authorization': basicAuth,
           'content-type': 'application/json',
@@ -75,7 +81,6 @@ class DataRemoteImpl implements DataRemote {
           response.headers['x-access-token']!,
           response.headers['x-refresh-token']!,
         );
-        
       } else {
         throw Exception(response.statusCode);
       }
@@ -103,12 +108,10 @@ class DataRemoteImpl implements DataRemote {
   @override
   Future<Portomodel> getPorto({String? idpackage}) async {
     try {
-      final uri = Uri.https(baseuri,'/v1/master/portfolios',{
-        "package":idpackage
+      final uri = Uri.https(baseuri, '/v1/master/portfolios', {
+        "package": idpackage,
       });
-      final response = await http.get(
-        uri
-      );
+      final response = await http.get(uri);
 
       if (response.statusCode == 200) {
         return Portomodel.fromJson(jsonDecode(response.body));
@@ -138,120 +141,152 @@ class DataRemoteImpl implements DataRemote {
       throw Exception(e);
     }
   }
-  
+
   @override
-  Future<UnivDropModel> getUnivDropDown() async{
+  Future<UnivDropModel> getUnivDropDown() async {
     try {
-      final uri = Uri.https(baseuri,'/v1/master/universities/dropdown');
+      final uri = Uri.https(baseuri, '/v1/master/universities/dropdown');
       final response = await http.get(uri);
-      
-      if (response.statusCode  == 200) {
+
+      if (response.statusCode == 200) {
         return UnivDropModel.fromJson(jsonDecode(response.body));
-      }else{
+      } else {
         throw response.statusCode.toString();
       }
     } catch (e) {
       throw Exception(e);
     }
   }
-  
+
   @override
-  Future<Addonsmodel> getAddons()async {
+  Future<Addonsmodel> getAddons() async {
     try {
-      final uri = Uri.https(baseuri,'/v1/addons');
+      final uri = Uri.https(baseuri, '/v1/addons');
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
         return Addonsmodel.fromJson(jsonDecode(response.body));
-      }else{
+      } else {
         throw Exception(response.statusCode);
       }
     } catch (e) {
       throw Exception(e);
     }
   }
-  
-  
-  @override
-  Future<InvoiceModel> postBooking(BookingRequestModel payload) async {
-  try {
-    FormData formData = FormData.fromMap({
-        // Kita jsonEncode biar sama persis kayak logika http bapak yang lama
-        'data': jsonEncode(payload.toJson()), 
-      });
-    final response = await dio.dio.post(
-        'v1/bookings', // Cukup tulis endpoint belakangnya aja
-        data: formData,
-      );
-    Logger().d("ini adalah data ${response.data}");
-    Logger().d("ini adalah extra ${response.extra}");
-    final data = InvoiceModel.fromJson(response.data);
-    return data;
-  } on DioException catch (e) {
-      final errorMessage = e.response?.data['message'] ?? e.message;
-      throw Exception(errorMessage);
-    } catch (e) {
-      throw Exception(e.toString());
-    }
-}
 
   @override
-  Future<String> logout(String refreshtoken) async{
-    final uri = Uri.parse("${baseurl}v1/auth/logout");
-    final response = await http.post(uri
-    ,
-    headers: {
-      "Content-Type": "application/json",
+  Future<InvoiceModel> postBooking(
+    BookingRequestModel payload, {
+    List<int>? image,
+  }) async {
+    try {
+      FormData formData;
+      final isTransferMethod =
+          payload.bookingData.paymentMethod == Constantclass.paymentMethod[1];
+      final hasImage = image != null && image.isNotEmpty;
+
+      Logger().d(
+          "PostBooking - Payment Method: ${payload.bookingData.paymentMethod}, Has Image: $hasImage");
+
+      if (hasImage && isTransferMethod) {
+        Logger().d("Mengirim booking WITH image (Transfer method)");
+        formData = FormData.fromMap({
+          'image': MultipartFile.fromBytes(
+            image,
+            filename: 'bukti_transfer.jpg',
+            
+          ),
+          'data': jsonEncode(payload.toJson()),
+        });
+      } else {
+        Logger().d(
+            "Mengirim booking WITHOUT image (Payment Method: ${payload.bookingData.paymentMethod})");
+        formData = FormData.fromMap({
+          'data': jsonEncode(payload.toJson()),
+        });
+      }
+
+      final response = await dio.dio.post(
+        'v1/bookings',
+        data: formData,
+      );
+
+      Logger().d("Booking Response Status: ${response.statusCode}");
+      Logger().d("Booking Response Data: ${response.data}");
+
+      final data = InvoiceModel.fromJson(response.data);
+      return data;
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data['message'] ?? e.message;
+      Logger().e("DioException in postBooking: $errorMessage");
+      throw Exception(errorMessage);
+    } catch (e) {
+      Logger().e("Exception in postBooking: $e");
+      throw Exception(e.toString());
     }
-    ,body: jsonEncode({
-      "refresh_token":refreshtoken
-    }));
+  }
+
+  @override
+  Future<String> logout(String refreshtoken) async {
+    final uri = Uri.parse("${baseurl}v1/auth/logout");
+    final response = await http.post(
+      uri,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"refresh_token": refreshtoken}),
+    );
 
     Logger().d(response);
     if (response.statusCode == 200) {
       return "logout sukses";
-    }else{
+    } else {
       throw "logoutgagal";
     }
   }
-  
+
   @override
-  Future<bool> checkBooking(String tanggal, String starttime,String endtime) async{
+  Future<bool> checkBooking(
+    String tanggal,
+    String starttime,
+    String endtime,
+  ) async {
     try {
-      final response = await dio.dio.get('v1/bookings/availibility',queryParameters: {
-        'date':tanggal,
-        'start_time':starttime,
-        'end_time':endtime
-      });
-      if (response.statusCode!=200) {
+      final response = await dio.dio.get(
+        'v1/bookings/availibility',
+        queryParameters: {
+          'date': tanggal,
+          'start_time': starttime,
+          'end_time': endtime,
+        },
+      );
+      if (response.statusCode != 200) {
         return false;
-      }else{
+      } else {
         return true;
       }
-    }on DioException catch(e) {
-      if (e.response!=null) {
-        if (e.response?.statusCode!=401) {
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if (e.response?.statusCode != 401) {
           return false;
-        }else if(e.response?.statusCode == 500){
+        } else if (e.response?.statusCode == 500) {
           throw "server sedang masalah";
         }
       }
       throw e.toString();
-    } 
-    
-    catch (e) {
+    } catch (e) {
       throw Exception(e.toString());
     }
   }
-  
+
   @override
   Future<List<int>> getQris(String transactionid) async {
     try {
       final response = await dio.dio.get(
         "/v1/bookings/$transactionid/qris",
-        options: Options(responseType: ResponseType.bytes), // Expect binary data
+        options: Options(
+          responseType: ResponseType.bytes,
+        ), // Expect binary data
       );
-      
+
       if (response.statusCode == 200) {
         Logger().d("QR Code image received: ${response.data.length} bytes");
         return response.data; // Return raw bytes
@@ -266,6 +301,4 @@ class DataRemoteImpl implements DataRemote {
       throw Exception("Unexpected error: $e");
     }
   }
-  
- 
 }
