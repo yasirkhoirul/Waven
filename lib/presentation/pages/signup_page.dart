@@ -47,154 +47,123 @@ class _SignupPageState extends State<SignupPage> {
           },
         ),
       ),
-      body: Container(
-        color: Colors.black,
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-
-              return Stack(
-                children: [
-                  Positioned.fill(child: Container(color: Colors.black)),
-                  // Sembunyikan background lottie saat keyboard muncul
-                  if (!keyboardOpen) ...[
-                    Positioned(
-                      bottom: tinggilottie * -0.40,
-                      left: 0,
-                      child: SizedBox(
-                        height: tinggilottie,
-                        width: tinggilottie,
-                        child: MyLottie(aset: ImagesPath.bgleftlottie),
-                      ),
-                    ),
-                    Positioned(
-                      top: tinggilottie * -0.40,
-                      right: 0,
-                      child: SizedBox(
-                        height: tinggilottie,
-                        width: tinggilottie,
-                        child: MyLottie(aset: ImagesPath.bgrightlottie),
-                      ),
-                    ),
-                  ],
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    left: 0,
-                    top: 0,
-                    child: Center(
-                      child: FrostGlassAnimated(
-                        width: 800,
-                        height: 800,
-                        child: SingleChildScrollView(
-                          physics: const ClampingScrollPhysics(),
-                          child: SizedBox(
-                            height: 800,
-                            child: Padding(
-                              padding: const EdgeInsets.all(50),
-                              child: Column(
-                                spacing: 10,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "SignUp",
-                                    style: GoogleFonts.robotoFlex(
-                                      color: Colors.white,
-                                      fontSize: 32,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Masukkan Data diri untuk melakukan SignUp",
-                                    style: GoogleFonts.robotoFlex(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w100,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child:
-                                        BlocConsumer<SignupCubit, SignupState>(
-                                          listener: (context, state) {
-                                            if (state is SignupLoaded) {
-                                              context
-                                                  .read<TokenauthCubit>()
-                                                  .getTokens();
-                                            }
-                                          },
-                                          builder: (context, state) {
-                                            if (state is SignupLoading) {
-                                              return Center(
-                                                child: SizedBox(
-                                                  height: 100,
-                                                  width: 100,
-                                                  child: MyLottie(
-                                                    aset: ImagesPath
-                                                        .loadinglottie,
-                                                  ),
-                                                ),
-                                              );
-                                            } else if (state is SignupError) {
-                                              return Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Icon(Icons.error),
-                                                  Text(
-                                                    state.message,
-                                                    style:
-                                                        GoogleFonts.robotoFlex(
-                                                          color: Colors.white,
-                                                          fontSize: 11,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      context
-                                                          .read<SignupCubit>()
-                                                          .init();
-                                                    },
-                                                    child: Text("Coba Lagi"),
-                                                  ),
-                                                ],
-                                              );
-                                            } else if (state is SignupLoaded) {
-                                              return Center(
-                                                child: Text(
-                                                  "Sukses",
-                                                  style: GoogleFonts.robotoFlex(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              );
-                                            } else if (state is SignupInitial) {
-                                              return FormSignUp(
-                                                reqstate: state.constantclass,
-                                                univ: state.datauniv,
-                                              );
-                                            } else {
-                                              return Container();
-                                            }
-                                          },
-                                        ),
-                                  ),
-                                ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned.fill(child: Container(color: Colors.black)),
+            Positioned(
+          bottom: tinggilottie * -0.40,
+          left: 0,
+          child: SizedBox(
+            height: tinggilottie,
+            width: tinggilottie,
+          
+            child: MyLottie(aset: ImagesPath.bgleftlottie),
+          ),
+        ),
+        Positioned(
+          
+          top: tinggilottie * -0.40,
+          right: 0,
+          child: SizedBox(
+            height: tinggilottie,
+            width: tinggilottie,
+          
+            child: MyLottie(aset: ImagesPath.bgrightlottie),
+          ),
+        ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              left: 0,
+              top: 0,
+              child: Center(
+                child: FrostGlassAnimated(
+                  width: 800,
+                  height: 800,
+                  child: SingleChildScrollView(
+                    child: SizedBox(
+                      height: 800,
+                      child: Padding(
+                        padding: const EdgeInsets.all(50),
+                        child: Column(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "SignUp",
+                              style: GoogleFonts.robotoFlex(
+                                color: Colors.white,
+                                fontSize: 32,
                               ),
                             ),
-                          ),
+                            Text(
+                              "Masukkan Data diri untuk melakukan SignUp",
+                              style: GoogleFonts.robotoFlex(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w100,
+                              ),
+                            ),
+                            Expanded(
+                              child: BlocConsumer<SignupCubit, SignupState>(
+                                listener: (context, state) {
+                                  if (state is SignupLoaded) {
+                                    context.read<TokenauthCubit>().getTokens();
+                                  }
+                                },
+                                builder: (context, state) {
+                                  if (state is SignupLoading) {
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (state is SignupError) {
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.error),
+                                        Text(
+                                          state.message,
+                                          style: GoogleFonts.robotoFlex(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            context.read<SignupCubit>().init();
+                                          },
+                                          child: Text("Coba Lagi"),
+                                        ),
+                                      ],
+                                    );
+                                  } else if (state is SignupLoaded) {
+                                    return Center(child: Text("Sukses"));
+                                  } else if (state is SignupInitial) {
+                                    return FormSignUp(
+                                      reqstate: state.constantclass,
+                                      univ: state.datauniv,
+                                    );
+                                  } else {
+                                    return Container();
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                ],
-              );
-            },
-          ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -256,15 +225,8 @@ class _FormSignUpState extends State<FormSignUp> {
               return null;
             },
             decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white, width: 2),
-              ),
+              border: OutlineInputBorder(),
+
               label: Text(
                 "username",
                 style: GoogleFonts.robotoFlex(
@@ -287,15 +249,8 @@ class _FormSignUpState extends State<FormSignUp> {
               return null;
             },
             decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white, width: 2),
-              ),
+              border: OutlineInputBorder(),
+
               label: Text(
                 "email",
                 style: GoogleFonts.robotoFlex(
@@ -318,15 +273,8 @@ class _FormSignUpState extends State<FormSignUp> {
               return null;
             },
             decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white, width: 2),
-              ),
+              border: OutlineInputBorder(),
+
               label: Text(
                 "name",
                 style: GoogleFonts.robotoFlex(
@@ -340,41 +288,21 @@ class _FormSignUpState extends State<FormSignUp> {
           ),
           DropdownButtonFormField<String>(
             value: selectedUniversity,
-            style: GoogleFonts.robotoFlex(color: Colors.white),
             hint: widget.reqstate == RequestState.loading
                 ? const Text("Loading...")
                 : const Text("Pilih Universitas"),
             onChanged: widget.reqstate == RequestState.loading
-                ? null
+                ? null // Disable
                 : (value) {
                     setState(() {
                       selectedUniversity = value;
                     });
                   },
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white, width: 2),
-              ),
-              labelText: "Universitas",
-              labelStyle: GoogleFonts.robotoFlex(color: Colors.white),
-            ),
             items: widget.reqstate == RequestState.loaded
                 ? widget.univ.map((e) {
-                    return DropdownMenuItem(
-                      value: e.id,
-                      child: Text(
-                        e.name,
-                        style: GoogleFonts.robotoFlex(color: Colors.black),
-                      ),
-                    );
+                    return DropdownMenuItem(value: e.id, child: Text(e.name));
                   }).toList()
-                : const [],
+                : const [], // Tidak ada item saat loading
           ),
           TextFormField(
             controller: phone,
@@ -388,15 +316,8 @@ class _FormSignUpState extends State<FormSignUp> {
               return null;
             },
             decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white, width: 2),
-              ),
+              border: OutlineInputBorder(),
+
               label: Text(
                 "Phone Number",
                 style: GoogleFonts.robotoFlex(
@@ -426,15 +347,7 @@ class _FormSignUpState extends State<FormSignUp> {
               return null;
             },
             decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white, width: 2),
-              ),
+              border: OutlineInputBorder(),
               label: Text(
                 "password",
                 style: GoogleFonts.robotoFlex(
@@ -474,15 +387,8 @@ class _FormSignUpState extends State<FormSignUp> {
               return null;
             },
             decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white, width: 2),
-              ),
+              border: OutlineInputBorder(),
+
               label: Text(
                 "re-password",
                 style: GoogleFonts.robotoFlex(

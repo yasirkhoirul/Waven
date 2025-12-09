@@ -50,68 +50,62 @@ class _PortoPageState extends State<PortoPage> {
               ),
             );
           } else if (state is PortoAllLoaded) {
-            return CustomScrollView(
-              slivers: [
-                // Persistent Header with Package Title
-                SliverAppBar(
-                  floating: false,
-                  pinned: true,
-                  backgroundColor: Colors.black87,
-                  elevation: 0,
-                  expandedHeight: 90,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 4,
-                        children: [
-                          Text(
-                            'Portofolio',
-                            style: GoogleFonts.robotoFlex(
-                              fontSize: 14,
-                              color: Colors.grey[400],
-                              fontWeight: FontWeight.w500,
-                            ),
+            return ListView.builder(
+              itemCount: 2,
+              itemBuilder: (context, index) {
+                // Index 0: Header
+                if (index == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 8,
+                      children: [
+                        Text(
+                          'Portofolio',
+                          style: GoogleFonts.robotoFlex(
+                            fontSize: 14,
+                            color: Colors.grey[400],
+                            fontWeight: FontWeight.w500,
                           ),
-                          Text(
-                            widget.packageTitle,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.robotoFlex(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                        ),
+                        Text(
+                          widget.packageTitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.robotoFlex(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                // Horizontal List of Portfolios
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: SizedBox(
-                      height: 280,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: state.data.length,
-                        itemBuilder: (context, index) {
-                          final porto = state.data[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: PortoCard(porto: porto,packagetitle:widget.packageTitle),
-                          );
-                        },
-                      ),
+                  );
+                }
+                // Index 1: Horizontal ListView of Portfolios
+                else {
+                  return SizedBox(
+                    height: 280,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: state.data.length,
+                      itemBuilder: (context, portoIndex) {
+                        final porto = state.data[portoIndex];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: PortoCard(
+                            porto: porto,
+                            packagetitle: widget.packageTitle,
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                ),
-              ],
+                  );
+                }
+              },
             );
           } else {
             return Center(
@@ -229,7 +223,28 @@ class PortoCard extends StatelessWidget {
               ),
             ),
             // Portfolio Info
-            
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      packagetitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.robotoFlex(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

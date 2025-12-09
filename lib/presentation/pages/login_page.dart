@@ -14,49 +14,8 @@ import 'package:waven/presentation/widget/frostglass.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 import 'package:waven/presentation/widget/slidedirection.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeMetrics() {
-    final bottomInset = View.of(context).viewInsets.bottom;
-
-    // 2. Cek apakah keyboard baru saja menutup (inset menjadi 0)
-    if (bottomInset == 0.0) {
-      // 3. JIKA KEYBOARD TUTUP -> PAKSA UNFOCUS
-      // Ini meniru perilaku "Tap di luar" secara otomatis
-      FocusManager.instance.primaryFocus?.unfocus();
-    }
-
-    // 4. Berikan sedikit delay untuk rebuild
-    // Browser butuh waktu ~100-300ms untuk animasi menutup keyboard
-    // Kita panggil setState berulang untuk memastikan frame terakhir tertangkap
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) setState(() {});
-    });
-
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) setState(() {});
-    });
-    super.didChangeMetrics();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,10 +42,26 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         child: LayoutBuilder(
           builder: (context, constrains) {
             final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-            if (!keyboardOpen && constrains.maxHeight < 600) {
+            if (kIsWeb) {
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height - 70,
+                      child: LayoutLogin(
+                        tinggilottie: tinggilottie,
+                        runtimeType: runtimeType,
+                      ),
+                    ),
+                    Container(color: Colors.black, child: Footer()),
+                  ],
+                ),
+              );
+            }
+            if (constrains.maxHeight < 800) {
               return SingleChildScrollView(
                 child: SizedBox(
-                  height: 600,
+                  height: 800,
                   child: LayoutLogin(
                     tinggilottie: tinggilottie,
                     runtimeType: runtimeType,
@@ -94,30 +69,13 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                 ),
               );
             } else {
-              if (kIsWeb) {
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height - 70,
-                        child: LayoutLogin(
-                          tinggilottie: tinggilottie,
-                          runtimeType: runtimeType,
-                        ),
-                      ),
-                      Container(color: Colors.black, child: Footer()),
-                    ],
-                  ),
-                );
-              } else {
-                return SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  child: LayoutLogin(
-                    tinggilottie: tinggilottie,
-                    runtimeType: runtimeType,
-                  ),
-                );
-              }
+              return SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: LayoutLogin(
+                  tinggilottie: tinggilottie,
+                  runtimeType: runtimeType,
+                ),
+              );
             }
           },
         ),
@@ -180,6 +138,7 @@ class _LayoutLoginState extends State<LayoutLogin>
 
   @override
   Widget build(BuildContext context) {
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return Stack(
       children: [
         Positioned.fill(child: Container(color: Colors.black)),
@@ -217,50 +176,50 @@ class _LayoutLoginState extends State<LayoutLogin>
           right: 0,
           left: 0,
           top: 0,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.7,
-                height: 150,
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "Sign In",
-                            style: GoogleFonts.robotoFlex(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 48,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  height: 150,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              "Sign In",
+                              style: GoogleFonts.robotoFlex(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 48,
+                              ),
                             ),
-                          ),
-                          Text(
-                            "Home/login",
-                            style: GoogleFonts.robotoFlex(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w100,
-                              fontSize: 18,
+                            Text(
+                              "Home/login",
+                              style: GoogleFonts.robotoFlex(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w100,
+                                fontSize: 18,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      AnimatedDividerCurve(
-                        color: Colors.white,
-                        height: 1,
-                        duration: Duration(seconds: 1),
-                        curve: Curves.easeOutBack,
-                      ),
-                    ],
+                          ],
+                        ),
+                        AnimatedDividerCurve(
+                          color: Colors.white,
+                          height: 1,
+                          duration: Duration(seconds: 1),
+                          curve: Curves.easeOutBack,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Center(
+                Center(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: FrostGlassAnimated(
@@ -273,6 +232,7 @@ class _LayoutLoginState extends State<LayoutLogin>
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Text("$keyboardOpen"),
                             FadeInUpText(
                               text: "LOGIN",
                               style: GoogleFonts.robotoFlex(
@@ -291,7 +251,7 @@ class _LayoutLoginState extends State<LayoutLogin>
                                 fontSize: 11,
                                 fontWeight: FontWeight.w100,
                               ),
-
+                            
                               duration: Duration(milliseconds: 800),
                               delay: Duration(milliseconds: 400), // opsional
                               offsetY: 30,
@@ -391,8 +351,8 @@ class _LayoutLoginState extends State<LayoutLogin>
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
