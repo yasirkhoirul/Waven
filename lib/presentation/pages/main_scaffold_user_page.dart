@@ -5,6 +5,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/appbarsuser.dart';
 
+// Custom ScrollBehavior untuk disable auto-scroll ke input field
+class NoScrollBehavior extends ScrollBehavior {
+  @override
+  Widget buildViewportChrome(
+    BuildContext context,
+    Widget child,
+    AxisDirection axisDirection,
+  ) {
+    return child;
+  }
+}
+
 class MainScaffoldUserPage extends StatefulWidget {
   final StatefulNavigationShell statefulNavigationShell;
   const MainScaffoldUserPage({
@@ -27,109 +39,113 @@ class _MainScaffoldUserPageState extends State<MainScaffoldUserPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: scaffoldkey,
-      drawer: Drawer(
-        backgroundColor: Colors.black,
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: [
-            ListTile(
-              title: Text(
-                "Home",
-                style: GoogleFonts.plusJakartaSans(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w100,
-                  fontSize: 14,
+    return ScrollConfiguration(
+      behavior: NoScrollBehavior(),
+      child: Scaffold(
+        key: scaffoldkey,
+        drawer: Drawer(
+          backgroundColor: Colors.black,
+          child: ListView(
+            // Important: Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
+            children: [
+              ListTile(
+                title: Text(
+                  "Home",
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w100,
+                    fontSize: 14,
+                  ),
                 ),
+                onTap: () {
+                  context.pop();
+                  gobranch(0);
+                },
               ),
-              onTap: () {
-                context.pop();
-                gobranch(0);
-              },
-            ),
-            ListTile(
-              title: Text(
-                "Package",
-                style: GoogleFonts.plusJakartaSans(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w100,
-                  fontSize: 14,
+              ListTile(
+                title: Text(
+                  "Package",
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w100,
+                    fontSize: 14,
+                  ),
                 ),
+                onTap: () {
+                  context.pop();
+                  gobranch(1);
+                },
               ),
-              onTap: () {
-                context.pop();
-                gobranch(1);
-              },
-            ),
-            ListTile(
-              title: Text(
-                "Gallery",
-                style: GoogleFonts.plusJakartaSans(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w100,
-                  fontSize: 14,
+              ListTile(
+                title: Text(
+                  "Gallery",
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w100,
+                    fontSize: 14,
+                  ),
                 ),
+                onTap: () {
+                  context.pop();
+                  gobranch(2);
+                },
               ),
-              onTap: () {
-                context.pop();
-                gobranch(2);
-              },
-            ),
-            ListTile(
-              title: Text(
-                "Profile",
-                style: GoogleFonts.plusJakartaSans(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w100,
-                  fontSize: 14,
+              ListTile(
+                title: Text(
+                  "Profile",
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w100,
+                    fontSize: 14,
+                  ),
                 ),
+                onTap: () {
+                  context.pop();
+                  gobranch(3);
+                },
               ),
-              onTap: () {
-                context.pop();
-                gobranch(3);
-              },
-            ),
-            ListTile(
-              title: Text(
-                "Logout",
-                style: GoogleFonts.plusJakartaSans(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w100,
-                  fontSize: 14,
+              ListTile(
+                title: Text(
+                  "Logout",
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w100,
+                    fontSize: 14,
+                  ),
                 ),
+                onTap: () {
+                  context.pop();
+                  context.read<TokenauthCubit>().onLogout();
+                },
               ),
-              onTap: () {
-                context.pop();
-                context.read<TokenauthCubit>().onLogout();
-              },
-            ),
-          ],
-        ),
-      ),
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(color: Colors.black.withAlpha(56)),
-          child: AppbarsUser(
-            onpress: (int p1) {
-              gobranch(p1);
-            },
-            onmenupress: () {
-              scaffoldkey.currentState?.openDrawer();
-            },
+            ],
           ),
         ),
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          scrolledUnderElevation: 0,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(color: Colors.black.withAlpha(56)),
+            child: AppbarsUser(
+              onpress: (int p1) {
+                gobranch(p1);
+              },
+              onmenupress: () {
+                scaffoldkey.currentState?.openDrawer();
+              },
+            ),
+          ),
+        ),
+        body: Container(
+          color: Colors.black,
+          child: SafeArea(child: widget.statefulNavigationShell),
+        ),
       ),
-      body: Container(
-        color: Colors.black,
-        child: SafeArea(child: widget.statefulNavigationShell)),
     );
   }
 }
