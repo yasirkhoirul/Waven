@@ -51,6 +51,7 @@ class _PortoPageState extends State<PortoPage> {
             );
           } else if (state is PortoAllLoaded) {
             return ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
               itemCount: 2,
               itemBuilder: (context, index) {
                 // Index 0: Header

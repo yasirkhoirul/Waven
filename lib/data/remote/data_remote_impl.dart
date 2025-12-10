@@ -8,6 +8,7 @@ import 'package:waven/data/model/addonsmodel.dart';
 import 'package:waven/data/model/booking_request_model.dart';
 import 'package:waven/data/model/detailportomodel.dart';
 import 'package:waven/data/model/invoicemodel.dart';
+import 'package:waven/data/model/listinvoicemodeluser.dart';
 import 'package:waven/data/model/packagemodel.dart';
 import 'package:waven/data/model/portomodel.dart';
 import 'package:waven/data/model/signup.dart';
@@ -32,7 +33,8 @@ abstract class DataRemote {
   Future<bool> checkBooking(String tanggal, String start, String end);
   Future<List<int>> getQris(
     String transactionid,
-  ); // Return bytes instead of String
+  );
+  Future<ListInvoiceModelUser> getlistinvoice(int page, int limit);
 }
 
 class DataRemoteImpl implements DataRemote {
@@ -299,6 +301,23 @@ class DataRemoteImpl implements DataRemote {
     } catch (e) {
       Logger().e("Exception while fetching QR: $e");
       throw Exception("Unexpected error: $e");
+    }
+  }
+  
+  @override
+  Future<ListInvoiceModelUser> getlistinvoice(int page,int limit)async {
+    try {
+      final data =await dio.dio.get('v1/bookings/invoices',queryParameters: {
+        'page': page,
+        'limit':limit
+      });
+      Logger().d("iniadalah data remote ${data.extra}");
+      Logger().d("iniadalah data remote ");
+      Logger().d("iniadalah data remote fromjson ${ListInvoiceModelUser.fromJson(data.data)}");
+
+      return ListInvoiceModelUser.fromJson(data.data);
+    } catch (e) {
+      throw Exception(e);
     }
   }
 }

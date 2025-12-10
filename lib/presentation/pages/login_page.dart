@@ -232,7 +232,7 @@ class _LayoutLoginState extends State<LayoutLogin>
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("$keyboardOpen"),
+                            
                             FadeInUpText(
                               text: "LOGIN",
                               style: GoogleFonts.robotoFlex(

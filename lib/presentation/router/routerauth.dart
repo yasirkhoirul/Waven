@@ -93,7 +93,7 @@ class MyRouter {
         final token = cubit.state.tokens;
         final isLoggedIn = token != null;
         // Routes yang boleh diakses saat belum login
-        final allowedRoutesWhenLoggedOut = ['/login', '/signup','/home','/Profile','/Gallery'];
+        final allowedRoutesWhenLoggedOut = ['/login', '/signup','/home','/Gallery'];
 
         // Jika belum login dan bukan salah satu route yang diizinkan → redirect ke login
         if (!isLoggedIn &&

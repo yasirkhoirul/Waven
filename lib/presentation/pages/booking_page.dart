@@ -40,22 +40,18 @@ class _BookingPageState extends State<BookingPage> {
   Widget _buildContentByStep(BookingState state) {
     switch (state.step) {
       case BookingStep.loaded:
-        return SizedBox(
-          height: 1000,
-          key: const ValueKey('step_loaded'),
-          child: Column(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Header(
-                langkah: '1',
-                sub: 'Pilih tanggal dan waktu',
-                subsub:
-                    "Pilih universitas asalmu, pilih tanggal, pilih jam yang tersedia",
-              ),
-              Expanded(child: FormContent()),
-            ],
-          ),
+        return Column(
+          spacing: 10,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Header(
+              langkah: '1',
+              sub: 'Pilih tanggal dan waktu',
+              subsub:
+                  "Pilih universitas asalmu, pilih tanggal, pilih jam yang tersedia",
+            ),
+            FormContent(),
+          ],
         );
 
       case BookingStep.tahap1:
@@ -79,20 +75,16 @@ class _BookingPageState extends State<BookingPage> {
         );
 
       case BookingStep.tahap2:
-        return SizedBox(
-          height: 1000,
-          key: const ValueKey('step_tahap2'),
-          child: Column(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              HeaderWa(
-                langkah: '3',
-                sub: 'Bayar dan Upload Bukti Bayar',
-              ),
-              Expanded(child: Form3Content())
-            ],
-          ),
+        return Column(
+          spacing: 10,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            HeaderWa(
+              langkah: '3',
+              sub: 'Bayar dan Upload Bukti Bayar',
+            ),
+            Form3Content()
+          ],
         );
 
       case BookingStep.loading:
@@ -161,52 +153,58 @@ class _BookingPageState extends State<BookingPage> {
                   },
                 ),
                 // FrostGlass dengan content
-                FrostGlassAnimated(
-                  width: constraints.maxWidth * 0.85,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: BlocConsumer<BookingCubit, BookingState>(
-                      listener: (context, state) {
-                        if (state is BookingSessionExpired) {
-                          context.read<TokenauthCubit>().onLogout();
-                        } else if (state.step == BookingStep.error) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text("Gagal"),
-                              content: Text("${state.errorMessage}"),
-                              actions: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    context.read<BookingCubit>().goloaded();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text("OK"),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                      },
-                      builder: (context, state) {
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 600),
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: ScaleTransition(
-                                scale: Tween<double>(begin: 0.95, end: 1.0)
-                                    .animate(CurvedAnimation(
-                                  parent: animation,
-                                  curve: Curves.easeOutCubic,
-                                )),
-                                child: child,
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: 400,
+                    maxWidth: 700
+                  ),
+                  child: FrostGlassAnimated(
+                    width: constraints.maxWidth * 0.85,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: BlocConsumer<BookingCubit, BookingState>(
+                        listener: (context, state) {
+                          if (state is BookingSessionExpired) {
+                            context.read<TokenauthCubit>().onLogout();
+                          } else if (state.step == BookingStep.error) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text("Gagal"),
+                                content: Text("${state.errorMessage}"),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      context.read<BookingCubit>().goloaded();
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text("OK"),
+                                  ),
+                                ],
                               ),
                             );
-                          },
-                          child: _buildContentByStep(state),
-                        );
-                      },
+                          }
+                        },
+                        builder: (context, state) {
+                          return AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 600),
+                            transitionBuilder: (child, animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: ScaleTransition(
+                                  scale: Tween<double>(begin: 0.95, end: 1.0)
+                                      .animate(CurvedAnimation(
+                                    parent: animation,
+                                    curve: Curves.easeOutCubic,
+                                  )),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: _buildContentByStep(state),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),

@@ -118,61 +118,57 @@ class _FormContentState extends State<FormContent> {
                     return null;
                   },
                 ),
-                Expanded(
-                  child: SizedBox(
-                    height: 300, // agar bisa scroll
-                    child: GridView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3, // 3 kolom seperti contoh
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                            childAspectRatio: 2.3, // atur bentuk tombol
-                          ),
-                      itemCount: timeSlots.length,
-                      itemBuilder: (context, index) {
-                        bool isSelected = index == _selectedWaktuIndex;
-
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedWaktuIndex = index;
-                            });
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            curve: Curves.easeInOutCubic,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Colors.green
-                                  : Colors.grey[700],
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: isSelected
-                                  ? [
-                                      BoxShadow(
-                                        color: Colors.green.withOpacity(0.5),
-                                        blurRadius: 8,
-                                        spreadRadius: 2,
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: Text(
-                              timeSlots[index],
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                        );
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  gridDelegate:
+                      SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:  MediaQuery.of(context).size.width>650?5: 3, // 3 kolom seperti contoh
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 2.3, // atur bentuk tombol
+                      ),
+                  itemCount: timeSlots.length,
+                  itemBuilder: (context, index) {
+                    bool isSelected = index == _selectedWaktuIndex;
+                                
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedWaktuIndex = index;
+                        });
                       },
-                    ),
-                  ),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.easeInOutCubic,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? ColorTema.accentColor
+                              : Colors.grey[700],
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: ColorTema.accentColor.withAlpha(144),
+                                    blurRadius: 8,
+                                    spreadRadius: 2,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Text(
+                          timeSlots[index],
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 SizedBox(
                   width: double.maxFinite,

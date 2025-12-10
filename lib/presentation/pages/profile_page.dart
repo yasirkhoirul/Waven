@@ -1,9 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
+import 'package:logger/web.dart';
 import 'package:waven/common/color.dart';
+import 'package:waven/common/constant.dart';
 import 'package:waven/common/imageconstant.dart';
+import 'package:waven/data/model/booking_request_model.dart';
+import 'package:waven/domain/entity/list_invoice_user.dart';
+import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/widget/divider.dart';
 import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
@@ -18,22 +25,14 @@ class ProfilePage extends StatelessWidget {
       itemCount: 2,
       itemBuilder: (context, index) {
         if (index == 0) {
-          return ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: 1200,
-              minHeight: 100,
-              minWidth: 700,
-              maxWidth: 800,
-            ),
-            child: Center(
-              child: FrostGlassAnimated(
-                width: pannjanglayar * 0.8,
-                child: Column(
-                  children: [
-                    HeaderProfile(pannjanglayar: pannjanglayar),
-                    Expanded(child: MainContentProfile()),
-                  ],
-                ),
+          return Center(
+            child: FrostGlassAnimated(
+              width: pannjanglayar * 0.8,
+              child: Column(
+                children: [
+                  HeaderProfile(pannjanglayar: pannjanglayar),
+                  MainContentProfile(),
+                ],
               ),
             ),
           );
@@ -55,6 +54,23 @@ class MainContentProfile extends StatefulWidget {
 class _MainContentProfileState extends State<MainContentProfile> {
   final _pagecontroller = PageController();
   int currentindex = 0;
+  int higheghtpage = 0;
+  final limit = 2;
+
+  @override
+  void initState() {
+    final cubit = context.read<ListInvoiceCubit>();
+    Logger().d("init dipanggil - load page 1");
+    cubit.getLoad(1, 2);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pagecontroller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -66,127 +82,337 @@ class _MainContentProfileState extends State<MainContentProfile> {
             child: HeaderPage(),
           ),
         ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: LayoutBuilder(
-              builder: (context, constrians) {
-                return PageView.builder(
-                  controller: _pagecontroller,
-                  onPageChanged: (value) {
-                    setState(() {
-                      currentindex = value;
-                    });
-                  },
-                  itemCount: 3,
-                  itemBuilder: (context, index) {
-                    return ListView.builder(
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: BlocBuilder<ListInvoiceCubit, ListInvoiceState>(
+            builder: (context, state) {
+              if (state.step == RequestState.loading &&
+                  state.listdata.isEmpty) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if (state.step == RequestState.error) {
+                return Center(child: Text("Error loading data"));
+              }
+
+              if (state.listdata.isEmpty) {
+                return Center(child: Text("No data available"));
+              }
+
+              // Update higheghtpage based on total count from metadata
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final totalItems =
+                    state.data?.metadata.count ?? state.listdata.length;
+                final newPageCount = (totalItems / 2).ceil();
+                Logger().i(
+                  "Calculate pages - totalItems: $totalItems, newPageCount: $newPageCount",
+                );
+                if (higheghtpage != newPageCount) {
+                  setState(() {
+                    higheghtpage = newPageCount;
+                  });
+                }
+              });
+
+              return SizedBox(
+                height: MediaQuery.of(context).size.width<920?1000:600,
+                child: LayoutBuilder(
+                  builder: (context, constrians) {
+                    return PageView.builder(
+                      
                       physics: NeverScrollableScrollPhysics(),
-                      itemCount: 2,
-                      itemBuilder: (context, index) => SizedBox(
-                        height: constrians.maxHeight / 2.05,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FrostGlassAnimated(
-                            width: double.maxFinite,
-                            child: Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Judul Session",
-                                        style: GoogleFonts.robotoFlex(
-                                          color: Color(0xFFE0E0E0),
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 24,
-                                        ),
-                                      ),
-                                      Container(
-                                        color: ColorTema.accentColor,
-                                        padding: EdgeInsets.all(10),
-                                        child: Center(child: Text("Lunas",style:GoogleFonts.robotoFlex(
-                                          color: Colors.white
-                                        )),),
-                                      )
-                                    ],
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        spacing: 5,
-                                        children: [
-                                          DataRowItem(
-                                            label: 'Universitas',
-                                            value: 'Univeristas Gadjah Mada',
-                                          ),
-
-                                          DataRowItem(
-                                            label: 'Tanggal Foto',
-                                            value: '20 September 2025',
-                                          ),
-
-                                          DataRowItem(
-                                            label: 'Waktu Foto',
-                                            value: '13.00-14.00',
-                                          ),
-
-                                          DataRowItem(
-                                            label: 'Extra',
-                                            value: '30 Menit',
-                                          ),
-
-                                          DataRowItem(
-                                            label: 'Lokasi Foto',
-                                            value: 'GIK',
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  FooterContentPage(),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      controller: _pagecontroller,
+                      onPageChanged: (value) {
+                        setState(() {
+                          currentindex = value;
+                        });
+                                  
+                        final cubit = context.read<ListInvoiceCubit>();
+                        final currentState = cubit.state;
+                                  
+                        if (currentState.step != RequestState.loaded) {
+                          return;
+                        }
+                        if (currentState.data?.metadata == null) {
+                          return;
+                        }
+                                  
+                        final totalLoadedItems =
+                            currentState.listdata.length;
+                        final totalAvailableItems =
+                            currentState.data!.metadata.count;
+                        final itemsPerPage = 2;
+                                  
+                        // Hitung page index terakhir yang bisa ditampilkan
+                        final lastPageIndex =
+                            ((totalLoadedItems + itemsPerPage - 1) /
+                                    itemsPerPage)
+                                .floor() -
+                            1;
+                        // Trigger load data baru saat user di halaman terakhir
+                        if (value >= lastPageIndex &&
+                            totalLoadedItems < totalAvailableItems) {
+                          // Hitung nomor page selanjutnya
+                          final nextPage =
+                              (totalLoadedItems / itemsPerPage).ceil() +
+                              1;
+                          cubit.getLoad(nextPage, itemsPerPage);
+                        }
+                      },
+                      itemCount: higheghtpage,
+                      itemBuilder: (context, indexpage) {
+                        return BlocConsumer<
+                          ListInvoiceCubit,
+                          ListInvoiceState
+                        >(
+                          listener: (context, state) {
+                            if (state.step == RequestState.loaded) {
+                              setState(() {
+                                // Hitung jumlah halaman (2 items per halaman)
+                                higheghtpage = (state.listdata.length / 2)
+                                    .ceil();
+                              });
+                              Logger().i(
+                                "higheghtpage updated to: $higheghtpage, total items: ${state.listdata.length}",
+                              );
+                            }
+                          },
+                          builder: (context, state) {
+                            if (state.step == RequestState.loaded) {
+                              Logger().i(
+                                "Building page $indexpage, listdata length: ${state.listdata.length}",
+                              );
+                                  
+                              // Validasi index untuk menghindari RangeError
+                              final startIndex = indexpage * 2;
+                              final endIndex = startIndex + 2;
+                                  
+                              Logger().i(
+                                "StartIndex: $startIndex, EndIndex: $endIndex",
+                              );
+                                  
+                              // Pastikan index tidak melebihi jumlah data
+                              if (startIndex >= state.listdata.length) {
+                                Logger().w(
+                                  "StartIndex melebihi listdata length",
+                                );
+                                return Container();
+                              }
+                                  
+                              // Hitung berapa item yang tersedia untuk halaman ini
+                              final availableItemsCount =
+                                  state.listdata.length - startIndex;
+                              final itemCountForThisPage =
+                                  availableItemsCount > 2
+                                  ? 2
+                                  : availableItemsCount;
+                                  
+                              Logger().i(
+                                "Available items: $availableItemsCount, akan ditampilkan: $itemCountForThisPage",
+                              );
+                                  
+                              return Center(
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: itemCountForThisPage,
+                                  itemBuilder: (context, index) {
+                                    final dataIndex = startIndex + index;
+                                    Logger().i(
+                                      "Rendering item at index: $dataIndex",
+                                    );
+                                    return LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        Logger().i(constraints.maxHeight);
+                                        return Itemlistinvoicebuilderpagnation(
+                                          constrains:
+                                              constrians.maxHeight,
+                                          data: state
+                                              .listdata[dataIndex],
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              );
+                            } else if (state.step ==
+                                RequestState.loading) {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            } else {
+                              return Container();
+                            }
+                          },
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 20,
           children: [
-            InkWell(
-              onTap: () => _pagecontroller.animateToPage(
-                currentindex - 1,
-                duration: Duration(seconds: 1),
-                curve: Curves.easeInOut,
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back),
+              child: IconButton(
+                onPressed: currentindex > 0
+                    ? () {
+                        _pagecontroller.animateToPage(
+                          currentindex - 1,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    : null,
+                icon: Icon(
+                  Icons.chevron_left_rounded,
+                  color: ColorTema.accentColor,
+                  size: 28,
+                ),
+              ),
             ),
-            InkWell(
-              onTap: () => _pagecontroller.animateToPage(
-                currentindex + 1,
-                duration: Duration(seconds: 1),
-                curve: Curves.easeInOut,
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_forward),
+              child: IconButton(
+                onPressed: currentindex < (higheghtpage - 1)
+                    ? () {
+                        Logger().i(
+                          "Tombol kanan ditekan - currentindex: $currentindex, higheghtpage: $higheghtpage",
+                        );
+
+                        final cubit = context.read<ListInvoiceCubit>();
+                        final state = cubit.state;
+
+                        // Check apakah perlu load data baru sebelum swipe
+                        if (state.step == RequestState.loaded &&
+                            state.data?.metadata != null) {
+                          final totalLoadedItems = state.listdata.length;
+                          final totalAvailableItems =
+                              state.data!.metadata.count;
+                          final itemsPerPage = 2;
+
+                          // Hitung page yang akan ditampilkan setelah swipe
+                          final nextPageIndex = currentindex + 1;
+
+                          // Hitung halaman apa saja yang sudah kita punya items-nya
+                          final loadedPages = (totalLoadedItems / itemsPerPage)
+                              .ceil();
+
+                          Logger().i(
+                            "Next page index: $nextPageIndex, LoadedPages: $loadedPages, Total available: $totalAvailableItems, TotalLoaded: $totalLoadedItems",
+                          );
+
+                          // Jika next page belum memiliki data yang di-load
+                          if (nextPageIndex >= loadedPages &&
+                              totalLoadedItems < totalAvailableItems) {
+                            Logger().i("Load data baru sebelum swipe");
+                            final nextPage = loadedPages + 1;
+                            cubit.getLoad(nextPage, itemsPerPage);
+                          }
+                        }
+
+                        _pagecontroller.animateToPage(
+                          currentindex + 1,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    : null,
+                icon: Icon(
+                  Icons.chevron_right_rounded,
+                  color: ColorTema.accentColor,
+                  size: 28,
+                ),
+              ),
             ),
           ],
         ),
+      SizedBox(height: 20,)
       ],
+    );
+  }
+}
+
+class Itemlistinvoicebuilderpagnation extends StatelessWidget {
+  final double constrains;
+  final BookingDataEntity data;
+  const Itemlistinvoicebuilderpagnation({
+    super.key,
+    required this.constrains,
+    required this.data,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: FrostGlassAnimated(
+        width: double.maxFinite,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    data.packageName,
+                    style: GoogleFonts.robotoFlex(
+                      color: Color(0xFFE0E0E0),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 24,
+                    ),
+                  ),
+                  Container(
+                    color: ColorTema.accentColor,
+                    padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        data.status,
+                        style: GoogleFonts.robotoFlex(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 5,
+                  children: [
+                    DataRowItem(label: 'Universitas', value: data.university),
+
+                    DataRowItem(label: 'Tanggal Foto', value: data.date),
+
+                    DataRowItem(
+                      label: 'Waktu Foto',
+                      value: "${data.startTime}:${data.endTime}",
+                    ),
+
+                    DataRowItem(label: 'Lokasi Foto', value: data.location),
+                  ],
+                ),
+              ),
+              FooterContentPage(),
+              
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -236,29 +462,32 @@ class FooterContentPage extends StatelessWidget {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: item['bg'] as Color,
-            padding: EdgeInsets.all(20)
+            padding: EdgeInsets.all(20),
           ),
           onPressed: item['action'] as VoidCallback?,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(item['icon'] as IconData,color: Colors.white,),
+              Icon(item['icon'] as IconData, color: Colors.white),
               const SizedBox(width: 6),
-              Text(item['label'] as String, style: GoogleFonts.robotoFlex(
-                color: Colors.white
-              ),),
+              Text(
+                item['label'] as String,
+                style: GoogleFonts.robotoFlex(color: Colors.white),
+              ),
             ],
           ),
         ),
       );
     }
 
-    return MediaQuery.of(context).size.width > 660
+    return MediaQuery.of(context).size.width > 900
         ? Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: menuButtons.map((e) => customMenuButton(e)).toList(),
           )
         : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: menuButtons.map((e) => customMenuButton(e)).toList(),
           );
   }

@@ -8,6 +8,7 @@ import 'package:waven/domain/entity/addons.dart';
 import 'package:waven/domain/entity/booking.dart';
 import 'package:waven/domain/entity/customer.dart';
 import 'package:waven/domain/entity/invoice.dart';
+import 'package:waven/domain/entity/list_invoice_user.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
 import 'package:waven/domain/repository/booking_repository.dart';
 
@@ -94,6 +95,18 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       final response = await dataRemote.checkBooking(tanggal, start, end);
       return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ListInvoiceUserEntity> getlistinvoiceuser(int page, int limit) async{
+    try {
+      
+      final data = await dataRemote.getlistinvoice(page, limit);
+      Logger().d("iniadalah repo invoice ${data}");
+      return data.toEntity();
     } catch (e) {
       rethrow;
     }
