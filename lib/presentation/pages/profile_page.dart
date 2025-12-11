@@ -4,12 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart';
 import 'package:logger/web.dart';
 import 'package:waven/common/color.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/common/imageconstant.dart';
-import 'package:waven/data/model/booking_request_model.dart';
 import 'package:waven/domain/entity/list_invoice_user.dart';
 import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/profile_cubit.dart';
@@ -430,7 +428,7 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
+              MediaQuery.of(context).size.width>440? Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -449,6 +447,32 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
                           : ColorTema.accentColor,
                     ),
                     padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        data.status,
+                        style: GoogleFonts.robotoFlex(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ):Column(
+                children: [
+                  Text(
+                    data.packageName,
+                    style: GoogleFonts.robotoFlex(
+                      color: Color(0xFFE0E0E0),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: data.status == 'PENDING'
+                          ? Colors.amber
+                          : ColorTema.accentColor,
+                    ),
+                    padding: EdgeInsets.all(4),
                     child: Center(
                       child: Text(
                         data.status,
@@ -545,7 +569,7 @@ class FooterContentPage extends StatelessWidget {
     Widget customMenuButton(Map item) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
+        child: MediaQuery.of(context).size.width>440? ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: item['bg'] as Color,
             padding: EdgeInsets.all(20),
@@ -559,6 +583,23 @@ class FooterContentPage extends StatelessWidget {
               Text(
                 item['label'] as String,
                 style: GoogleFonts.robotoFlex(color: Colors.white),
+              ),
+            ],
+          ),
+        ):ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: item['bg'] as Color,
+            padding: EdgeInsets.all(10),
+          ),
+          onPressed: item['action'] as VoidCallback?,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(item['icon'] as IconData, color: Colors.white,size: 10,),
+              const SizedBox(width: 3),
+              Text(
+                item['label'] as String,
+                style: GoogleFonts.robotoFlex(color: Colors.white,fontSize: 10),
               ),
             ],
           ),
@@ -599,15 +640,14 @@ class DataRowItem extends StatelessWidget {
       // Menyeimbangkan teks vertikal
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(width: 20, height: 20, child: SvgPicture.asset(path)),
+        Expanded(child: SizedBox(width: 20, height: 20, child: SvgPicture.asset(path))),
         SizedBox(width: 10),
-        SizedBox(
-          width: 120, // Lebar tetap untuk kolom label
+        Expanded(
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: Color(0xFFE0E0E0), // Teks putih
-              fontSize: 16,
+              fontSize: MediaQuery.of(context).size.width<440? 8:16,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -615,12 +655,12 @@ class DataRowItem extends StatelessWidget {
 
         // Kolom 2: Pemisah
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.only(right: 12),
           child: Text(
             separator,
-            style: const TextStyle(
+            style:  TextStyle(
               color: Color(0xFFE0E0E0), // Warna pemisah seperti di gambar
-              fontSize: 16,
+              fontSize: MediaQuery.of(context).size.width<440? 8:16,
               letterSpacing: 0.1, // Jarak antar titik
             ),
           ),
@@ -630,9 +670,9 @@ class DataRowItem extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
+            style:  TextStyle(
               color: Color(0xFFE0E0E0), // Teks putih
-              fontSize: 16.0,
+              fontSize: MediaQuery.of(context).size.width<440? 8:16,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -762,7 +802,40 @@ class _HeaderProfileState extends State<HeaderProfile> {
                     ),
                   ],
                 ),
-                Row(
+                MediaQuery.of(context).size.width>420?Row(
+                  spacing: 10,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Icon(Icons.mail, color: Colors.white),
+                        Text(
+                          state.data?.email ?? 'email',
+                          style: GoogleFonts.robotoFlex(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w200,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      spacing: 3,
+                      children: [
+                        Icon(Icons.phone, color: Colors.white),
+                        Text(
+                          state.data?.phonenumber ?? "phone",
+                          style: GoogleFonts.robotoFlex(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w200,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ):Column(
                   spacing: 10,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
