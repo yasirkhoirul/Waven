@@ -655,7 +655,7 @@ class DataRowItem extends StatelessWidget {
 
         // Kolom 2: Pemisah
         Padding(
-          padding: const EdgeInsets.only(right: 12),
+          padding: const EdgeInsets.only(right: 10),
           child: Text(
             separator,
             style:  TextStyle(
