@@ -25,9 +25,11 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final pannjanglayar = MediaQuery.of(context).size.width;
     return ListView.builder(
-      itemCount: 2,
+      itemCount: 3,
       itemBuilder: (context, index) {
         if (index == 0) {
+          return HeaderLayout();
+        } else if (index == 1) {
           return Center(
             child: FrostGlassAnimated(
               width: pannjanglayar * 0.8,
@@ -43,6 +45,68 @@ class ProfilePage extends StatelessWidget {
           return Footer();
         }
       },
+    );
+  }
+}
+
+class HeaderLayout extends StatefulWidget {
+  const HeaderLayout({super.key});
+
+  @override
+  State<HeaderLayout> createState() => _HeaderLayoutState();
+}
+
+class _HeaderLayoutState extends State<HeaderLayout> {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.7,
+        height: 150,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              BlocBuilder<ProfileCubit, ProfileState>(
+                builder: (context, state) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          state.data == null?  "memuat ...": "Selamat datang ${state.data?.name}",
+                          style: GoogleFonts.robotoFlex(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 48,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        "Home / Profile",
+                        style: GoogleFonts.robotoFlex(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w100,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              AnimatedDividerCurve(
+                color: Colors.white,
+                height: 1,
+                duration: Duration(seconds: 1),
+                curve: Curves.easeOutBack,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

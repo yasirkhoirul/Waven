@@ -105,18 +105,39 @@ class _MainScaffoldUserPageState extends State<MainScaffoldUserPage> {
                   gobranch(3);
                 },
               ),
-              ListTile(
-                title: Text(
-                  "Logout",
-                  style: GoogleFonts.plusJakartaSans(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w100,
-                    fontSize: 14,
-                  ),
-                ),
-                onTap: () {
-                  context.pop();
-                  context.read<TokenauthCubit>().onLogout();
+              BlocConsumer<TokenauthCubit, TokenauthState>(
+                listener: (context, state) {},
+                builder: (context, state) {
+                  if (state.tokens != null) {
+                    return ListTile(
+                      title: Text(
+                        "Logout",
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w100,
+                          fontSize: 14,
+                        ),
+                      ),
+                      onTap: () {
+                        context.pop();
+                        context.read<TokenauthCubit>().onLogout();
+                      },
+                    );
+                  } else {
+                    return ListTile(
+                      title: Text(
+                        "Login",
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w100,
+                          fontSize: 14,
+                        ),
+                      ),
+                      onTap: () {
+                        context.go('/login');
+                      },
+                    );
+                  }
                 },
               ),
             ],

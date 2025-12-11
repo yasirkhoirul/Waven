@@ -90,7 +90,7 @@ class _GalleryPageState extends State<GalleryPage> {
 
               // Bottom Spacing
               SliverList.builder(
-                itemCount: state.data.length,
+                itemCount: state.data.length ,
                 itemBuilder: (context, index) => SizedBox(
                   height: 400,
                   child: PortoPage(

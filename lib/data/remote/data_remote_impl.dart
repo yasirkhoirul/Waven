@@ -353,17 +353,7 @@ class DataRemoteImpl implements DataRemote {
       final uri = Uri.parse("${baseurl}v1/auth/google/login");
 
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-      // final response = await http.get(
-      //   uri,
-      //   headers: {'Accept': 'application/json'},
-      // );
-      // Logger().d(response);
-      // if (response.statusCode == 302 || response.statusCode == 301) {
-      //   final redirectUrl = response.headers['location'];
-      //   return redirectUrl!;
-      // } else {
-      //   throw Exception(response.statusCode);
-      // }
+    
       return "sukses";
     } catch (e) {
       throw Exception(e);

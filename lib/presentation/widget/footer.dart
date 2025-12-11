@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Footer extends StatelessWidget {
@@ -184,7 +185,9 @@ class FooterButton extends StatelessWidget {
       
           SizedBox(height: 10),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              context.go('/home');
+            },
             child: Text(
               "Home",
               style: GoogleFonts.plusJakartaSans(

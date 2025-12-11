@@ -16,6 +16,7 @@ import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/bookingform/formlangkah1.dart';
 import 'package:waven/presentation/widget/bookingform/formlangkah2.dart';
 import 'package:waven/presentation/widget/bookingform/formlangkah3.dart';
+import 'package:waven/presentation/widget/divider.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 import 'package:waven/presentation/widget/progress_slider.dart';
@@ -66,9 +67,7 @@ class _BookingPageState extends State<BookingPage> {
                 sub: 'Pilih Paket dan Isi form',
                 subsub: 'Isi form lengkap untuk keep the slot!',
               ),
-              Expanded(
-                child: Form2Content(idpackage: widget.idpackage),
-              ),
+              Expanded(child: Form2Content(idpackage: widget.idpackage)),
             ],
           ),
         );
@@ -78,11 +77,8 @@ class _BookingPageState extends State<BookingPage> {
           spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            HeaderWa(
-              langkah: '3',
-              sub: 'Bayar dan Upload Bukti Bayar',
-            ),
-            Form3Content()
+            HeaderWa(langkah: '3', sub: 'Bayar dan Upload Bukti Bayar'),
+            Form3Content(),
           ],
         );
 
@@ -107,7 +103,10 @@ class _BookingPageState extends State<BookingPage> {
 
       case BookingStep.submitted:
         Logger().d("invoice di state = ${state.invoice}");
-        return SubmittedPage(key: const ValueKey('step_submitted'), state: state);
+        return SubmittedPage(
+          key: const ValueKey('step_submitted'),
+          state: state,
+        );
 
       case BookingStep.tahap3:
         return Center(
@@ -135,6 +134,10 @@ class _BookingPageState extends State<BookingPage> {
             child: Column(
               spacing: 8,
               children: [
+                LayourHeaders(
+                  headername: 'Booking',
+                  subheader: 'Home / Data List',
+                ),
                 // Progress Slider di atas FrostGlass
                 BlocBuilder<BookingCubit, BookingState>(
                   builder: (context, state) {
@@ -143,20 +146,16 @@ class _BookingPageState extends State<BookingPage> {
                       currentStep = 1;
                     } else if (state.step == BookingStep.tahap2) {
                       currentStep = 2;
-                    } else if(state.step == BookingStep.tahap3 || state.step == BookingStep.submitted ){
+                    } else if (state.step == BookingStep.tahap3 ||
+                        state.step == BookingStep.submitted) {
                       return Container();
                     }
-                    return ProgressSlider(
-                      
-                      currentStep: currentStep);
+                    return ProgressSlider(currentStep: currentStep);
                   },
                 ),
                 // FrostGlass dengan content
                 ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: 400,
-                    maxWidth: 700
-                  ),
+                  constraints: BoxConstraints(minWidth: 400, maxWidth: 700),
                   child: FrostGlassAnimated(
                     width: constraints.maxWidth * 0.85,
                     child: Padding(
@@ -192,10 +191,12 @@ class _BookingPageState extends State<BookingPage> {
                                 opacity: animation,
                                 child: ScaleTransition(
                                   scale: Tween<double>(begin: 0.95, end: 1.0)
-                                      .animate(CurvedAnimation(
-                                    parent: animation,
-                                    curve: Curves.easeOutCubic,
-                                  )),
+                                      .animate(
+                                        CurvedAnimation(
+                                          parent: animation,
+                                          curve: Curves.easeOutCubic,
+                                        ),
+                                      ),
                                   child: child,
                                 ),
                               );
@@ -216,9 +217,93 @@ class _BookingPageState extends State<BookingPage> {
   }
 }
 
+class LayourHeaders extends StatelessWidget {
+  final String headername;
+  final String subheader;
+  const LayourHeaders({
+    super.key,
+    required this.headername,
+    required this.subheader,
+  });
 
-
-
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.7,
+      height: 150,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constrains) {
+                  return constrains.maxWidth < 300
+                      ? Column(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                headername,
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                subheader,
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w100,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                headername,
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 48,
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                subheader,
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w100,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                },
+              ),
+            ),
+            AnimatedDividerCurve(
+              color: Colors.white,
+              height: 1,
+              duration: Duration(seconds: 1),
+              curve: Curves.easeOutBack,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class Header extends StatelessWidget {
   final String langkah;
@@ -279,7 +364,7 @@ class HeaderWa extends StatelessWidget {
         ),
         RichText(
           text: TextSpan(
-            style:  TextStyle(fontSize: 14, color: ColorTema.abu),
+            style: TextStyle(fontSize: 14, color: ColorTema.abu),
             children: [
               const TextSpan(
                 text:
@@ -433,7 +518,7 @@ class SubmittedPage extends StatelessWidget {
                     'Currency',
                     state.invoice!.bookingDetail.currency ?? '-',
                   ),
-                  
+
                   _DetailRow(
                     'Payment Method',
                     state.invoice!.bookingDetail.paymentMethod.toUpperCase(),
@@ -512,11 +597,12 @@ class _DetailRow extends StatelessWidget {
     );
   }
 }
+
 class QrImageDisplay extends StatelessWidget {
   final Uint8List imageBytes;
-  
-  const QrImageDisplay({required this.imageBytes,super.key});
-  
+
+  const QrImageDisplay({required this.imageBytes, super.key});
+
   @override
   Widget build(BuildContext context) {
     return Image.memory(
