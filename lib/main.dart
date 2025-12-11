@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:waven/common/theme/theme.dart';
+import 'package:waven/common/theme/util.dart';
 import 'package:waven/domain/usecase/get_detail_invoice.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
@@ -40,6 +42,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = View.of(context).platformDispatcher.platformBrightness;
+
+    TextTheme textTheme = createTextTheme(context, "Roboto Flex", "Roboto Flex");
+
+    MaterialTheme theme = MaterialTheme(textTheme);
     return Builder(
       builder: (context) {
         // 3. Ambil instance Cubit
@@ -48,6 +55,7 @@ class MainApp extends StatelessWidget {
           // 4. Masukkan ke dalam Router
           final router = MyRouter.getrouter(authCubit);
         return MaterialApp.router(
+          theme: brightness == Brightness.light ? theme.light() : theme.dark(),
           routerConfig: router,
         );
       }
