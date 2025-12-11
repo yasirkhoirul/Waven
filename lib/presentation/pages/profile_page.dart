@@ -640,7 +640,7 @@ class DataRowItem extends StatelessWidget {
       // Menyeimbangkan teks vertikal
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(child: SizedBox(width: 20, height: 20, child: SvgPicture.asset(path))),
+        SizedBox(width: 20, height: 20, child: SvgPicture.asset(path)),
         SizedBox(width: 10),
         Expanded(
           child: Text(
