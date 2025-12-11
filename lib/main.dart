@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:waven/common/theme/theme.dart';
 import 'package:waven/common/theme/util.dart';
 import 'package:waven/domain/usecase/get_detail_invoice.dart';
+import 'package:waven/presentation/cubit/asset_loader_cubit.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
 import 'package:waven/presentation/cubit/detail_invoice_cubit.dart';
@@ -23,6 +24,7 @@ void main() async{
   injection.init();
   runApp(
     MultiBlocProvider(providers: [
+      BlocProvider(create: (context) => AssetLoaderCubit()),
       BlocProvider(create: (context) => getisinstance<SignupCubit>(),),
       BlocProvider(create: (context) => getisinstance<AuthCubit>(),),
       BlocProvider(create: (context) => getisinstance<TokenauthCubit>()..getTokens(),),

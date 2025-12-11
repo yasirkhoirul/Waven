@@ -10,13 +10,15 @@ import 'package:waven/presentation/pages/package_list_page.dart';
 import 'package:waven/presentation/pages/package_page.dart';
 import 'package:waven/presentation/pages/profile_page.dart';
 import 'package:waven/presentation/pages/signup_page.dart';
+import 'package:waven/presentation/pages/splash_page.dart';
 
 class MyRouter {
   static GoRouter getrouter(TokenauthCubit cubit) {
     return GoRouter(
       refreshListenable: CubitListenable(cubit),
-      initialLocation: "/home",
+      initialLocation: "/splash",
       routes: [
+        GoRoute(path: "/splash", builder: (context, state) => SplashPage()),
         GoRoute(path: "/login", builder: (context, state) => LoginPage()),
         GoRoute(path: "/signup", builder: (context, state) => SignupPage()),
 
@@ -94,7 +96,12 @@ class MyRouter {
         final token = cubit.state.tokens;
         final isLoggedIn = token != null;
         // Routes yang boleh diakses saat belum login
-        final allowedRoutesWhenLoggedOut = ['/login', '/signup','/home','/Gallery'];
+        final allowedRoutesWhenLoggedOut = ['/login', '/signup', '/home', '/Gallery', '/splash'];
+
+        // Jika di splash screen, biarkan saja
+        if (state.uri.toString() == '/splash') {
+          return null;
+        }
 
         // Jika belum login dan bukan salah satu route yang diizinkan → redirect ke login
         if (!isLoggedIn &&
