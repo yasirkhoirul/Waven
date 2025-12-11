@@ -44,4 +44,7 @@ class ListInvoiceCubit extends Cubit<ListInvoiceState> {
       emit(state.copyWith(step: RequestState.error));
     }
   }
+  void getRefresh(){
+    emit(state.copyWith(listdata: [],data: ListInvoiceUserEntity(message: '', metadata: MetadataEntity(count: 0, page: 1, limit: 2), data: [])));
+  }
 }

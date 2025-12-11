@@ -1,6 +1,7 @@
 import 'package:logger/web.dart';
 import 'package:waven/data/remote/data_local_impl.dart';
 import 'package:waven/data/remote/data_remote_impl.dart';
+import 'package:waven/domain/entity/profile.dart';
 import 'package:waven/domain/entity/user.dart';
 import 'package:waven/domain/repository/auth_repository.dart';
 
@@ -55,5 +56,25 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       throw Exception("terjadi kesalahan");
     }
+  }
+
+  @override
+  Future<Profile> getprofile() async{
+    try {
+      final data = await dataRemote.getProfile();
+      return data.data.toEntity();
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+  
+  @override
+  Future<String> onlogingoogle() async{
+   try {
+     final data = await dataRemote.onLoginGoogle();
+     return data;
+   } catch (e) {
+     throw Exception(e);
+   }
   }
 }

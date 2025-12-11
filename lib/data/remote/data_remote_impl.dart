@@ -3,14 +3,17 @@ import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:logger/logger.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/data/model/addonsmodel.dart';
 import 'package:waven/data/model/booking_request_model.dart';
+import 'package:waven/data/model/detailinvoice.dart';
 import 'package:waven/data/model/detailportomodel.dart';
 import 'package:waven/data/model/invoicemodel.dart';
 import 'package:waven/data/model/listinvoicemodeluser.dart';
 import 'package:waven/data/model/packagemodel.dart';
 import 'package:waven/data/model/portomodel.dart';
+import 'package:waven/data/model/profilemodel.dart';
 import 'package:waven/data/model/signup.dart';
 import 'package:waven/data/model/singin.dart';
 import 'package:waven/data/model/univ_drop_model.dart';
@@ -19,6 +22,7 @@ import 'package:waven/domain/entity/user.dart';
 
 abstract class DataRemote {
   Future<Signinresonse> onLogin(String email, String password);
+  Future<String> onLoginGoogle();
   Future<String> logout(String accestoken);
   Future<Signinresonse> signUP(User data);
   Future<Packagemodel> getPackage();
@@ -31,10 +35,10 @@ abstract class DataRemote {
     List<int>? image,
   });
   Future<bool> checkBooking(String tanggal, String start, String end);
-  Future<List<int>> getQris(
-    String transactionid,
-  );
+  Future<List<int>> getQris(String transactionid);
   Future<ListInvoiceModelUser> getlistinvoice(int page, int limit);
+  Future<Profilemodel> getProfile();
+  Future<DetailInvoiceModel> getDetailInvoice(String id);
 }
 
 class DataRemoteImpl implements DataRemote {
@@ -188,7 +192,8 @@ class DataRemoteImpl implements DataRemote {
       final hasImage = image != null && image.isNotEmpty;
 
       Logger().d(
-          "PostBooking - Payment Method: ${payload.bookingData.paymentMethod}, Has Image: $hasImage");
+        "PostBooking - Payment Method: ${payload.bookingData.paymentMethod}, Has Image: $hasImage",
+      );
 
       if (hasImage && isTransferMethod) {
         Logger().d("Mengirim booking WITH image (Transfer method)");
@@ -196,22 +201,17 @@ class DataRemoteImpl implements DataRemote {
           'image': MultipartFile.fromBytes(
             image,
             filename: 'bukti_transfer.jpg',
-            
           ),
           'data': jsonEncode(payload.toJson()),
         });
       } else {
         Logger().d(
-            "Mengirim booking WITHOUT image (Payment Method: ${payload.bookingData.paymentMethod})");
-        formData = FormData.fromMap({
-          'data': jsonEncode(payload.toJson()),
-        });
+          "Mengirim booking WITHOUT image (Payment Method: ${payload.bookingData.paymentMethod})",
+        );
+        formData = FormData.fromMap({'data': jsonEncode(payload.toJson())});
       }
 
-      final response = await dio.dio.post(
-        'v1/bookings',
-        data: formData,
-      );
+      final response = await dio.dio.post('v1/bookings', data: formData);
 
       Logger().d("Booking Response Status: ${response.statusCode}");
       Logger().d("Booking Response Data: ${response.data}");
@@ -303,19 +303,68 @@ class DataRemoteImpl implements DataRemote {
       throw Exception("Unexpected error: $e");
     }
   }
-  
+
   @override
-  Future<ListInvoiceModelUser> getlistinvoice(int page,int limit)async {
+  Future<ListInvoiceModelUser> getlistinvoice(int page, int limit) async {
     try {
-      final data =await dio.dio.get('v1/bookings/invoices',queryParameters: {
-        'page': page,
-        'limit':limit
-      });
-      Logger().d("iniadalah data remote ${data.extra}");
-      Logger().d("iniadalah data remote ");
-      Logger().d("iniadalah data remote fromjson ${ListInvoiceModelUser.fromJson(data.data)}");
+      final data = await dio.dio.get(
+        'v1/bookings/invoices',
+        queryParameters: {'page': page, 'limit': limit},
+      );
+      if (data.data.toString().contains("no bookings")) {
+        return ListInvoiceModelUser(
+          message: "no booking",
+          metadata: Metadata(count: 0, page: 1, limit: 2),
+          data: [],
+        );
+      }
 
       return ListInvoiceModelUser.fromJson(data.data);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<Profilemodel> getProfile() async {
+    try {
+      final data = await dio.dio.get("v1/profiles");
+      final readydata = Profilemodel.fromJson(data.data);
+      return readydata;
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  @override
+  Future<DetailInvoiceModel> getDetailInvoice(String id) async {
+    try {
+      final data = await dio.dio.get('v1/bookings/invoices/$id');
+      Logger().d(data);
+      return DetailInvoiceModel.fromJson(data.data);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  @override
+  Future<String> onLoginGoogle() async {
+    try {
+      final uri = Uri.parse("${baseurl}v1/auth/google/login");
+
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      // final response = await http.get(
+      //   uri,
+      //   headers: {'Accept': 'application/json'},
+      // );
+      // Logger().d(response);
+      // if (response.statusCode == 302 || response.statusCode == 301) {
+      //   final redirectUrl = response.headers['location'];
+      //   return redirectUrl!;
+      // } else {
+      //   throw Exception(response.statusCode);
+      // }
+      return "sukses";
     } catch (e) {
       throw Exception(e);
     }

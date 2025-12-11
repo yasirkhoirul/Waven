@@ -79,6 +79,7 @@ class MyRouter {
               routes: [
                 GoRoute(
                   path: '/Profile',
+                  name: 'profile',
                   builder: (context, state) => ProfilePage(),
                   routes: [
                     

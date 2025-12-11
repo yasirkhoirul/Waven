@@ -14,3 +14,8 @@ final class AuthLoaded extends AuthState {
   final String data;
   AuthLoaded(this.message, {required this.data});
 }
+final class AuthRedirectGoogle extends AuthState {
+  final String message;
+  final String data;
+  AuthRedirectGoogle(this.message, {required this.data});
+}

@@ -8,7 +8,6 @@ import 'package:logger/web.dart';
 import 'package:waven/common/color.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/common/imageconstant.dart';
-import 'package:waven/data/remote/qr_image_handling_example.dart';
 import 'package:waven/domain/entity/addons.dart';
 import 'package:waven/domain/entity/package.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
@@ -510,6 +509,21 @@ class _DetailRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+class QrImageDisplay extends StatelessWidget {
+  final Uint8List imageBytes;
+  
+  const QrImageDisplay({required this.imageBytes,super.key});
+  
+  @override
+  Widget build(BuildContext context) {
+    return Image.memory(
+      imageBytes,
+      fit: BoxFit.contain,
+      width: 250,
+      height: 250,
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/web.dart';
 import 'package:waven/domain/usecase/get_token.dart';
 import 'package:waven/domain/usecase/post_login.dart';
 import 'package:waven/domain/usecase/post_logout.dart';
@@ -24,6 +25,15 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
   
+  void onLoginGoogle()async{
+    try {
+      final data = await postLogin.executeGoogle();
+      emit(AuthRedirectGoogle("Silahkan Login Ke Google", data: data));
+    } catch (e) {
+      Logger().d(e.toString());
+    }
+  }
+
   void onInit(){
     emit(AuthInitial());
   }

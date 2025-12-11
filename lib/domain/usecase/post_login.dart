@@ -7,4 +7,8 @@ class PostLogin {
   Future<String> execute(String ur , String pw) async{
     return await authRepository.onlogin(ur, pw);
   }
+
+  Future<String> executeGoogle() async{
+    return await authRepository.onlogingoogle();
+  }
 }

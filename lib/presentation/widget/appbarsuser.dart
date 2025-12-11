@@ -67,7 +67,7 @@ class AppbarsUser extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          onpress(3);
+                          context.goNamed('profile');
                         },
                         child: Text(
                           "Profile",

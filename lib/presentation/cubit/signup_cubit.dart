@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:waven/common/constant.dart';
-import 'package:waven/data/model/univ_drop_model.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
 import 'package:waven/domain/entity/user.dart';
 import 'package:waven/domain/usecase/get_univdropdown.dart';

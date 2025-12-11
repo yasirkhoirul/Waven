@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
@@ -11,6 +12,8 @@ import 'package:waven/common/imageconstant.dart';
 import 'package:waven/data/model/booking_request_model.dart';
 import 'package:waven/domain/entity/list_invoice_user.dart';
 import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
+import 'package:waven/presentation/cubit/profile_cubit.dart';
+import 'package:waven/presentation/widget/dialog.dart';
 import 'package:waven/presentation/widget/divider.dart';
 import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
@@ -79,7 +82,14 @@ class _MainContentProfileState extends State<MainContentProfile> {
           height: 100,
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: HeaderPage(),
+            child: HeaderPage(
+              onrefresh: () {
+                setState(() {
+                  currentindex = 0;
+                  higheghtpage = 0;
+                });
+              },
+            ),
           ),
         ),
         Padding(
@@ -88,7 +98,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
             builder: (context, state) {
               if (state.step == RequestState.loading &&
                   state.listdata.isEmpty) {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
               }
 
               if (state.step == RequestState.error) {
@@ -115,34 +125,32 @@ class _MainContentProfileState extends State<MainContentProfile> {
               });
 
               return SizedBox(
-                height: MediaQuery.of(context).size.width<920?1000:600,
+                height: MediaQuery.of(context).size.width < 920 ? 1000 : 600,
                 child: LayoutBuilder(
                   builder: (context, constrians) {
                     return PageView.builder(
-                      
                       physics: NeverScrollableScrollPhysics(),
                       controller: _pagecontroller,
                       onPageChanged: (value) {
                         setState(() {
                           currentindex = value;
                         });
-                                  
+
                         final cubit = context.read<ListInvoiceCubit>();
                         final currentState = cubit.state;
-                                  
+
                         if (currentState.step != RequestState.loaded) {
                           return;
                         }
                         if (currentState.data?.metadata == null) {
                           return;
                         }
-                                  
-                        final totalLoadedItems =
-                            currentState.listdata.length;
+
+                        final totalLoadedItems = currentState.listdata.length;
                         final totalAvailableItems =
                             currentState.data!.metadata.count;
                         final itemsPerPage = 2;
-                                  
+
                         // Hitung page index terakhir yang bisa ditampilkan
                         final lastPageIndex =
                             ((totalLoadedItems + itemsPerPage - 1) /
@@ -154,17 +162,13 @@ class _MainContentProfileState extends State<MainContentProfile> {
                             totalLoadedItems < totalAvailableItems) {
                           // Hitung nomor page selanjutnya
                           final nextPage =
-                              (totalLoadedItems / itemsPerPage).ceil() +
-                              1;
+                              (totalLoadedItems / itemsPerPage).ceil() + 1;
                           cubit.getLoad(nextPage, itemsPerPage);
                         }
                       },
                       itemCount: higheghtpage,
                       itemBuilder: (context, indexpage) {
-                        return BlocConsumer<
-                          ListInvoiceCubit,
-                          ListInvoiceState
-                        >(
+                        return BlocConsumer<ListInvoiceCubit, ListInvoiceState>(
                           listener: (context, state) {
                             if (state.step == RequestState.loaded) {
                               setState(() {
@@ -182,15 +186,15 @@ class _MainContentProfileState extends State<MainContentProfile> {
                               Logger().i(
                                 "Building page $indexpage, listdata length: ${state.listdata.length}",
                               );
-                                  
+
                               // Validasi index untuk menghindari RangeError
                               final startIndex = indexpage * 2;
                               final endIndex = startIndex + 2;
-                                  
+
                               Logger().i(
                                 "StartIndex: $startIndex, EndIndex: $endIndex",
                               );
-                                  
+
                               // Pastikan index tidak melebihi jumlah data
                               if (startIndex >= state.listdata.length) {
                                 Logger().w(
@@ -198,7 +202,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
                                 );
                                 return Container();
                               }
-                                  
+
                               // Hitung berapa item yang tersedia untuk halaman ini
                               final availableItemsCount =
                                   state.listdata.length - startIndex;
@@ -206,11 +210,11 @@ class _MainContentProfileState extends State<MainContentProfile> {
                                   availableItemsCount > 2
                                   ? 2
                                   : availableItemsCount;
-                                  
+
                               Logger().i(
                                 "Available items: $availableItemsCount, akan ditampilkan: $itemCountForThisPage",
                               );
-                                  
+
                               return Center(
                                 child: ListView.builder(
                                   shrinkWrap: true,
@@ -225,20 +229,17 @@ class _MainContentProfileState extends State<MainContentProfile> {
                                       builder: (context, constraints) {
                                         Logger().i(constraints.maxHeight);
                                         return Itemlistinvoicebuilderpagnation(
-                                          constrains:
-                                              constrians.maxHeight,
-                                          data: state
-                                              .listdata[dataIndex],
+                                          constrains: constrians.maxHeight,
+                                          data: state.listdata[dataIndex],
                                         );
                                       },
                                     );
                                   },
                                 ),
                               );
-                            } else if (state.step ==
-                                RequestState.loading) {
+                            } else if (state.step == RequestState.loading) {
                               return Center(
-                                child: CircularProgressIndicator(),
+                                child: MyLottie(aset: ImagesPath.loadinglottie),
                               );
                             } else {
                               return Container();
@@ -338,7 +339,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
             ),
           ],
         ),
-      SizedBox(height: 20,)
+        SizedBox(height: 20),
       ],
     );
   }
@@ -377,7 +378,12 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    color: ColorTema.accentColor,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: data.status == 'PENDING'
+                          ? Colors.amber
+                          : ColorTema.accentColor,
+                    ),
                     padding: EdgeInsets.all(10),
                     child: Center(
                       child: Text(
@@ -394,21 +400,33 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 5,
                   children: [
-                    DataRowItem(label: 'Universitas', value: data.university),
-
-                    DataRowItem(label: 'Tanggal Foto', value: data.date),
+                    DataRowItem(
+                      path: ImagesPath.logouniv,
+                      label: 'Universitas',
+                      value: data.university,
+                    ),
 
                     DataRowItem(
+                      path: ImagesPath.logotanggal,
+                      label: 'Tanggal Foto',
+                      value: data.date,
+                    ),
+
+                    DataRowItem(
+                      path: ImagesPath.logowaktu,
                       label: 'Waktu Foto',
                       value: "${data.startTime}:${data.endTime}",
                     ),
 
-                    DataRowItem(label: 'Lokasi Foto', value: data.location),
+                    DataRowItem(
+                      path: ImagesPath.logolocation,
+                      label: 'Lokasi Foto',
+                      value: data.location,
+                    ),
                   ],
                 ),
               ),
-              FooterContentPage(),
-              
+              FooterContentPage(idinvoice: data.id),
             ],
           ),
         ),
@@ -418,7 +436,8 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
 }
 
 class FooterContentPage extends StatelessWidget {
-  const FooterContentPage({super.key});
+  final String idinvoice;
+  const FooterContentPage({super.key, required this.idinvoice});
 
   @override
   Widget build(BuildContext context) {
@@ -428,7 +447,10 @@ class FooterContentPage extends StatelessWidget {
         "icon": Icons.payment,
         "label": "Cek Invoice",
         "action": () {
-          print("Booking ditekan");
+          showDialog(
+            context: context,
+            builder: (context) => InvoiceDialog(id: idinvoice),
+          );
         },
       },
       {
@@ -496,8 +518,13 @@ class FooterContentPage extends StatelessWidget {
 class DataRowItem extends StatelessWidget {
   final String label;
   final String value;
-
-  const DataRowItem({super.key, required this.label, required this.value});
+  final String path;
+  const DataRowItem({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.path,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -508,7 +535,8 @@ class DataRowItem extends StatelessWidget {
       // Menyeimbangkan teks vertikal
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Kolom 1: Label
+        SizedBox(width: 20, height: 20, child: SvgPicture.asset(path)),
+        SizedBox(width: 10),
         SizedBox(
           width: 120, // Lebar tetap untuk kolom label
           child: Text(
@@ -551,7 +579,8 @@ class DataRowItem extends StatelessWidget {
 }
 
 class HeaderPage extends StatelessWidget {
-  const HeaderPage({super.key});
+  final VoidCallback onrefresh;
+  const HeaderPage({super.key, required this.onrefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -570,8 +599,16 @@ class HeaderPage extends StatelessWidget {
         ),
         Expanded(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              IconButton(
+                onPressed: () {
+                  onrefresh();
+                  context.read<ListInvoiceCubit>().getRefresh();
+                  context.read<ListInvoiceCubit>().getLoad(1, 2);
+                },
+                icon: Icon(Icons.refresh, color: Colors.white),
+              ),
               FilledButton(
                 style: FilledButton.styleFrom(
                   backgroundColor: ColorTema.accentColor,
@@ -605,58 +642,104 @@ class HeaderPage extends StatelessWidget {
   }
 }
 
-class HeaderProfile extends StatelessWidget {
+class HeaderProfile extends StatefulWidget {
   final double pannjanglayar;
   const HeaderProfile({super.key, required this.pannjanglayar});
 
   @override
+  State<HeaderProfile> createState() => _HeaderProfileState();
+}
+
+class _HeaderProfileState extends State<HeaderProfile> {
+  @override
+  void initState() {
+    context.read<ProfileCubit>().onGetdata();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      width: pannjanglayar,
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          spacing: 20,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 50,
-              height: 50,
-              child: CachedNetworkImage(
-                imageUrl: '',
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                placeholder: (context, url) =>
-                    MyLottie(aset: ImagesPath.loadinglottie),
-                fit: BoxFit.cover,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+    return BlocConsumer<ProfileCubit, ProfileState>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        if (state.requestState == RequestState.loaded) {
+          return Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              spacing: 20,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  "NAMA",
-                  style: GoogleFonts.robotoFlex(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 28,
+                SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: CachedNetworkImage(
+                    imageUrl: '',
+                    errorWidget: (context, url, error) =>
+                        Icon(Icons.error, color: Colors.white),
+                    placeholder: (context, url) =>
+                        MyLottie(aset: ImagesPath.loadinglottie),
+                    fit: BoxFit.cover,
                   ),
                 ),
-                IconButton(onPressed: () {}, icon: Icon(Icons.edit_document)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.data?.name ?? "memuat..",
+                      style: GoogleFonts.robotoFlex(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 28,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.edit_document, color: Colors.white),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Icon(Icons.mail, color: Colors.white),
+                        Text(
+                          state.data?.email ?? 'email',
+                          style: GoogleFonts.robotoFlex(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w200,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      spacing: 3,
+                      children: [
+                        Icon(Icons.phone, color: Colors.white),
+                        Text(
+                          state.data?.phonenumber ?? "phone",
+                          style: GoogleFonts.robotoFlex(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w200,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                AnimatedDividerCurve(height: 1, color: Colors.white),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(children: [Icon(Icons.mail), Text("email")]),
-                Row(children: [Icon(Icons.location_city), Text("univ")]),
-                Row(children: [Icon(Icons.phone), Text("phone")]),
-              ],
-            ),
-            AnimatedDividerCurve(height: 1, color: Colors.white),
-          ],
-        ),
-      ),
+          );
+        } else {
+          return MyLottie(aset: ImagesPath.loadinglottie);
+        }
+      },
     );
   }
 }

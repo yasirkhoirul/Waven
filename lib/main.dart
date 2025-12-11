@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:waven/domain/usecase/get_detail_invoice.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
+import 'package:waven/presentation/cubit/detail_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/package_all_cubit.dart';
 import 'package:waven/presentation/cubit/package_detail_cubit.dart';
 import 'package:waven/presentation/cubit/porto_all_cubit.dart';
+import 'package:waven/presentation/cubit/profile_cubit.dart';
 import 'package:waven/presentation/cubit/signup_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/router/routerauth.dart';
@@ -26,6 +29,8 @@ void main() async{
       BlocProvider(create: (context) => getisinstance<PackageDetailCubit>(),),
       BlocProvider(create: (context) => getisinstance<BookingCubit>(),),
       BlocProvider(create: (context) => getisinstance<ListInvoiceCubit>(),),
+      BlocProvider(create: (context) => getisinstance<ProfileCubit>(),),
+      BlocProvider(create: (context) => getisinstance<DetailInvoiceCubit>(),),
     ], child: const MainApp())
   );
 }

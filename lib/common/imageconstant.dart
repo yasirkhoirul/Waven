@@ -11,4 +11,11 @@ class ImagesPath {
   static final String bgleftlottie = "assets/lottie/kiri.json";
   static final String bgrightlottie = "assets/lottie/kanan.json";
   static final String loadinglottie = "assets/lottie/loading.json";
+
+  static final String logolocation = "assets/logo/location.svg";
+  static final String logoaddons = "assets/logo/addons.svg";
+  static final String logotanggal = "assets/logo/tanggal.svg";
+  static final String logouniv = "assets/logo/univ.svg";
+  static final String logowaktu = "assets/logo/waktu.svg";
+  static final String google = "assets/logo/google.svg";
 }

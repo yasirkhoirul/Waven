@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:waven/common/color.dart';
 import 'package:waven/common/imageconstant.dart';
 import 'package:waven/presentation/cubit/package_all_cubit.dart';
 import 'package:waven/presentation/cubit/porto_all_cubit.dart';
@@ -163,7 +164,7 @@ class AboutUs extends StatelessWidget {
                             context.goNamed('packagelist');
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: accentColor,
+                            backgroundColor: ColorTema.accentColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadiusGeometry.circular(10),
                             ),
@@ -490,7 +491,7 @@ class AppSliver extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadiusGeometry.circular(10),
                           ),
-                          backgroundColor: accentColor,
+                          backgroundColor: ColorTema.accentColor,
                         ),
 
                         onPressed: () {

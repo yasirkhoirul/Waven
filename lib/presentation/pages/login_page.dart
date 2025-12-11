@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:waven/common/imageconstant.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
@@ -41,7 +44,6 @@ class LoginPage extends StatelessWidget {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constrains) {
-            final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
             if (kIsWeb) {
               return SingleChildScrollView(
                 child: Column(
@@ -232,7 +234,6 @@ class _LayoutLoginState extends State<LayoutLogin>
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            
                             FadeInUpText(
                               text: "LOGIN",
                               style: GoogleFonts.robotoFlex(
@@ -251,7 +252,7 @@ class _LayoutLoginState extends State<LayoutLogin>
                                 fontSize: 11,
                                 fontWeight: FontWeight.w100,
                               ),
-                            
+
                               duration: Duration(milliseconds: 800),
                               delay: Duration(milliseconds: 400), // opsional
                               offsetY: 30,
@@ -327,6 +328,27 @@ class _LayoutLoginState extends State<LayoutLogin>
                                               style: GoogleFonts.robotoFlex(
                                                 color: Colors.white,
                                               ),
+                                            ),
+                                          );
+                                        } else if (state
+                                            is AuthRedirectGoogle) {
+                                         
+                                          return Center(
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  state.message,
+                                                  style: GoogleFonts.robotoFlex(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  state.data,
+                                                  style: GoogleFonts.robotoFlex(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           );
                                         } else {
@@ -457,6 +479,32 @@ class _FormLoginState extends State<FormLogin> {
             ),
             OutlinedButton(
               style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadiusGeometry.circular(10),
+                ),
+                backgroundColor: Color.fromARGB(255, 236, 238, 237),
+              ),
+              onPressed: () {
+                context.read<AuthCubit>().onLoginGoogle();
+              },
+              child: Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Login Dengan Google",
+                    style: GoogleFonts.roboto(color: Colors.black),
+                  ),
+                  SvgPicture.asset(ImagesPath.google),
+                ],
+              ),
+            ),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadiusGeometry.circular(10),
+                ),
                 backgroundColor: Color(0xFF00A76F),
               ),
               onPressed: () {
@@ -464,9 +512,17 @@ class _FormLoginState extends State<FormLogin> {
                   context.read<AuthCubit>().onLogin(ur.text, pw.text);
                 }
               },
-              child: Text(
-                "Login",
-                style: GoogleFonts.robotoFlex(color: Colors.white),
+              child: Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Login",
+                    style: GoogleFonts.robotoFlex(color: Colors.white),
+                  ),
+                  Icon(Icons.arrow_forward, color: Colors.white),
+                ],
               ),
             ),
           ],
