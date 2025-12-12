@@ -63,7 +63,7 @@ class AuthCubit extends Cubit<AuthState> {
     // Parameter ke-3 'options' bertipe String
     web.window.open(backendUrl, "Google Login", "width=500,height=600");
     } catch (e) {
-      Logger().d(e.toString());
+      emit(AuthRedirectGoogle("gaga;", data: "gagal ${e.toString()}"));
     }
   }
 
