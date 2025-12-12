@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,6 +18,8 @@ import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 import 'package:waven/presentation/widget/slidedirection.dart';
+import 'package:web/web.dart' as web; 
+import 'dart:js_interop';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -390,6 +394,7 @@ class FormLogin extends StatefulWidget {
 }
 
 class _FormLoginState extends State<FormLogin> {
+  StreamSubscription<web.MessageEvent>? _messageSubscription;
   bool showpw = true;
   final GlobalKey<FormState> _keyform = GlobalKey<FormState>();
   final TextEditingController ur = TextEditingController();
@@ -403,6 +408,7 @@ class _FormLoginState extends State<FormLogin> {
   @override
   void dispose() {
     ur.dispose();
+    _messageSubscription?.cancel();
     pw.dispose();
     super.dispose();
   }
@@ -485,7 +491,7 @@ class _FormLoginState extends State<FormLogin> {
                 backgroundColor: Color.fromARGB(255, 236, 238, 237),
               ),
               onPressed: () {
-                context.read<AuthCubit>().onLoginGoogle();
+                context.read<AuthCubit>().onLoginGoogle(_messageSubscription);
               },
               child: Row(
                 spacing: 5,

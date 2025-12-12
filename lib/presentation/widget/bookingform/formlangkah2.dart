@@ -6,11 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:waven/common/color.dart';
 import 'package:waven/domain/entity/addons.dart';
-import 'package:waven/domain/entity/booking.dart';
 import 'package:waven/domain/entity/package.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
 import 'package:waven/presentation/cubit/package_all_cubit.dart';
-import 'package:waven/presentation/pages/booking_page.dart';
 import 'package:waven/presentation/widget/bookingform/formlangkah3.dart';
 
 class Form2Content extends StatefulWidget {

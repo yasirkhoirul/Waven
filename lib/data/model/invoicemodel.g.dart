@@ -35,7 +35,7 @@ BookingDetail _$BookingDetailFromJson(Map<String, dynamic> json) =>
       midtransId: json['gateway_transaction_id'] as String?,
       totalAmount: (json['total_amount'] as num).toInt(),
       paidAmount: (json['paid_amount'] as num).toInt(),
-      currency: json['currency'] as String?,
+      currency: json['currency'] as String?,      
       paymentMethod: json['payment_method'] as String,
       transactionTime: json['transaction_time'] as String,
       paymentStatus: json['status'] as String,

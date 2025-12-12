@@ -350,10 +350,16 @@ class DataRemoteImpl implements DataRemote {
   @override
   Future<String> onLoginGoogle() async {
     try {
-      final uri = Uri.parse("${baseurl}v1/auth/google/login");
+      String backendUrl =
+          "${baseurl}v1/auth/google/login?origin=https://waven-nu.vercel.app/%23/login";
+      final uri = Uri.parse(backendUrl);
 
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    
+      await launchUrl(
+        uri,
+        mode: LaunchMode.platformDefault,
+        webOnlyWindowName: '_self',
+      );
+
       return "sukses";
     } catch (e) {
       throw Exception(e);

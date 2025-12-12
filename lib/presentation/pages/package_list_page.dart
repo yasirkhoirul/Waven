@@ -175,94 +175,96 @@ class _PackageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     
-    return FrostGlassAnimated(
-      height: double.maxFinite,
-      width: double.maxFinite,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 16,
-          children: [
-            // Package Banner Image
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  imageUrl: package.bannerUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[800],
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[800],
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      color: Colors.grey,
+    return RepaintBoundary(
+      child: FrostGlassAnimated(
+        height: double.maxFinite,
+        width: double.maxFinite,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 16,
+            children: [
+              // Package Banner Image
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CachedNetworkImage(
+                    imageUrl: package.bannerUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[800],
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[800],
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            // Package Details
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8,
-                children: [
-                  Text(
-                    package.tittle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.robotoFlex(
-                      fontSize: ismobile?24:48,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    package.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.robotoFlex(
-                      fontSize: ismobile?12:24,
-                      color: Colors.grey[300],
-                    ),
-                  ),
-    
-                  Text(
-                    'Rp ${package.price}',
-                    style: GoogleFonts.robotoFlex(
-                      fontSize: ismobile?10:20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.green[400],
-                    ),
-                  ),
-                  Expanded(child: ListView()),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorTema.accentColor,
-                    ),
-                    onPressed: () {
-                      context.goNamed('package',pathParameters: {
-                        'id':package.id
-                      });
-                    },
-                    child: Text(
-                      "Detail",
+              // Package Details
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
+                  children: [
+                    Text(
+                      package.tittle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.robotoFlex(
-                        fontSize: ismobile?8:16,
+                        fontSize: ismobile?24:48,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                  ),
-                ],
+                    Text(
+                      package.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.robotoFlex(
+                        fontSize: ismobile?12:24,
+                        color: Colors.grey[300],
+                      ),
+                    ),
+      
+                    Text(
+                      'Rp ${package.price}',
+                      style: GoogleFonts.robotoFlex(
+                        fontSize: ismobile?10:20,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green[400],
+                      ),
+                    ),
+                    Spacer(),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorTema.accentColor,
+                      ),
+                      onPressed: () {
+                        context.goNamed('package',pathParameters: {
+                          'id':package.id
+                        });
+                      },
+                      child: Text(
+                        "Detail",
+                        style: GoogleFonts.robotoFlex(
+                          fontSize: ismobile?8:16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

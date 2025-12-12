@@ -16,7 +16,7 @@ class FrostGlassAnimated extends StatefulWidget {
     required this.width,
     this.height,
     required this.child,
-    this.blur = 15.0,
+    this.blur = 10.0,
     this.maxAlpha = 60,
     this.maxAlphaBorder = 40,
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),

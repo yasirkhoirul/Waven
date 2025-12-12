@@ -420,102 +420,104 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: FrostGlassAnimated(
-        width: double.maxFinite,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              MediaQuery.of(context).size.width>440? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    data.packageName,
-                    style: GoogleFonts.robotoFlex(
-                      color: Color(0xFFE0E0E0),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 24,
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: data.status == 'PENDING'
-                          ? Colors.amber
-                          : ColorTema.accentColor,
-                    ),
-                    padding: EdgeInsets.all(10),
-                    child: Center(
-                      child: Text(
-                        data.status,
-                        style: GoogleFonts.robotoFlex(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ):Column(
-                children: [
-                  Text(
-                    data.packageName,
-                    style: GoogleFonts.robotoFlex(
-                      color: Color(0xFFE0E0E0),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: data.status == 'PENDING'
-                          ? Colors.amber
-                          : ColorTema.accentColor,
-                    ),
-                    padding: EdgeInsets.all(4),
-                    child: Center(
-                      child: Text(
-                        data.status,
-                        style: GoogleFonts.robotoFlex(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 5,
+      child: RepaintBoundary(
+        child: FrostGlassAnimated(
+          width: double.maxFinite,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MediaQuery.of(context).size.width>440? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    DataRowItem(
-                      path: ImagesPath.logouniv,
-                      label: 'Universitas',
-                      value: data.university,
+                    Text(
+                      data.packageName,
+                      style: GoogleFonts.robotoFlex(
+                        color: Color(0xFFE0E0E0),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 24,
+                      ),
                     ),
-
-                    DataRowItem(
-                      path: ImagesPath.logotanggal,
-                      label: 'Tanggal Foto',
-                      value: data.date,
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: data.status == 'PENDING'
+                            ? Colors.amber
+                            : ColorTema.accentColor,
+                      ),
+                      padding: EdgeInsets.all(10),
+                      child: Center(
+                        child: Text(
+                          data.status,
+                          style: GoogleFonts.robotoFlex(color: Colors.white),
+                        ),
+                      ),
                     ),
-
-                    DataRowItem(
-                      path: ImagesPath.logowaktu,
-                      label: 'Waktu Foto',
-                      value: "${data.startTime}:${data.endTime}",
+                  ],
+                ):Column(
+                  children: [
+                    Text(
+                      data.packageName,
+                      style: GoogleFonts.robotoFlex(
+                        color: Color(0xFFE0E0E0),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
                     ),
-
-                    DataRowItem(
-                      path: ImagesPath.logolocation,
-                      label: 'Lokasi Foto',
-                      value: data.location,
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: data.status == 'PENDING'
+                            ? Colors.amber
+                            : ColorTema.accentColor,
+                      ),
+                      padding: EdgeInsets.all(4),
+                      child: Center(
+                        child: Text(
+                          data.status,
+                          style: GoogleFonts.robotoFlex(color: Colors.white),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-              FooterContentPage(idinvoice: data.id),
-            ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 5,
+                    children: [
+                      DataRowItem(
+                        path: ImagesPath.logouniv,
+                        label: 'Universitas',
+                        value: data.university,
+                      ),
+        
+                      DataRowItem(
+                        path: ImagesPath.logotanggal,
+                        label: 'Tanggal Foto',
+                        value: data.date,
+                      ),
+        
+                      DataRowItem(
+                        path: ImagesPath.logowaktu,
+                        label: 'Waktu Foto',
+                        value: "${data.startTime}:${data.endTime}",
+                      ),
+        
+                      DataRowItem(
+                        path: ImagesPath.logolocation,
+                        label: 'Lokasi Foto',
+                        value: data.location,
+                      ),
+                    ],
+                  ),
+                ),
+                FooterContentPage(idinvoice: data.id),
+              ],
+            ),
           ),
         ),
       ),
