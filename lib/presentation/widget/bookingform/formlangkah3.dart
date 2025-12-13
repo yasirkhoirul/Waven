@@ -146,7 +146,7 @@ class _Form3ContentState extends State<Form3Content>
                     value: method,
                     child: Text(
                       method.toUpperCase(),
-                      style: GoogleFonts.robotoFlex(color: Colors.black),
+                      style: GoogleFonts.robotoFlex(color: Colors.white),
                     ),
                   );
                 }).toList(),
@@ -259,7 +259,7 @@ class _Form3ContentState extends State<Form3Content>
                     value: type,
                     child: Text(
                       type,
-                      style: GoogleFonts.robotoFlex(color: Colors.black),
+                      style: GoogleFonts.robotoFlex(color: Colors.white),
                     ),
                   );
                 }).toList(),

@@ -122,17 +122,13 @@ class BookingCubit extends Cubit<BookingState> {
       (sum, item) => sum + item.price,
     );
     final amount = addonTotal + packageEntity.price;
-    final double totalamount;
-    if (state.paymentType == Constantclass.paymentType[1]) {
-      totalamount = amount/2;
-    }else{
-      totalamount = amount;
-    }
+    
+    
     Logger().d("jumlah $amount");
     emit(
       state.copyWith(
         step: BookingStep.tahap2,
-        amount: totalamount,
+        amount: amount,
         packageEntity: packageEntity,
         datadiplih: datadiplih,
         nama: nama,
@@ -145,8 +141,16 @@ class BookingCubit extends Cubit<BookingState> {
   }
 
   void onTahapThree(String paytype, String paymethod) {
+    double totalamount;
+    if (paytype == Constantclass.paymentType[1]) {
+      totalamount = state.amount/2;
+    }else{
+      totalamount = state.amount;
+    }
+    Logger().d(totalamount);
     emit(
       state.copyWith(
+        amount: totalamount,
         step: BookingStep.tahap3,
         paymentMethod: paymethod,
         paymentType: paytype,
