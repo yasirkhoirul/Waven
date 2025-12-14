@@ -20,3 +20,5 @@ final class DetailInvoiceLoaded extends DetailInvoiceState {
   @override
   List<Object> get props => [data];
 }
+
+final class SessionExpired extends DetailInvoiceState{}

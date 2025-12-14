@@ -11,6 +11,7 @@ import 'package:waven/common/imageconstant.dart';
 import 'package:waven/domain/entity/list_invoice_user.dart';
 import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/profile_cubit.dart';
+import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/dialog_detail_invoice.dart';
 import 'package:waven/presentation/widget/divider.dart';
 import 'package:waven/presentation/widget/footer.dart';
@@ -65,7 +66,12 @@ class _HeaderLayoutState extends State<HeaderLayout> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              BlocBuilder<ProfileCubit, ProfileState>(
+              BlocConsumer<ProfileCubit, ProfileState>(
+                listener: (context, state) {
+                  if (state is SessionExpired) {
+                    context.read<TokenauthCubit>().onLogout();
+                  }
+                },
                 builder: (context, state) {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -156,7 +162,12 @@ class _MainContentProfileState extends State<MainContentProfile> {
         ),
         Padding(
           padding: const EdgeInsets.all(20),
-          child: BlocBuilder<ListInvoiceCubit, ListInvoiceState>(
+          child: BlocConsumer<ListInvoiceCubit, ListInvoiceState>(
+            listener: (context, state) {
+              if (state is SessionExpired) {
+                context.read<TokenauthCubit>().onLogout();
+              }
+            },
             builder: (context, state) {
               if (state.step == RequestState.loading &&
                   state.listdata.isEmpty) {
@@ -234,7 +245,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
                           listener: (context, state) {
                             if (state.step == RequestState.loaded) {
                               setState(() {
-                                // Hitung jumlah halaman (2 items per halaman)
+                                
                                 higheghtpage = (state.listdata.length / 2)
                                     .ceil();
                               });

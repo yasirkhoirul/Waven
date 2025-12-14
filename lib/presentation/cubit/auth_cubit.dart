@@ -1,9 +1,7 @@
 import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/web.dart';
 import 'package:waven/domain/usecase/get_token.dart';
 import 'package:waven/domain/usecase/post_login.dart';
 import 'package:web/web.dart' as web; 

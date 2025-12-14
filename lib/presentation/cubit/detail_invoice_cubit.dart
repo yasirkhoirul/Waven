@@ -17,6 +17,10 @@ class DetailInvoiceCubit extends Cubit<DetailInvoiceState> {
       final data = await getDetailInvoice.execute(idInvoice);
       emit(DetailInvoiceLoaded(data));
     } catch (e) {
+      if (e.toString().contains("401") ||
+          e.toString().contains("Session Expired")) {
+        emit(SessionExpired());
+      }
       emit(DetailInvoiceerror(e.toString()));
     }
   }

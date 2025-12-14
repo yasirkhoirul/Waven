@@ -40,6 +40,10 @@ class ListInvoiceCubit extends Cubit<ListInvoiceState> {
         ));
       }
     } catch (e) {
+      if (e.toString().contains("401") ||
+          e.toString().contains("Session Expired")) {
+        emit(SessionExpired());
+      }
       Logger().e("Error: $e");
       emit(state.copyWith(step: RequestState.error));
     }
