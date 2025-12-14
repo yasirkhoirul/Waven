@@ -5,7 +5,6 @@ import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/web.dart';
 import 'package:waven/common/constant.dart';
-import 'package:waven/data/model/detailinvoice.dart';
 import 'package:waven/data/model/transactionmodel.dart';
 import 'package:waven/domain/entity/transaction.dart';
 import 'package:waven/domain/usecase/get_check_transaction.dart';
@@ -59,7 +58,7 @@ class TransactionCubit extends Cubit<TransactionState> {
         state.transactionid!,
         image: state.image,
       );
-      emit(state.copyWith(step: RequestState.loaded,transactionEntityDetail: data));
+      emit(state.copyWith(checkQris: false, step: RequestState.loaded,transactionEntityDetail: data));
     } catch (e) {
       emit(state.copyWith(step: RequestState.error,errormessage: e.toString()));
     }

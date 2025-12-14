@@ -26,4 +26,5 @@ abstract class BookingRepository {
   Future<DetailInvoiceDataEntity> getInvoice(String idinvoice);
   Future<bool> checkTransaction(String bookingid,String gatewayid);
   Future<TransactionEntityDetail> postTransaction(TransactionRequest data,String idinvoice,{Uint8List? images});
+  Future<String> postEditedPhoto(String listEditedPhoto,String idinvoice);
 }

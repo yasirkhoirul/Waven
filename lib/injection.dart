@@ -24,6 +24,7 @@ import 'package:waven/domain/usecase/get_profile.dart';
 import 'package:waven/domain/usecase/get_token.dart';
 import 'package:waven/domain/usecase/get_univdropdown.dart';
 import 'package:waven/domain/usecase/post_booking.dart';
+import 'package:waven/domain/usecase/post_edited_photo.dart';
 import 'package:waven/domain/usecase/post_login.dart';
 import 'package:waven/domain/usecase/post_logout.dart';
 import 'package:waven/domain/usecase/post_signup.dart';
@@ -53,7 +54,7 @@ Future<void> init()async{
   locator.registerCachedFactory(() => PackageDetailCubit(locator()),);
   locator.registerCachedFactory(() => ListInvoiceCubit(locator()),);
   locator.registerCachedFactory(() => ProfileCubit(locator()),);
-  locator.registerCachedFactory(() => DetailInvoiceCubit(locator()),);
+  locator.registerCachedFactory(() => DetailInvoiceCubit(locator(),locator()),);
   locator.registerCachedFactory(() => TransactionCubit(locator(), postTransaction: locator(), getCheckTransaction: locator()),);
   locator.registerCachedFactory(() => BookingCubit(locator(), getAddonsAll: locator(), postBooking: locator(), getCheckTanggal: locator(), imagePickers: locator(), getCheckTransaction: locator()),);
 
@@ -74,6 +75,7 @@ Future<void> init()async{
   locator.registerLazySingleton(() => GetDetailInvoice(locator()),);
   locator.registerLazySingleton(() => GetCheckTransaction(locator()),);
   locator.registerLazySingleton(() => PostTransaction(locator()),);
+  locator.registerLazySingleton(() => PostEditedPhoto(locator()),);
 
   //repositoy
   locator.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(dataRemote: locator(), dataLocal: locator()),);

@@ -47,6 +47,7 @@ abstract class DataRemote {
     String idInvoice,
     {List<int>? image}
   );
+  Future<String> postEditedPhoto(String listedited,String idinvoice);
 }
 
 class DataRemoteImpl implements DataRemote {
@@ -412,6 +413,18 @@ class DataRemoteImpl implements DataRemote {
       return Transactionmodel.fromJson(data.data);
     } catch (e) {
       throw Exception(e.toString());
+    }
+  }
+  
+  @override
+  Future<String> postEditedPhoto(String listedited,String idinvoice) async{
+    try {
+      final data = await dio.dio.patch('v1/bookings/$idinvoice/edited-photo',data: jsonEncode({
+        'edited_photo':listedited
+      }));
+      return "${data.data} sukses dikirim";
+    } catch (e) {
+      throw Exception(e);
     }
   }
 }

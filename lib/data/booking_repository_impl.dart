@@ -153,4 +153,14 @@ class BookingRepositoryImpl implements BookingRepository {
       rethrow;
     }
   }
+  
+  @override
+  Future<String> postEditedPhoto(String listEditedPhoto, String idinvoice) async{
+    try {
+      final response = await dataRemote.postEditedPhoto(listEditedPhoto, idinvoice);
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

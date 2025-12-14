@@ -13,6 +13,7 @@ import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/profile_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/dialog_detail_invoice.dart';
+import 'package:waven/presentation/widget/dialogtextinput.dart';
 import 'package:waven/presentation/widget/divider.dart';
 import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
@@ -567,7 +568,7 @@ class FooterContentPage extends StatelessWidget {
         "icon": Icons.menu,
         "label": "List Foto Diedit",
         "action": () {
-          print("Info ditekan");
+          showDialog(context: context, builder: (context) => Dialogtextinput(idDetailInvoice: idinvoice),);
         },
       },
       {

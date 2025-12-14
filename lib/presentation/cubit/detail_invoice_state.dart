@@ -13,6 +13,10 @@ final class DetailInvoiceerror extends DetailInvoiceState {
   final String message;
   const DetailInvoiceerror(this.message);
 }
+final class DetailSubmitEdited extends DetailInvoiceState {
+  final String message;
+  const DetailSubmitEdited(this.message);
+}
 final class DetailInvoiceLoaded extends DetailInvoiceState {
   final DetailInvoiceDataEntity data;
   const DetailInvoiceLoaded(this.data);

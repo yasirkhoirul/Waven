@@ -9,4 +9,5 @@ abstract class AuthRepository {
   Future<String?> getAccesToken();
   Future<String> logout();
   Future<Profile> getprofile();
+  
 }

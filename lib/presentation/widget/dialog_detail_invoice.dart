@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/common/color.dart';
 import 'package:waven/common/imageconstant.dart';
 import 'package:waven/presentation/cubit/detail_invoice_cubit.dart';
+import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/dialog_transaction.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 
@@ -32,7 +33,12 @@ class _InvoiceDialogState extends State<InvoiceDialog> {
           color: Color(0xFF3E3E3E),
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: BlocBuilder<DetailInvoiceCubit, DetailInvoiceState>(
+            child: BlocConsumer<DetailInvoiceCubit, DetailInvoiceState>(
+              listener: (context, state) {
+                if (state is SessionExpired) {
+                  context.read<TokenauthCubit>().onLogout();
+                }
+              },
               builder: (context, state) {
                 if (state is DetailInvoiceLoading) {
                   return Center(

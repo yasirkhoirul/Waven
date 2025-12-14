@@ -28,6 +28,11 @@ class _DialogTransactionState extends State<DialogTransaction> {
   String pendingpaymenttype = '';
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   void initState() {
     context.read<TransactionCubit>().initIdInvoice(widget.idinvoice);
     super.initState();
@@ -510,7 +515,14 @@ class _QrisFormState extends State<QrisForm> {
                     ),
                     padding: EdgeInsets.all(10),
                     child: state.transactionEntityDetail?.gambarqr != null
-                        ? ClipRRect(
+                        ? state.checkQris? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Berhasil",style: TextStyle(
+                              color: ColorTema.accentColor
+                            ),)
+                          ],
+                        ) :ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.memory(
                               state.transactionEntityDetail!.gambarqr!,
@@ -623,7 +635,7 @@ class _QrisFormState extends State<QrisForm> {
                   child: Text(
                     "tutup",
                     style: GoogleFonts.robotoFlex(
-                      color: ColorTema.accentColor,
+                      color: Colors.redAccent,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
