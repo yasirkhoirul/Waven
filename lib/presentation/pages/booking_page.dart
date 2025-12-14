@@ -372,8 +372,8 @@ class HeaderWa extends StatelessWidget {
               ),
               TextSpan(
                 text: "wa.me/6285331973131",
-                style: const TextStyle(
-                  color: Colors.green,
+                style:  TextStyle(
+                  color: ColorTema.accentColor,
                   fontWeight: FontWeight.bold,
                 ),
                 recognizer: TapGestureRecognizer()
@@ -417,13 +417,13 @@ class SubmittedPage extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.2),
-              border: Border.all(color: Colors.green),
+              color: ColorTema.accentColor.withOpacity(0.2),
+              border: Border.all(color: ColorTema.accentColor),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 48),
+                Icon(Icons.check_circle, color: ColorTema.accentColor, size: 48),
                 SizedBox(height: 12),
                 Text(
                   'Booking Berhasil!',
@@ -467,11 +467,15 @@ class SubmittedPage extends StatelessWidget {
                   SizedBox(height: 12),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: QrImageDisplay(
+                    child: !state.checkQris? QrImageDisplay(
                       imageBytes:
                           state.invoice?.gambarqr ?? Uint8List.fromList([]),
+                    ):Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Center(child: Text("Pembayaran udah berhasil ngap"),),
                     ),
                   ),
+
                 ],
               ),
             ),
@@ -553,6 +557,32 @@ class SubmittedPage extends StatelessWidget {
               },
               child: Text(
                 'Selesai',
+                style: GoogleFonts.robotoFlex(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 48,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                backgroundColor: ColorTema.accentColor,
+              ),
+              onPressed: () {
+                if (state.invoice==null||state.invoice?.bookingDetail.bookingId== null||state.invoice?.bookingDetail.midtransId== null) {
+                  showDialog(context: context, builder: (context) => AlertDialog(
+                    title: Text("Terjadi Kesalahan"),
+                    content: Text("Silahkan check invoice kembali di history"),
+                  ));
+                }else{
+                  context.read<BookingCubit>().checkTransaction(state.invoice!.bookingDetail.bookingId, state.invoice!.bookingDetail.midtransId!);
+                }
+              },
+              child: Text(
+                'Check',
                 style: GoogleFonts.robotoFlex(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

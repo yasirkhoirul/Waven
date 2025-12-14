@@ -22,3 +22,9 @@ enum RequestState{
   error,
   loaded
 }
+
+enum TransactionPayType{
+  lunas,
+  pelunasan,
+  dp
+}

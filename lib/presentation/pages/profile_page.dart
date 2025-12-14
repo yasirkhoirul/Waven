@@ -11,7 +11,7 @@ import 'package:waven/common/imageconstant.dart';
 import 'package:waven/domain/entity/list_invoice_user.dart';
 import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/profile_cubit.dart';
-import 'package:waven/presentation/widget/dialog.dart';
+import 'package:waven/presentation/widget/dialog_detail_invoice.dart';
 import 'package:waven/presentation/widget/divider.dart';
 import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
@@ -164,7 +164,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
               }
 
               if (state.step == RequestState.error) {
-                return Center(child: Text("Error loading data"));
+                return Center(child: Text("terjadi kesalahan coba lagi"));
               }
 
               if (state.listdata.isEmpty) {

@@ -15,6 +15,7 @@ import 'package:waven/presentation/cubit/porto_all_cubit.dart';
 import 'package:waven/presentation/cubit/profile_cubit.dart';
 import 'package:waven/presentation/cubit/signup_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
+import 'package:waven/presentation/cubit/transaction_cubit.dart';
 import 'package:waven/presentation/router/routerauth.dart';
 import 'injection.dart' as injection;
 final GetIt getisinstance = GetIt.instance;
@@ -34,7 +35,9 @@ void main() async{
       BlocProvider(create: (context) => getisinstance<BookingCubit>(),),
       BlocProvider(create: (context) => getisinstance<ListInvoiceCubit>(),),
       BlocProvider(create: (context) => getisinstance<ProfileCubit>(),),
+      BlocProvider(create: (context) => getisinstance<TransactionCubit>(),),
       BlocProvider(create: (context) => getisinstance<DetailInvoiceCubit>(),),
+      BlocProvider(create: (context) => getisinstance<TransactionCubit>(),),
     ], child: const MainApp())
   );
 }

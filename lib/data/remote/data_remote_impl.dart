@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/data/model/addonsmodel.dart';
 import 'package:waven/data/model/booking_request_model.dart';
+import 'package:waven/data/model/checktransactionmodel.dart';
 import 'package:waven/data/model/detailinvoice.dart';
 import 'package:waven/data/model/detailportomodel.dart';
 import 'package:waven/data/model/invoicemodel.dart';
@@ -16,6 +17,7 @@ import 'package:waven/data/model/portomodel.dart';
 import 'package:waven/data/model/profilemodel.dart';
 import 'package:waven/data/model/signup.dart';
 import 'package:waven/data/model/singin.dart';
+import 'package:waven/data/model/transactionmodel.dart';
 import 'package:waven/data/model/univ_drop_model.dart';
 import 'package:waven/data/remote/dio.dart';
 import 'package:waven/domain/entity/user.dart';
@@ -39,6 +41,12 @@ abstract class DataRemote {
   Future<ListInvoiceModelUser> getlistinvoice(int page, int limit);
   Future<Profilemodel> getProfile();
   Future<DetailInvoiceModel> getDetailInvoice(String id);
+  Future<bool> getCheckTransaction(String bookingid, String gatewayid);
+  Future<Transactionmodel> postTransaction(
+    TransactionRequest data,
+    String idInvoice,
+    {List<int>? image}
+  );
 }
 
 class DataRemoteImpl implements DataRemote {
@@ -363,6 +371,47 @@ class DataRemoteImpl implements DataRemote {
       return "sukses";
     } catch (e) {
       throw Exception(e);
+    }
+  }
+
+  @override
+  Future<bool> getCheckTransaction(String bookingid, String gatewayid) async {
+    try {
+      final data = await dio.dio.get('v1/bookings/$bookingid/qris/$gatewayid');
+      final dataready = Checktransactionmodel.fromJson(data.data);
+      return dataready.data.ispaid;
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  @override
+  Future<Transactionmodel> postTransaction(
+    TransactionRequest dataRequest,
+    String idInvoice,
+    {List<int>? image}
+  ) async {
+    try {
+      final FormData dataform;
+      if (image != null) {
+        dataform = FormData.fromMap({
+          'image':MultipartFile.fromBytes(
+            image,
+            filename: 'bukti_transfer.jpg',
+          ) ,
+          'data': jsonEncode(dataRequest.toJson()),
+        });
+      } else {
+        dataform = FormData.fromMap({'data': jsonEncode(dataRequest.toJson())});
+      }
+      final data = await dio.dio.post(
+        "v1/bookings/$idInvoice/transactions",
+        data: dataform,
+      );
+      Logger().d(data.data);
+      return Transactionmodel.fromJson(data.data);
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:waven/domain/entity/detail_invoice.dart';
+import 'package:waven/domain/entity/transaction.dart';
 
 part 'detailinvoice.g.dart';
 

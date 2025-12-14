@@ -14,6 +14,7 @@ import 'package:waven/domain/entity/package.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
 import 'package:waven/domain/usecase/get_addons_all.dart';
 import 'package:waven/domain/usecase/get_check_tanggal.dart';
+import 'package:waven/domain/usecase/get_check_transaction.dart';
 import 'package:waven/domain/usecase/get_univdropdown.dart';
 import 'package:waven/domain/usecase/post_booking.dart';
 
@@ -25,11 +26,12 @@ class BookingCubit extends Cubit<BookingState> {
   final ImagePicker imagePickers;
   final GetCheckTanggal getCheckTanggal;
   final PostBooking postBooking;
+  final GetCheckTransaction getCheckTransaction;
   BookingCubit(
     this.getUnivdropdown, {
     required this.getAddonsAll,
     required this.postBooking,
-    required this.getCheckTanggal, required this.imagePickers,
+    required this.getCheckTanggal, required this.imagePickers, required this.getCheckTransaction,
   }) : super(BookingState());
 
   Future getAllDropDown() async {
@@ -237,5 +239,15 @@ class BookingCubit extends Cubit<BookingState> {
    } catch (e) {
      emit(state.copyWith(step: BookingStep.error,errorMessage: "gagal mendapatkan foto"));
    }
+  }
+
+  Future<void> checkTransaction(String bookingid,String transactionid)async{
+    emit(state.copyWith(step: BookingStep.loading));
+    try {
+      final data = await getCheckTransaction.execute(bookingid, transactionid);
+      emit(state.copyWith(checkQris: data,step: BookingStep.submitted));
+    } catch (e) {
+      emit(state.copyWith(errorMessage: "terjadi kesalahan"));
+    }
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
+import 'dart:typed_data';
 import 'package:waven/data/model/booking_request_model.dart';
+import 'package:waven/data/model/transactionmodel.dart';
 import 'package:waven/data/remote/data_local_impl.dart';
 import 'package:waven/data/remote/data_remote_impl.dart';
 import 'package:waven/domain/entity/additional_info.dart';
@@ -10,6 +12,7 @@ import 'package:waven/domain/entity/customer.dart';
 import 'package:waven/domain/entity/detail_invoice.dart';
 import 'package:waven/domain/entity/invoice.dart';
 import 'package:waven/domain/entity/list_invoice_user.dart';
+import 'package:waven/domain/entity/transaction.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
 import 'package:waven/domain/repository/booking_repository.dart';
 
@@ -119,6 +122,33 @@ class BookingRepositoryImpl implements BookingRepository {
       final data = await dataRemote.getDetailInvoice(idinvoice);
       final dataready = data.data.toEntity();
       return dataready;
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<bool> checkTransaction(String bookingid, String gatewayid) async{
+    try {
+      final data = await dataRemote.getCheckTransaction(bookingid, gatewayid);
+      return data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<TransactionEntityDetail> postTransaction(TransactionRequest payload,String idinvoice,{Uint8List? images}) async{
+    try {
+      final data = await dataRemote.postTransaction(payload, idinvoice, image: images);
+      Logger().d("data already model transaction ${data.data.actions}");
+      List<int> gambarqr = [];
+      if (payload.paymentMethod == "qris") {
+        Logger().d("data qris yang diterima ${data.data.actions?.first.url??''}");
+         gambarqr = await dataRemote.getQris(data.data.transactiondetail.midtransId??'');
+        Logger().d("data qris gambar yang didapat ${gambarqr}");
+      }
+      return TransactionEntityDetail(message: "Sukses",gambarqr: Uint8List.fromList(gambarqr),paymentQrUrl: data.data.transactiondetail.midtransId??'');
     } catch (e) {
       rethrow;
     }

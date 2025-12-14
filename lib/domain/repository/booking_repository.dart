@@ -1,3 +1,7 @@
+
+import 'dart:typed_data';
+
+import 'package:waven/data/model/transactionmodel.dart';
 import 'package:waven/domain/entity/additional_info.dart';
 import 'package:waven/domain/entity/addons.dart';
 import 'package:waven/domain/entity/booking.dart';
@@ -5,6 +9,7 @@ import 'package:waven/domain/entity/customer.dart';
 import 'package:waven/domain/entity/detail_invoice.dart';
 import 'package:waven/domain/entity/invoice.dart';
 import 'package:waven/domain/entity/list_invoice_user.dart';
+import 'package:waven/domain/entity/transaction.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
 
 abstract class BookingRepository {
@@ -19,4 +24,6 @@ abstract class BookingRepository {
   Future<bool> checkTanggal(String tanggal,String start,String end);
   Future<ListInvoiceUserEntity> getlistinvoiceuser(int page,int limit);
   Future<DetailInvoiceDataEntity> getInvoice(String idinvoice);
+  Future<bool> checkTransaction(String bookingid,String gatewayid);
+  Future<TransactionEntityDetail> postTransaction(TransactionRequest data,String idinvoice,{Uint8List? images});
 }

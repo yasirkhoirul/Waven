@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/common/color.dart';
 import 'package:waven/common/imageconstant.dart';
 import 'package:waven/presentation/cubit/detail_invoice_cubit.dart';
+import 'package:waven/presentation/widget/dialog_transaction.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 
 class InvoiceDialog extends StatefulWidget {
@@ -95,9 +96,18 @@ class _InvoiceDialogState extends State<InvoiceDialog> {
                                   spacing: 10,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    ItemText(jenis: 'Nama Client', isi: data.clientName),
-                                    ItemText(jenis: 'Universitas', isi: data.university),
-                                    ItemText(jenis: 'Status Bayar', isi: data.status),
+                                    ItemText(
+                                      jenis: 'Nama Client',
+                                      isi: data.clientName,
+                                    ),
+                                    ItemText(
+                                      jenis: 'Universitas',
+                                      isi: data.university,
+                                    ),
+                                    ItemText(
+                                      jenis: 'Status Bayar',
+                                      isi: data.status,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -106,12 +116,17 @@ class _InvoiceDialogState extends State<InvoiceDialog> {
                                   spacing: 10,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    ItemText(jenis: 'Package', isi: data.packageName),
+                                    ItemText(
+                                      jenis: 'Package',
+                                      isi: data.packageName,
+                                    ),
                                     ItemText(
                                       jenis: 'Extra',
-                                      isi: data.extra.isNotEmpty 
-                                        ? data.extra.map((e) => e.name).join(', ')
-                                        : 'Tidak ada',
+                                      isi: data.extra.isNotEmpty
+                                          ? data.extra
+                                                .map((e) => e.name)
+                                                .join(', ')
+                                          : 'Tidak ada',
                                     ),
                                   ],
                                 ),
@@ -126,7 +141,10 @@ class _InvoiceDialogState extends State<InvoiceDialog> {
                       Column(
                         spacing: 10,
                         children: [
-                          RowItem(jenis: 'Total Bayar', isi: 'Rp ${data.totalAmount.toStringAsFixed(0)}'),
+                          RowItem(
+                            jenis: 'Total Bayar',
+                            isi: 'Rp ${data.totalAmount.toStringAsFixed(0)}',
+                          ),
                         ],
                       ),
                       SizedBox(height: 5),
@@ -135,8 +153,14 @@ class _InvoiceDialogState extends State<InvoiceDialog> {
                       Column(
                         spacing: 10,
                         children: [
-                          RowItem(jenis: 'Sudah Bayar', isi: 'Rp ${data.paidAmount.toStringAsFixed(0)}'),
-                          RowItem(jenis: 'Kurang Bayar', isi: 'Rp ${data.unpaidAmount.toStringAsFixed(0)}'),
+                          RowItem(
+                            jenis: 'Sudah Bayar',
+                            isi: 'Rp ${data.paidAmount.toStringAsFixed(0)}',
+                          ),
+                          RowItem(
+                            jenis: 'Kurang Bayar',
+                            isi: 'Rp ${data.unpaidAmount.toStringAsFixed(0)}',
+                          ),
                         ],
                       ),
                       SizedBox(height: 15),
@@ -187,27 +211,49 @@ class _InvoiceDialogState extends State<InvoiceDialog> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           OulinedGreen(),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadiusGeometry.circular(10),
-                              ),
-                              backgroundColor: ColorTema.accentColor,
-                            ),
-                            onPressed: () {},
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Bayar",
-                                  style: GoogleFonts.robotoFlex(
-                                    color: Colors.white,
+                          data.status == "LUNAS" || data.status == "CANCELLED"
+                              ? Container()
+                              : PopupMenuButton(
+                                  onSelected: (value) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => DialogTransaction(
+                                        idinvoice: widget.id,
+                                        type: value,
+                                        transactiontype: data.status,
+                                        onTransactionSuccess: () {
+                                          context
+                                              .read<DetailInvoiceCubit>()
+                                              .refreshDetail();
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  itemBuilder: (context) => ['Transfer', 'Qris']
+                                      .map(
+                                        (e) => PopupMenuItem(
+                                          value: e,
+                                          child: Text(e),
+                                        ),
+                                      )
+                                      .toList(),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Bayar",
+                                        style: GoogleFonts.robotoFlex(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Colors.white,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Icon(Icons.check_circle, color: Colors.white),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                     ],
@@ -402,4 +448,3 @@ class TransactionHistoryItem extends StatelessWidget {
     );
   }
 }
-

@@ -22,8 +22,8 @@ DetailInvoiceData _$DetailInvoiceDataFromJson(Map<String, dynamic> json) =>
       university: json['university'] as String,
       packageName: json['package_name'] as String,
       status: json['status'] as String,
-      extra: json['extra'] == null?[]:(json['extra'] as List<dynamic>)
-          .map((e) => ExtraItem.fromJson(e as Map<String, dynamic>))
+      extra: (json['extra'] as List<dynamic>?)
+          ?.map((e) => ExtraItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       totalAmount: (json['total_amount'] as num).toInt(),
       paidAmount: (json['paid_amount'] as num).toInt(),

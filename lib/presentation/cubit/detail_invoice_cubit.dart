@@ -8,14 +8,22 @@ part 'detail_invoice_state.dart';
 class DetailInvoiceCubit extends Cubit<DetailInvoiceState> {
   DetailInvoiceCubit(this.getDetailInvoice) : super(DetailInvoiceInitial());
   final GetDetailInvoice getDetailInvoice;
+  String? _lastInvoiceId;
 
-  void ongetDetail(String idInvoice)async{
+  void ongetDetail(String idInvoice) async {
+    _lastInvoiceId = idInvoice;
     emit(DetailInvoiceLoading());
     try {
       final data = await getDetailInvoice.execute(idInvoice);
       emit(DetailInvoiceLoaded(data));
     } catch (e) {
       emit(DetailInvoiceerror(e.toString()));
+    }
+  }
+
+  void refreshDetail() async {
+    if (_lastInvoiceId != null) {
+      ongetDetail(_lastInvoiceId!);
     }
   }
 }
