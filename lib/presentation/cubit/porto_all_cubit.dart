@@ -12,7 +12,7 @@ class PortoAllCubit extends Cubit<PortoAllState> {
   void getAllporto({String? idpackage})async{
     emit( PortoAllLoading());
     try {
-      final response  = await getPorto.execute();
+      final response  = await getPorto.execute(idporto: idpackage);
       emit(PortoAllLoaded(response));
     } catch (e) {
       emit(PortoAllError(e.toString()));

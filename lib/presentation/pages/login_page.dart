@@ -4,10 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:waven/common/imageconstant.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
@@ -18,8 +16,7 @@ import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 import 'package:waven/presentation/widget/slidedirection.dart';
-import 'package:web/web.dart' as web; 
-import 'dart:js_interop';
+import 'package:web/web.dart' as web;
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -144,7 +141,6 @@ class _LayoutLoginState extends State<LayoutLogin>
 
   @override
   Widget build(BuildContext context) {
-    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return Stack(
       children: [
         Positioned.fill(child: Container(color: Colors.black)),

@@ -13,9 +13,7 @@ Packagemodel _$PackagemodelFromJson(Map<String, dynamic> json) => Packagemodel(
       .toList(),
 );
 
-Map<String, dynamic> _$PackagemodelToJson(Packagemodel instance) =>
-    <String, dynamic>{'message': instance.message, 'data': instance.data};
-
+ 
 DataPackage _$DataPackageFromJson(Map<String, dynamic> json) => DataPackage(
   id: json['id'] as String,
   title: json['title'] as String,
@@ -24,11 +22,3 @@ DataPackage _$DataPackageFromJson(Map<String, dynamic> json) => DataPackage(
   description: json['description'] as String,
 );
 
-Map<String, dynamic> _$DataPackageToJson(DataPackage instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'title': instance.title,
-      'price': instance.price,
-      'banner_url': instance.banner_url,
-      'description': instance.description,
-    };

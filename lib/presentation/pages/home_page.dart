@@ -69,6 +69,7 @@ class _WavenHomePageState extends State<WavenHomePage> {
                   child: Footer(),
                 );
               }
+              return Container();
             },
           ),
         ],
