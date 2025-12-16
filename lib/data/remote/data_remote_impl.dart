@@ -27,7 +27,7 @@ abstract class DataRemote {
   Future<String> logout(String accestoken);
   Future<Signinresonse> signUP(User data);
   Future<Packagemodel> getPackage();
-  Future<Portomodel> getPorto();
+  Future<Portomodel> getPorto({String? idpackage});
   Future<UnivDropModel> getUnivDropDown();
   Future<DetailPortoModel> getDetailPorto(String idpackage);
   Future<Addonsmodel> getAddons();
@@ -121,6 +121,7 @@ class DataRemoteImpl implements DataRemote {
 
   @override
   Future<Portomodel> getPorto({String? idpackage}) async {
+    Logger().d("idpackage $idpackage");
     try {
       final uri = Uri.https(baseuri, '/v1/master/portfolios', {
         "package": idpackage,

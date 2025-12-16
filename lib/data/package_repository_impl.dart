@@ -20,7 +20,7 @@ class PackageRepositoryImpl implements PackageRepository {
 
   @override
   Future<List<PortoEntity>> getPorto({String? idpackage}) async{
-    final data = await dataRemote.getPorto();
+    final data = await dataRemote.getPorto(idpackage: idpackage);
     return data.data.map((e) => e.toEntity(e),).toList();
   }
 
