@@ -131,9 +131,7 @@ class DataRemoteImpl implements DataRemote {
       if (response.statusCode == 200) {
         return Portomodel.fromJson(jsonDecode(response.body));
       } else {
-        throw Exception(
-          "error ${Portomodel.fromJson(jsonDecode(response.body)).message}",
-        );
+        return Portomodel("", []);
       }
     } catch (e) {
       throw Exception(e.toString());

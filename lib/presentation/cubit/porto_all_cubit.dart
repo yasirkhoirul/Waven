@@ -19,4 +19,9 @@ class PortoAllCubit extends Cubit<PortoAllState> {
     }
   }
 
+  Future<List<PortoEntity>> getReturnPorto(String idPackage)async{
+    return await getPorto.execute(idporto: idPackage);
+  }
+
+
 }

@@ -10,6 +10,7 @@ import 'package:waven/common/imageconstant.dart';
 class PortoPage extends StatefulWidget {
   final String packageId;
   final String packageTitle;
+  
 
   const PortoPage({
     super.key,
@@ -22,6 +23,7 @@ class PortoPage extends StatefulWidget {
 }
 
 class _PortoPageState extends State<PortoPage> {
+  late List<PortoEntity> porto;
   @override
   void initState() {
     context.read<PortoAllCubit>().getAllporto(idpackage: widget.packageId);

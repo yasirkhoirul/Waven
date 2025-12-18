@@ -1,11 +1,12 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/presentation/cubit/package_all_cubit.dart';
+import 'package:waven/presentation/cubit/porto_all_cubit.dart';
 import 'package:waven/presentation/pages/porto_page.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 import 'package:waven/common/imageconstant.dart';
+import 'package:waven/injection.dart' as injection;
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -90,12 +91,15 @@ class _GalleryPageState extends State<GalleryPage> {
 
               // Bottom Spacing
               SliverList.builder(
-                itemCount: state.data.length ,
-                itemBuilder: (context, index) => SizedBox(
-                  height: 400,
-                  child: PortoPage(
-                    packageId: state.data[index].id,
-                    packageTitle: state.data[index].tittle,
+                itemCount: state.data.length,
+                itemBuilder: (context, index) => BlocProvider(
+                  create: (context) => PortoAllCubit(injection.locator()),
+                  child: SizedBox(
+                    height: 400,
+                    child: PortoPage(
+                      packageId: state.data[index].id,
+                      packageTitle: state.data[index].tittle,
+                    ),
                   ),
                 ),
               ),
