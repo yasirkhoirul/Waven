@@ -6,10 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:waven/common/color.dart';
 import 'package:waven/common/imageconstant.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/appbars.dart';
+import 'package:waven/presentation/widget/button.dart';
 import 'package:waven/presentation/widget/divider.dart';
 import 'package:waven/presentation/widget/fadeup.dart';
 import 'package:waven/presentation/widget/footer.dart';
@@ -261,7 +263,7 @@ class _LayoutLoginState extends State<LayoutLogin>
                               listener: (context, state) async {
                                 if (state is AuthLoaded) {
                                   context.read<TokenauthCubit>().getTokens();
-                                  context.go('/home');
+
                                   context.read<AuthCubit>().onInit();
                                 }
                               },
@@ -332,7 +334,6 @@ class _LayoutLoginState extends State<LayoutLogin>
                                           );
                                         } else if (state
                                             is AuthRedirectGoogle) {
-                                         
                                           return Center(
                                             child: Column(
                                               children: [
@@ -479,53 +480,39 @@ class _FormLoginState extends State<FormLogin> {
                 ),
               ),
             ),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(10),
-                ),
-                backgroundColor: Color.fromARGB(255, 236, 238, 237),
-              ),
-              onPressed: () {
-                context.read<AuthCubit>().onLoginGoogle(_messageSubscription);
-              },
-              child: Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Login Dengan Google",
-                    style: GoogleFonts.roboto(color: Colors.black),
-                  ),
-                  SvgPicture.asset(ImagesPath.google),
-                ],
-              ),
-            ),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(10),
-                ),
-                backgroundColor: Color(0xFF00A76F),
-              ),
+
+            LWebButton(
+              label: "Masuk",
               onPressed: () {
                 if (_keyform.currentState!.validate()) {
                   context.read<AuthCubit>().onLogin(ur.text, pw.text);
                 }
               },
-              child: Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Login",
-                    style: GoogleFonts.robotoFlex(color: Colors.white),
-                  ),
-                  Icon(Icons.arrow_forward, color: Colors.white),
-                ],
-              ),
+            ),
+            Text(
+              "Atau lanjutkan dengan",
+              style: GoogleFonts.robotoFlex(color: Color(0xFFA8A8A8)),
+            ),
+            LWebButton(
+              widge: SvgPicture.asset(ImagesPath.google),
+              label: "Masuk dengan Akun Google",
+              onPressed: () {
+                if (_keyform.currentState!.validate()) {
+                  context.read<AuthCubit>().onLogin(ur.text, pw.text);
+                }
+              },),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Belum Punya akun?",
+                  style: GoogleFonts.robotoFlex(color: Color(0xFFA8A8A8)),
+                ),
+                InkWell(
+                  onTap: () => context.go('/signup'),
+                  child: Text("Daftar",style: GoogleFonts.robotoFlex(color: ColorTema.accentColor,)),
+                ),
+              ],
             ),
           ],
         ),

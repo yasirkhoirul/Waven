@@ -28,3 +28,12 @@ enum TransactionPayType{
   pelunasan,
   dp
 }
+
+enum StatusInvoice{
+  dp('DP'),
+  lunas('LUNAS'),
+  pending('PENDING');
+
+  final String label;
+  const StatusInvoice(this.label);
+}

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logger/web.dart';
+import 'package:waven/common/color.dart';
+import 'package:waven/common/constant.dart';
 import 'package:waven/common/imageconstant.dart';
+import 'package:waven/presentation/cubit/profile_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
+import 'package:waven/presentation/widget/button.dart';
 
 class AppbarsUser extends StatelessWidget {
   final VoidCallback? onmenupress;
@@ -22,7 +25,9 @@ class AppbarsUser extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset(ImagesPath.logotekspng),
+            InkWell(
+              onTap: () => context.go("/home"),
+              child: Image.asset(ImagesPath.logotekspng)),
             !isSmall
                 ? Row(
                     children: [
@@ -70,7 +75,7 @@ class AppbarsUser extends StatelessWidget {
                           context.goNamed('profile');
                         },
                         child: Text(
-                          "Profile",
+                          "Dashboard",
                           style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
                             fontWeight: FontWeight.w100,
@@ -81,42 +86,113 @@ class AppbarsUser extends StatelessWidget {
 
                       BlocConsumer<TokenauthCubit, TokenauthState>(
                         listener: (context, state) {
-                          
+                          if (state.tokens != null) {
+                            context.read<ProfileCubit>().onGetdata();
+                          }
                         },
                         builder: (context, state) {
                           if (state.tokens != null) {
-                            Logger().d(state.tokens);
-                            return ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF00A76F),
-                              ),
-                              onPressed: () {
-                                context.read<TokenauthCubit>().onLogout();
+                            return PopupMenuButton<String>(
+                              color: ColorTema.warnaDialog,
+                              onSelected: (value) {
+                                if (value == 'profile') {
+                                  context.goNamed('profile');
+                                } else if (value == 'logout') {
+                                  context.read<TokenauthCubit>().onLogout();
+                                }
                               },
-                              child: Text(
-                                "Logout",
-                                style: GoogleFonts.robotoFlex(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                              itemBuilder: (ctx) => [
+                                PopupMenuItem(
+                                  value: 'profile',
+                                  child:
+                                      BlocBuilder<ProfileCubit, ProfileState>(
+                                        builder: (context, state) {
+                                          if (state.requestState ==
+                                              RequestState.loaded) {
+                                            return ItemDropDown(
+                                              name: state.data!.name,
+                                              leading: CircleAvatar(
+                                                radius: 18,
+                                                backgroundColor:
+                                                    ColorTema.accentColor,
+                                                child: Text(
+                                                  state.data!.name[0],
+                                                  style: GoogleFonts.robotoFlex(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            return Text(
+                                              "Memuat",
+                                              style: GoogleFonts.robotoFlex(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            );
+                                          }
+                                        },
+                                      ),
+                                ),
+                                PopupMenuItem(
+                                  value: 'logout',
+                                  child: ItemDropDown(
+                                    name: "Logout",
+                                    leading: Icon(
+                                      Icons.logout,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              child: CircleAvatar(
+                                backgroundColor: Color(0xFF00A76F),
+                                radius: 18,
+                                child: BlocBuilder<ProfileCubit, ProfileState>(
+                                  builder: (context, state) {
+                                    if (state.requestState ==
+                                        RequestState.loaded) {
+                                      final name = state.data?.name ?? '';
+                                      final initial = name.isNotEmpty
+                                          ? name[0]
+                                          : '';
+                                      return Text(
+                                        initial,
+                                        style: GoogleFonts.robotoFlex(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    } else if (state.requestState ==
+                                        RequestState.error) {
+                                      return Icon(
+                                        Icons.error,
+                                        color: Colors.white,
+                                        size: 16,
+                                      );
+                                    } else {
+                                      return SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                               ),
                             );
                           } else {
-                            return ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF00A76F),
-                              ),
-                              onPressed: () {
-                                context.go('/login');
-                              },
-                              child: Text(
-                                "Login",
-                                style: GoogleFonts.robotoFlex(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
+                            return LWebButton(label: "Login",onPressed: (){
+                              context.go("/login");
+                            },);
                           }
                         },
                       ),
@@ -129,6 +205,37 @@ class AppbarsUser extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ItemDropDown extends StatelessWidget {
+  final String name;
+  final Widget leading;
+  const ItemDropDown({super.key, required this.name, required this.leading});
+
+  @override
+  Widget build(BuildContext context) {
+    final displayName = name.length > 10 ? '${name.substring(0, 10)}...' : name;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
+      spacing: 10,
+      children: [
+        leading,
+        Flexible(
+          child: Text(
+            displayName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.robotoFlex(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

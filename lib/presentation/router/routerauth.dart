@@ -113,7 +113,7 @@ class MyRouter {
         if (isLoggedIn &&
             (state.uri.toString() == '/login' ||
                 state.uri.toString() == '/signup')) {
-          return '/home';
+          return '/Profile';
         }
         return null;
       },

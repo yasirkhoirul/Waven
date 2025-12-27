@@ -1,8 +1,8 @@
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/web.dart';
 import 'package:waven/common/color.dart';
@@ -12,6 +12,7 @@ import 'package:waven/domain/entity/list_invoice_user.dart';
 import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/profile_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
+import 'package:waven/presentation/widget/button.dart';
 import 'package:waven/presentation/widget/dialog_detail_invoice.dart';
 import 'package:waven/presentation/widget/dialogtextinput.dart';
 import 'package:waven/presentation/widget/divider.dart';
@@ -32,7 +33,7 @@ class ProfilePage extends StatelessWidget {
         } else if (index == 1) {
           return Center(
             child: FrostGlassAnimated(
-              width: pannjanglayar * 0.8,
+              width: pannjanglayar > 480 ? pannjanglayar * 0.8 : pannjanglayar * 0.95,
               child: Column(
                 children: [
                   HeaderProfile(pannjanglayar: pannjanglayar),
@@ -80,11 +81,11 @@ class _HeaderLayoutState extends State<HeaderLayout> {
                     children: [
                       Expanded(
                         child: Text(
-                          state.data == null?  "memuat ...": "Selamat datang ${state.data?.name}",
+                          state.data == null ? "memuat ..." : "Selamat datang ${state.data?.name}",
                           style: GoogleFonts.robotoFlex(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
-                            fontSize: 48,
+                            fontSize: MediaQuery.of(context).size.width>900? 48:14,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -95,7 +96,7 @@ class _HeaderLayoutState extends State<HeaderLayout> {
                         style: GoogleFonts.robotoFlex(
                           color: Colors.white,
                           fontWeight: FontWeight.w100,
-                          fontSize: 18,
+                          fontSize: MediaQuery.of(context).size.width>900?18:14,
                         ),
                       ),
                     ],
@@ -125,8 +126,11 @@ class MainContentProfile extends StatefulWidget {
 
 class _MainContentProfileState extends State<MainContentProfile> {
   final _pagecontroller = PageController();
+  List<GlobalKey> _pageKeys = [];
   int currentindex = 0;
   int higheghtpage = 0;
+  double heightpage = 1000;
+  bool _measureScheduled = false;
   final limit = 2;
 
   @override
@@ -135,6 +139,39 @@ class _MainContentProfileState extends State<MainContentProfile> {
     Logger().d("init dipanggil - load page 1");
     cubit.getLoad(1, 2);
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => scheduleMeasure());
+  }
+
+  void _measure() {
+    if (!mounted) return;
+    if (_pageKeys.isEmpty) return;
+
+    // try to measure current page key first
+    final key = _pageKeys.length > currentindex ? _pageKeys[currentindex] : _pageKeys.first;
+    final ctx = key.currentContext;
+    if (ctx == null) return;
+
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final logicalHeight = box.size.height; // logical pixels
+    Logger().d("measured logicalHeight: $logicalHeight");
+
+    final newHeight = logicalHeight + 40; // small padding
+    // only update if difference significant to avoid infinite setState loop
+    if ((newHeight - heightpage).abs() > 1.0) {
+      setState(() {
+        heightpage = newHeight;
+      });
+    }
+  }
+
+  void scheduleMeasure() {
+    if (_measureScheduled) return;
+    _measureScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _measureScheduled = false;
+      _measure();
+    });
   }
 
   @override
@@ -162,7 +199,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(20),
+          padding: MediaQuery.of(context).size.width > 440 ? const EdgeInsets.symmetric(horizontal: 20) : const EdgeInsets.all(0),
           child: BlocConsumer<ListInvoiceCubit, ListInvoiceState>(
             listener: (context, state) {
               if (state is SessionExpired) {
@@ -170,8 +207,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
               }
             },
             builder: (context, state) {
-              if (state.step == RequestState.loading &&
-                  state.listdata.isEmpty) {
+              if (state.step == RequestState.loading && state.listdata.isEmpty) {
                 return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
               }
 
@@ -183,23 +219,25 @@ class _MainContentProfileState extends State<MainContentProfile> {
                 return Center(child: Text("No data available"));
               }
 
-              // Update higheghtpage based on total count from metadata
+              // Update higheghtpage and keys after frame
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                final totalItems =
-                    state.data?.metadata.count ?? state.listdata.length;
+                final totalItems = state.data?.metadata.count ?? state.listdata.length;
                 final newPageCount = (totalItems / 2).ceil();
-                Logger().i(
-                  "Calculate pages - totalItems: $totalItems, newPageCount: $newPageCount",
-                );
                 if (higheghtpage != newPageCount) {
                   setState(() {
                     higheghtpage = newPageCount;
                   });
                 }
+
+                if (_pageKeys.length != newPageCount) {
+                  _pageKeys = List.generate(newPageCount, (_) => GlobalKey());
+                }
+
+                scheduleMeasure();
               });
 
               return SizedBox(
-                height: MediaQuery.of(context).size.width < 920 ? 1000 : 600,
+                height: heightpage,
                 child: LayoutBuilder(
                   builder: (context, constrians) {
                     return PageView.builder(
@@ -209,112 +247,51 @@ class _MainContentProfileState extends State<MainContentProfile> {
                         setState(() {
                           currentindex = value;
                         });
-
+                        // trigger load logic
                         final cubit = context.read<ListInvoiceCubit>();
                         final currentState = cubit.state;
-
-                        if (currentState.step != RequestState.loaded) {
-                          return;
+                        if (currentState.step == RequestState.loaded && currentState.data?.metadata != null) {
+                          final totalLoadedItems = currentState.listdata.length;
+                          final totalAvailableItems = currentState.data!.metadata.count;
+                          final itemsPerPage = 2;
+                          final lastPageIndex = ((totalLoadedItems + itemsPerPage - 1) / itemsPerPage).floor() - 1;
+                          if (value >= lastPageIndex && totalLoadedItems < totalAvailableItems) {
+                            final nextPage = (totalLoadedItems / itemsPerPage).ceil() + 1;
+                            cubit.getLoad(nextPage, itemsPerPage);
+                          }
                         }
-                        if (currentState.data?.metadata == null) {
-                          return;
-                        }
-
-                        final totalLoadedItems = currentState.listdata.length;
-                        final totalAvailableItems =
-                            currentState.data!.metadata.count;
-                        final itemsPerPage = 2;
-
-                        // Hitung page index terakhir yang bisa ditampilkan
-                        final lastPageIndex =
-                            ((totalLoadedItems + itemsPerPage - 1) /
-                                    itemsPerPage)
-                                .floor() -
-                            1;
-                        // Trigger load data baru saat user di halaman terakhir
-                        if (value >= lastPageIndex &&
-                            totalLoadedItems < totalAvailableItems) {
-                          // Hitung nomor page selanjutnya
-                          final nextPage =
-                              (totalLoadedItems / itemsPerPage).ceil() + 1;
-                          cubit.getLoad(nextPage, itemsPerPage);
-                        }
+                        scheduleMeasure();
                       },
                       itemCount: higheghtpage,
                       itemBuilder: (context, indexpage) {
-                        return BlocConsumer<ListInvoiceCubit, ListInvoiceState>(
-                          listener: (context, state) {
-                            if (state.step == RequestState.loaded) {
-                              setState(() {
-                                
-                                higheghtpage = (state.listdata.length / 2)
-                                    .ceil();
-                              });
-                              Logger().i(
-                                "higheghtpage updated to: $higheghtpage, total items: ${state.listdata.length}",
-                              );
-                            }
-                          },
+                        return BlocBuilder<ListInvoiceCubit, ListInvoiceState>(
                           builder: (context, state) {
                             if (state.step == RequestState.loaded) {
-                              Logger().i(
-                                "Building page $indexpage, listdata length: ${state.listdata.length}",
-                              );
-
-                              // Validasi index untuk menghindari RangeError
                               final startIndex = indexpage * 2;
-                              final endIndex = startIndex + 2;
-
-                              Logger().i(
-                                "StartIndex: $startIndex, EndIndex: $endIndex",
-                              );
-
-                              // Pastikan index tidak melebihi jumlah data
-                              if (startIndex >= state.listdata.length) {
-                                Logger().w(
-                                  "StartIndex melebihi listdata length",
-                                );
-                                return Container();
-                              }
-
-                              // Hitung berapa item yang tersedia untuk halaman ini
-                              final availableItemsCount =
-                                  state.listdata.length - startIndex;
-                              final itemCountForThisPage =
-                                  availableItemsCount > 2
-                                  ? 2
-                                  : availableItemsCount;
-
-                              Logger().i(
-                                "Available items: $availableItemsCount, akan ditampilkan: $itemCountForThisPage",
-                              );
+                              if (startIndex >= state.listdata.length) return Container();
+                              final availableItemsCount = state.listdata.length - startIndex;
+                              final itemCountForThisPage = availableItemsCount > 2 ? 2 : availableItemsCount;
 
                               return Center(
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: itemCountForThisPage,
-                                  itemBuilder: (context, index) {
-                                    final dataIndex = startIndex + index;
-                                    Logger().i(
-                                      "Rendering item at index: $dataIndex",
-                                    );
-                                    return LayoutBuilder(
-                                      builder: (context, constraints) {
-                                        Logger().i(constraints.maxHeight);
-                                        return Itemlistinvoicebuilderpagnation(
-                                          constrains: constrians.maxHeight,
-                                          data: state.listdata[dataIndex],
-                                        );
-                                      },
-                                    );
-                                  },
+                                child: KeyedSubtree(
+                                  key: _pageKeys.length > indexpage ? _pageKeys[indexpage] : UniqueKey(),
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.all(0),
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: itemCountForThisPage,
+                                    itemBuilder: (context, idx) {
+                                      final dataIndex = startIndex + idx;
+                                      return Itemlistinvoicebuilderpagnation(
+                                        constrains: constrians.maxHeight,
+                                        data: state.listdata[dataIndex],
+                                      );
+                                    },
+                                  ),
                                 ),
                               );
                             } else if (state.step == RequestState.loading) {
-                              return Center(
-                                child: MyLottie(aset: ImagesPath.loadinglottie),
-                              );
+                              return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
                             } else {
                               return Container();
                             }
@@ -330,7 +307,6 @@ class _MainContentProfileState extends State<MainContentProfile> {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 20,
           children: [
             Container(
               decoration: BoxDecoration(
@@ -422,117 +398,146 @@ class _MainContentProfileState extends State<MainContentProfile> {
 class Itemlistinvoicebuilderpagnation extends StatelessWidget {
   final double constrains;
   final BookingDataEntity data;
+  final GlobalKey? keys;
   const Itemlistinvoicebuilderpagnation({
     super.key,
     required this.constrains,
     required this.data,
+    this.keys
   });
+  Color _colorStatus(String status) {
+    switch (status) {
+      case "DP":
+        return ColorTema.biru;
+
+      case "LUNAS":
+        return ColorTema.accentColor;
+
+      case "PENDING":
+        return Colors.amber;
+
+      default:
+        return Colors.redAccent;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: RepaintBoundary(
-        child: FrostGlassAnimated(
-          width: double.maxFinite,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                MediaQuery.of(context).size.width>440? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constrainss) {
+        Logger().d("tinggi item adalah : ${constrainss.minHeight}");
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: RepaintBoundary(
+            child: FrostGlassAnimated(
+              keys: keys,
+              width: double.maxFinite,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      data.packageName,
-                      style: GoogleFonts.robotoFlex(
-                        color: Color(0xFFE0E0E0),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 24,
+                    MediaQuery.of(context).size.width > 440
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                data.packageName,
+                                style: GoogleFonts.robotoFlex(
+                                  color: Color(0xFFE0E0E0),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 24,
+                                ),
+                              ),
+                              Container(
+                                width: 100,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: _colorStatus(data.status),
+                                ),
+                                padding: EdgeInsets.all(10),
+                                child: Center(
+                                  child: Text(
+                                    data.status,
+                                    style: GoogleFonts.robotoFlex(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                data.packageName,
+                                style: GoogleFonts.robotoFlex(
+                                  color: Color(0xFFE0E0E0),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Container(
+                                width: 100,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: _colorStatus(data.status),
+                                ),
+                                padding: EdgeInsets.all(4),
+                                child: Center(
+                                  child: Text(
+                                    data.status,
+                                    style: GoogleFonts.robotoFlex(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 5,
+                        children: [
+                          DataRowItem(
+                            path: ImagesPath.logouniv,
+                            label: 'Universitas',
+                            value: data.university,
+                          ),
+
+                          DataRowItem(
+                            path: ImagesPath.logotanggal,
+                            label: 'Tanggal Foto',
+                            value: data.date,
+                          ),
+
+                          DataRowItem(
+                            path: ImagesPath.logowaktu,
+                            label: 'Waktu Foto',
+                            value: "${data.startTime}:${data.endTime}",
+                          ),
+
+                          DataRowItem(
+                            path: ImagesPath.logolocation,
+                            label: 'Lokasi Foto',
+                            value: data.location,
+                          ),
+                        ],
                       ),
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: data.status == 'PENDING'
-                            ? Colors.amber
-                            : ColorTema.accentColor,
-                      ),
-                      padding: EdgeInsets.all(10),
-                      child: Center(
-                        child: Text(
-                          data.status,
-                          style: GoogleFonts.robotoFlex(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ):Column(
-                  children: [
-                    Text(
-                      data.packageName,
-                      style: GoogleFonts.robotoFlex(
-                        color: Color(0xFFE0E0E0),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: data.status == 'PENDING'
-                            ? Colors.amber
-                            : ColorTema.accentColor,
-                      ),
-                      padding: EdgeInsets.all(4),
-                      child: Center(
-                        child: Text(
-                          data.status,
-                          style: GoogleFonts.robotoFlex(color: Colors.white),
-                        ),
-                      ),
-                    ),
+                    FooterContentPage(idinvoice: data.id),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 5,
-                    children: [
-                      DataRowItem(
-                        path: ImagesPath.logouniv,
-                        label: 'Universitas',
-                        value: data.university,
-                      ),
-        
-                      DataRowItem(
-                        path: ImagesPath.logotanggal,
-                        label: 'Tanggal Foto',
-                        value: data.date,
-                      ),
-        
-                      DataRowItem(
-                        path: ImagesPath.logowaktu,
-                        label: 'Waktu Foto',
-                        value: "${data.startTime}:${data.endTime}",
-                      ),
-        
-                      DataRowItem(
-                        path: ImagesPath.logolocation,
-                        label: 'Lokasi Foto',
-                        value: data.location,
-                      ),
-                    ],
-                  ),
-                ),
-                FooterContentPage(idinvoice: data.id),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -568,7 +573,10 @@ class FooterContentPage extends StatelessWidget {
         "icon": Icons.menu,
         "label": "List Foto Diedit",
         "action": () {
-          showDialog(context: context, builder: (context) => Dialogtextinput(idDetailInvoice: idinvoice),);
+          showDialog(
+            context: context,
+            builder: (context) => Dialogtextinput(idDetailInvoice: idinvoice),
+          );
         },
       },
       {
@@ -583,41 +591,75 @@ class FooterContentPage extends StatelessWidget {
     Widget customMenuButton(Map item) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: MediaQuery.of(context).size.width>440? ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: item['bg'] as Color,
-            padding: EdgeInsets.all(20),
-          ),
-          onPressed: item['action'] as VoidCallback?,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(item['icon'] as IconData, color: Colors.white),
-              const SizedBox(width: 6),
-              Text(
-                item['label'] as String,
-                style: GoogleFonts.robotoFlex(color: Colors.white),
+        child: MediaQuery.of(context).size.width > 440
+            ? ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(0, 47.37),
+                  backgroundColor: item['bg'] as Color,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 16,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: item['action'] as VoidCallback?,
+                child: Row(
+                  spacing: 5,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      item['icon'] as IconData,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      item['label'] as String,
+                      style: GoogleFonts.robotoFlex(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(0, 47.37),
+                  backgroundColor: item['bg'] as Color,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: 16,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: item['action'] as VoidCallback?,
+                child: Row(
+                  spacing: 5,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      item['icon'] as IconData,
+                      color: Colors.white,
+                      size: 12,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      item['label'] as String,
+                      style: GoogleFonts.robotoFlex(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ):ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: item['bg'] as Color,
-            padding: EdgeInsets.all(10),
-          ),
-          onPressed: item['action'] as VoidCallback?,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(item['icon'] as IconData, color: Colors.white,size: 10,),
-              const SizedBox(width: 3),
-              Text(
-                item['label'] as String,
-                style: GoogleFonts.robotoFlex(color: Colors.white,fontSize: 10),
-              ),
-            ],
-          ),
-        ),
       );
     }
 
@@ -661,7 +703,7 @@ class DataRowItem extends StatelessWidget {
             label,
             style: TextStyle(
               color: Color(0xFFE0E0E0), // Teks putih
-              fontSize: MediaQuery.of(context).size.width<440? 8:16,
+              fontSize: MediaQuery.of(context).size.width < 440 ? 12 : 16,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -672,9 +714,9 @@ class DataRowItem extends StatelessWidget {
           padding: const EdgeInsets.only(right: 10),
           child: Text(
             separator,
-            style:  TextStyle(
+            style: TextStyle(
               color: Color(0xFFE0E0E0), // Warna pemisah seperti di gambar
-              fontSize: MediaQuery.of(context).size.width<440? 8:16,
+              fontSize: MediaQuery.of(context).size.width < 440 ? 12 : 16,
               letterSpacing: 0.1, // Jarak antar titik
             ),
           ),
@@ -684,9 +726,9 @@ class DataRowItem extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style:  TextStyle(
+            style: TextStyle(
               color: Color(0xFFE0E0E0), // Teks putih
-              fontSize: MediaQuery.of(context).size.width<440? 8:16,
+              fontSize: MediaQuery.of(context).size.width < 440 ? 12 : 16,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -702,6 +744,7 @@ class HeaderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final panjanglayar = MediaQuery.of(context).size.width;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -711,8 +754,9 @@ class HeaderPage extends StatelessWidget {
             style: GoogleFonts.robotoFlex(
               color: ColorTema.abu,
               fontWeight: FontWeight.w600,
-              fontSize: 22,
+              fontSize: panjanglayar > 430 ? 22 : 18,
             ),
+            textAlign: panjanglayar > 430 ? TextAlign.start : TextAlign.center,
           ),
         ),
         Expanded(
@@ -727,30 +771,10 @@ class HeaderPage extends StatelessWidget {
                 },
                 icon: Icon(Icons.refresh, color: Colors.white),
               ),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: ColorTema.accentColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(15),
-                  ),
-                ),
-
-                onPressed: () {
-                  context.goNamed('packagelist');
-                },
-                child: Row(
-                  children: [
-                    Icon(Icons.add),
-                    Text(
-                      "Booking Session",
-                      style: GoogleFonts.robotoFlex(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
+              LWebButton(
+                label: "Tambah booking",
+                onPressed: () {},
+                icon: Icons.add,
               ),
             ],
           ),
@@ -784,19 +808,23 @@ class _HeaderProfileState extends State<HeaderProfile> {
           return Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(
-              spacing: 20,
+              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
                   width: 50,
                   height: 50,
-                  child: CachedNetworkImage(
-                    imageUrl: '',
-                    errorWidget: (context, url, error) =>
-                        Icon(Icons.error, color: Colors.white),
-                    placeholder: (context, url) =>
-                        MyLottie(aset: ImagesPath.loadinglottie),
-                    fit: BoxFit.cover,
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundColor: ColorTema.accentColor,
+                    child: Text(
+                      state.data!.name[0],
+                      style: GoogleFonts.robotoFlex(
+                        color: Colors.white,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
                 Row(
@@ -816,73 +844,75 @@ class _HeaderProfileState extends State<HeaderProfile> {
                     ),
                   ],
                 ),
-                MediaQuery.of(context).size.width>420?Row(
-                  spacing: 10,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      spacing: 5,
-                      children: [
-                        Icon(Icons.mail, color: Colors.white),
-                        Text(
-                          state.data?.email ?? 'email',
-                          style: GoogleFonts.robotoFlex(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w200,
-                            fontSize: 14,
+                MediaQuery.of(context).size.width > 420
+                    ? Row(
+                        spacing: 10,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            spacing: 5,
+                            children: [
+                              Icon(Icons.mail, color: Colors.white),
+                              Text(
+                                state.data?.email ?? 'email',
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w200,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      spacing: 3,
-                      children: [
-                        Icon(Icons.phone, color: Colors.white),
-                        Text(
-                          state.data?.phonenumber ?? "phone",
-                          style: GoogleFonts.robotoFlex(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w200,
-                            fontSize: 14,
+                          Row(
+                            spacing: 3,
+                            children: [
+                              Icon(Icons.phone, color: Colors.white),
+                              Text(
+                                state.data?.phonenumber ?? "phone",
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w200,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ):Column(
-                  spacing: 10,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      spacing: 5,
-                      children: [
-                        Icon(Icons.mail, color: Colors.white),
-                        Text(
-                          state.data?.email ?? 'email',
-                          style: GoogleFonts.robotoFlex(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w200,
-                            fontSize: 14,
+                        ],
+                      )
+                    : Column(
+                        spacing: 10,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            spacing: 5,
+                            children: [
+                              Icon(Icons.mail, color: Colors.white),
+                              Text(
+                                state.data?.email ?? 'email',
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w200,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      spacing: 3,
-                      children: [
-                        Icon(Icons.phone, color: Colors.white),
-                        Text(
-                          state.data?.phonenumber ?? "phone",
-                          style: GoogleFonts.robotoFlex(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w200,
-                            fontSize: 14,
+                          Row(
+                            spacing: 3,
+                            children: [
+                              Icon(Icons.phone, color: Colors.white),
+                              Text(
+                                state.data?.phonenumber ?? "phone",
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w200,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                        ],
+                      ),
                 AnimatedDividerCurve(height: 1, color: Colors.white),
               ],
             ),

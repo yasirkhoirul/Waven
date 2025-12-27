@@ -43,9 +43,11 @@ class _PackagePageState extends State<PackagePage> {
               if (state is PackageDetailLoaded) {
                 return Center(
                   child: SizedBox(
-                    width: panjang,
                     height: 2000,
                     child: ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: contrains.maxWidth > 1200 ? 200 : 20,
+                      ),
                       itemCount: 3,
                       itemBuilder: (context, index) {
                         if (index == 0) {
@@ -54,10 +56,10 @@ class _PackagePageState extends State<PackagePage> {
                             detail: state.data,
                           );
                         } else if (index == 1) {
-                          return PackagePortoContent(panjang: panjang);
+                          return Container();
                         } else if (index == 2) {
                           return Footer();
-                        }else{
+                        } else {
                           return Container();
                         }
                       },
@@ -90,7 +92,7 @@ class PackagePortoContent extends StatelessWidget {
       padding: const EdgeInsets.only(top: 20),
       child: FrostGlassAnimated(
         width: panjang,
-        height: 800,
+
         child: BlocBuilder<PortoAllCubit, PortoAllState>(
           builder: (context, state) {
             if (state is PortoAllLoaded) {
@@ -127,126 +129,255 @@ class DetailPackageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(minHeight: 400, maxHeight: 600),
-      child: LayoutBuilder(
-        builder: (context, constrains) {
+    return LayoutBuilder(
+      builder: (context, constrains) {
+        final isMobile = constrains.maxWidth < 950;
+
+        if (isMobile) {
           return FrostGlassAnimated(
-            width: panjang,
-            height: constrains.maxWidth > 800
-                ? constrains.minHeight
-                : constrains.maxHeight,
+            
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8.0),
               child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  constrains.maxWidth > 800
-                      ? Expanded(
-                        child: Row(
-                            children: [
-                              Expanded(
-                                child: DetailPackageTittle(detail: detail)
-                              ),
-                              Expanded(
-                                child: Column(
-                                  spacing: 20,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "What you get",
-                                      style: GoogleFonts.robotoFlex(
-                                        color: Colors.white,
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Expanded(child: ListBenefitDetailPackage(detail: detail))
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                      )
-                      : Expanded(
-                          child: Column(
-                            children: [
-                              Expanded(
-                                flex: constrains.maxWidth<350?5: 3,
-                                child: DetailPackageTittle(detail: detail),
-                              ),
-                              Expanded(
-                                flex: 7,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    spacing: 20,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "What you get",
-                                        style: GoogleFonts.robotoFlex(
-                                          color: Colors.white,
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: ListBenefitDetailPackage(detail: detail),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(15),
-                      ),
-                      backgroundColor: ColorTema.accentColor,
-                      textStyle: GoogleFonts.robotoFlex(color: Colors.white),
-                    ),
-                    onPressed: () {
-                      context.goNamed('booking',
-                        pathParameters: {
-                          'id': detail.id
-                        }
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Book Now",
-                        style: GoogleFonts.robotoFlex(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildImageSection(context),
+                  SizedBox(height: 20),
+                  _buildDetailsSection(context,isMobile),
                 ],
               ),
             ),
           );
-        },
-      ),
+        } else {
+          return SizedBox(
+            height: constrains.maxWidth*0.48,
+            
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.max,
+              spacing: 32,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: FrostGlassAnimated(
+                    
+                    
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: _buildImageSection(context),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: FrostGlassAnimated(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: _buildDetailsSection(context,isMobile),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildImageSection(BuildContext context) {
+    return BlocBuilder<PortoAllCubit, PortoAllState>(
+      builder: (context, state) {
+        if (state is PortoAllLoaded && state.data.isNotEmpty) {
+          return Column(
+            children: [
+              // Main image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: AspectRatio(
+                  aspectRatio: 3 / 4,
+                  child: CachedNetworkImage(
+                    imageUrl: state.data.first.url,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[800],
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[800],
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 12),
+              // Thumbnail grid
+              SizedBox(
+                height: 100,
+                child: Row(
+                  children: state.data.take(4).map((porto) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: CachedNetworkImage(
+                            imageUrl: porto.url,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                Container(color: Colors.grey[800]),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[800],
+                              child: Icon(Icons.error, size: 16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          );
+        }
+        // Fallback to banner image if no portfolio
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: AspectRatio(
+            aspectRatio: 3 / 4,
+            child: CachedNetworkImage(
+              imageUrl: detail.bannerUrl,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                color: Colors.grey[800],
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: Colors.grey[800],
+                child: Icon(Icons.image_not_supported, color: Colors.grey),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailsSection(BuildContext context,bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Title
+        Text(
+          detail.title,
+          style: GoogleFonts.robotoFlex(
+            color: Colors.white,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 16),
+
+        // Price
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: Color(0xFF3F3F3F),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            "Rp ${detail.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')},-",
+            style: GoogleFonts.robotoFlex(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+            ),
+          ),
+        ),
+        SizedBox(height: 24),
+
+        // Details header
+        Text(
+          "Details",
+          style: GoogleFonts.robotoFlex(
+            color: ColorTema.accentColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 16),
+
+        // Benefits list
+        ...detail.benefits.map((benefit) {
+          final isInclude = benefit.type == "INCLUDE";
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  isInclude ? Icons.check_circle : Icons.cancel,
+                  color: isInclude ? Colors.white : Colors.grey,
+                  size: 20,
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    benefit.description,
+                    style: GoogleFonts.robotoFlex(
+                      color: isInclude ? Colors.white : Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+
+       !isMobile?Spacer():SizedBox(height: 20,),
+
+        // Booking button
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorTema.accentColor,
+              padding: EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () {
+              context.goNamed('booking', pathParameters: {'id': detail.id});
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Booking Sekarang",
+                  style: GoogleFonts.robotoFlex(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Icon(Icons.arrow_forward, color: Colors.white, size: 18),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
 class DetailPackageTittle extends StatelessWidget {
-  const DetailPackageTittle({
-    super.key,
-    required this.detail,
-  });
+  const DetailPackageTittle({super.key, required this.detail});
 
   final DetailPackageEntity detail;
 
@@ -287,10 +418,7 @@ class DetailPackageTittle extends StatelessWidget {
 }
 
 class ListBenefitDetailPackage extends StatelessWidget {
-  const ListBenefitDetailPackage({
-    super.key,
-    required this.detail,
-  });
+  const ListBenefitDetailPackage({super.key, required this.detail});
 
   final DetailPackageEntity detail;
 
@@ -300,28 +428,15 @@ class ListBenefitDetailPackage extends StatelessWidget {
       itemCount: detail.benefits.length,
       itemBuilder: (context, index) => Row(
         children: [
-          detail.benefits[index].type ==
-                  "INCLUDE"
-              ? Icon(
-                  Icons.check_circle,
-                  color: Colors.white,
-                )
-              : Icon(
-                  Icons.cancel,
-                  color: Colors.blueGrey,
-                ),
+          detail.benefits[index].type == "INCLUDE"
+              ? Icon(Icons.check_circle, color: Colors.white)
+              : Icon(Icons.cancel, color: Colors.blueGrey),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              detail
-                  .benefits[index]
-                  .description,
+              detail.benefits[index].description,
               style: GoogleFonts.robotoFlex(
-                color:
-                    detail
-                            .benefits[index]
-                            .type ==
-                        "INCLUDE"
+                color: detail.benefits[index].type == "INCLUDE"
                     ? Colors.white
                     : Colors.blueGrey,
                 fontSize: 18,

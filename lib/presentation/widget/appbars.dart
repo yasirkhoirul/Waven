@@ -17,7 +17,9 @@ class Appbars extends StatelessWidget{
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset(ImagesPath.logotekspng,),
+            InkWell(
+              onTap: () => context.go('/home'),
+              child: Image.asset(ImagesPath.logotekspng,)),
             isloginpage? ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF00A76F)

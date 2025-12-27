@@ -8,6 +8,7 @@ import 'package:waven/common/imageconstant.dart';
 import 'package:waven/presentation/cubit/package_all_cubit.dart';
 import 'package:waven/presentation/cubit/porto_all_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
+import 'package:waven/presentation/widget/button.dart';
 import 'package:waven/presentation/widget/fadeup.dart';
 import 'package:waven/presentation/widget/footer.dart';
 import 'package:waven/presentation/widget/image_button.dart';
@@ -160,24 +161,7 @@ class AboutUs extends StatelessWidget {
 
                       Padding(
                         padding: const EdgeInsets.all(15),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            context.goNamed('packagelist');
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ColorTema.accentColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(10),
-                            ),
-                          ),
-                          child: Text(
-                            "Book Now",
-                            style: GoogleFonts.robotoFlex(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                        child: LWebButton(label: "Book Now",onPressed: () => context.goNamed('packagelist'),)
                       ),
                     ],
                   ),
@@ -401,10 +385,53 @@ class WidgetChoose extends StatelessWidget {
   }
 }
 
-class AppSliver extends StatelessWidget {
+class AppSliver extends StatefulWidget {
   const AppSliver({super.key, required this.accentColor});
-
+  
   final Color accentColor;
+
+  @override
+  State<AppSliver> createState() => _AppSliverState();
+}
+
+class _AppSliverState extends State<AppSliver> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  
+  final List<String> _sliderImages = [
+    ImagesPath.slider1,
+    ImagesPath.slider2,
+    ImagesPath.slider3,
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto slide every 5 seconds
+    Future.delayed(Duration(milliseconds: 500), () {
+      _startAutoSlide();
+    });
+  }
+
+  void _startAutoSlide() {
+    Future.delayed(Duration(seconds: 5), () {
+      if (mounted && _pageController.hasClients) {
+        int nextPage = (_currentPage + 1) % _sliderImages.length;
+        _pageController.animateToPage(
+          nextPage,
+          duration: Duration(milliseconds: 800),
+          curve: Curves.easeInOut,
+        );
+        _startAutoSlide();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -416,7 +443,21 @@ class AppSliver extends StatelessWidget {
         background: Stack(
           children: [
             Positioned.fill(
-              child: Image.asset(ImagesPath.background, fit: BoxFit.cover),
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemCount: _sliderImages.length,
+                itemBuilder: (context, index) {
+                  return Image.asset(
+                    _sliderImages[index],
+                    fit: BoxFit.cover,
+                  );
+                },
+              ),
             ),
             Positioned.fill(
               child: Padding(
@@ -487,29 +528,7 @@ class AppSliver extends StatelessWidget {
                     FadeInSlide(
                       direction: SlideDirection.up,
                       delay: Duration(milliseconds: 500),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(10),
-                          ),
-                          backgroundColor: ColorTema.accentColor,
-                        ),
-
-                        onPressed: () {
-                          context.goNamed('packagelist');
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            "Book Now",
-                            style: GoogleFonts.robotoFlex(
-                              color: Colors.white,
-                              fontSize: lebarlayar ? 22 : 11,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: LWebButton(label: "Book Now",onPressed: () => context.goNamed('packagelist'),)
                     ),
                   ],
                 ),

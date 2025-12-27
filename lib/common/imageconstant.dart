@@ -4,6 +4,9 @@ class ImagesPath {
   static final String logoteks = "assets/logo/wavenlogoteks.svg";
   static final String logotekspng = "assets/logo/wavenmoment.png";
   static final String background = "assets/logo/DFA00159.JPG";
+  static final String slider1 = "assets/logo/slider1.png";
+  static final String slider2 = "assets/logo/slider2.png";
+  static final String slider3 = "assets/logo/slider3.png";
   static final String buttonimage1 = "assets/logo/buttonimage1.png";
   static final String buttonimage2 = "assets/logo/buttonimage2.png";
   static final String buttonimage3 = "assets/logo/buttonimage3.png";

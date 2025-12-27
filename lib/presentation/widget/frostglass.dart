@@ -2,7 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class FrostGlassAnimated extends StatefulWidget {
-  final double width;
+  final double? width;
+  final double? maxWidth;
   final double? height ;
   final Widget child;
   final double blur;
@@ -10,10 +11,12 @@ class FrostGlassAnimated extends StatefulWidget {
   final int maxAlphaBorder; // alpha akhir untuk border
   final BorderRadius borderRadius;
   final Duration duration;
+  final GlobalKey? keys;
 
   const FrostGlassAnimated({
     super.key,
-    required this.width,
+    this.width,
+    this.maxWidth,
     this.height,
     required this.child,
     this.blur = 10.0,
@@ -21,6 +24,7 @@ class FrostGlassAnimated extends StatefulWidget {
     this.maxAlphaBorder = 40,
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),
     this.duration = const Duration(milliseconds: 1000),
+    this.keys
   });
 
   @override
@@ -69,6 +73,7 @@ class _FrostGlassAnimatedState extends State<FrostGlassAnimated>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
+      
       animation: controller,
       builder: (_, _) {
         return ClipRRect(
@@ -78,25 +83,31 @@ class _FrostGlassAnimatedState extends State<FrostGlassAnimated>
               sigmaX: widget.blur,
               sigmaY: widget.blur,
             ),
-            child: Container(
-              width: widget.width,
-              decoration: BoxDecoration(
-                borderRadius: widget.borderRadius,
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF999999).withAlpha(gradientAlphaAnim.value.toInt()),
-                    Colors.white.withAlpha(gradientAlphaAnim.value.toInt()),
-                  ],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                ),
-                border: Border.all(
-                  color: Colors.white
-                      .withAlpha(borderAlphaAnim.value.toInt()),
-                  width: 1.3,
-                ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: widget.maxWidth ?? double.infinity,
               ),
-              child: widget.child,
+              child: Container(
+                key: widget.keys,
+                width: widget.width,
+                height: widget.height,
+                decoration: BoxDecoration(
+                  borderRadius: widget.borderRadius,
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF999999).withAlpha(gradientAlphaAnim.value.toInt()),
+                      Colors.white.withAlpha(gradientAlphaAnim.value.toInt()),
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                  border: Border.all(
+                    color: Colors.white.withAlpha(borderAlphaAnim.value.toInt()),
+                    width: 1.3,
+                  ),
+                ),
+                child: widget.child,
+              ),
             ),
           ),
         );
