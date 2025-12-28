@@ -8,6 +8,7 @@ import 'package:waven/common/color.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/domain/entity/addons.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
+import 'package:waven/presentation/widget/button.dart';
 
 class Form3Content extends StatefulWidget {
   const Form3Content({super.key});
@@ -153,90 +154,6 @@ class _Form3ContentState extends State<Form3Content>
                 onChanged: _onPaymentMethodChanged,
                 initialValue: _selectedPaymentMethod,
               ),
-              // Image Picker dengan Animasi Fade
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.95, end: 1.0).animate(
-                    CurvedAnimation(
-                      parent: _animationController,
-                      curve: Curves.easeOutCubic,
-                    ),
-                  ),
-                  child: _selectedPaymentMethod == 'transfer'
-                      ? Column(
-                          spacing: 12,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            SizedBox(height: 5),
-                            GestureDetector(
-                              onTap: _pickImage,
-                              child: Container(
-                                height: 200,
-                                padding: const EdgeInsets.all(20.0),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: state.dataimage != null
-                                        ? Colors.green
-                                        : Colors.white54,
-                                    width: 2,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: Colors.white10,
-                                ),
-                                child: state.dataimage == null
-                                    ? Column(
-                                        spacing: 8,
-                                        children: [
-                                          Icon(
-                                            _selectedImageName != null
-                                                ? Icons.check_circle
-                                                : Icons.image_outlined,
-                                            color:
-                                                _selectedImageName != null
-                                                ? Colors.green
-                                                : Colors.white54,
-                                            size: 40,
-                                          ),
-                                          Text(
-                                            _selectedImageName != null
-                                                ? 'Bukti Transfer Dipilih'
-                                                : 'Pilih Bukti Transfer',
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.robotoFlex(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          if (_selectedImageName != null)
-                                            Text(
-                                              _selectedImageName!,
-                                              textAlign: TextAlign.center,
-                                              style: GoogleFonts.robotoFlex(
-                                                color: Colors.green,
-                                                fontSize: 10,
-                                              ),
-                                              maxLines: 1,
-                                              overflow:
-                                                  TextOverflow.ellipsis,
-                                            ),
-                                        ],
-                                      )
-                                    : kIsWeb? Image.network(
-                                        state.dataimage!.path,
-                                        fit: BoxFit.cover,
-                                      ):Image.file(
-                                        File(state.dataimage!.path),
-                                        fit: BoxFit.cover,
-                                      ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ),
               DropdownButtonFormField<String>(
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -271,65 +188,17 @@ class _Form3ContentState extends State<Form3Content>
                 initialValue: _selectedPaymentType,
               ),
               SizedBox(height: 10),
-              SizedBox(
-                height: 50,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: ColorTema.accentColor,
-                  ),
-                  onPressed: () {
-                    // Validasi image picker jika memilih transfer
-                    if (_selectedPaymentMethod == 'transfer' &&
-                        state.dataimage == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Silahkan pilih bukti transfer',
-                            style: GoogleFonts.robotoFlex(color: Colors.white),
-                          ),
-                          backgroundColor: Colors.red,
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                      return;
-                    }
-
+              LWebButton(label: "Lanjutkan",onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       context.read<BookingCubit>().onTahapThree(
                         _selectedPaymentType!,
                         _selectedPaymentMethod!,
                       );
                     }
-                  },
-                  child: Text(
-                    "Lanjutkan",
-                    style: GoogleFonts.robotoFlex(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 50,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: ColorTema.abu,
-                  ),
-                  onPressed: () {
-                    context.read<BookingCubit>().goloaded();
-                  },
-                  child: Text(
-                    "Kembali",
-                    style: GoogleFonts.robotoFlex(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
+              },),
+              LWebButton(label: "Kembali",onPressed: () {
+                context.read<BookingCubit>().goloaded();
+              },backgroundColor: ColorTema.abu,)
             ],
           );
         },
@@ -354,6 +223,8 @@ class _ListPackageState extends State<ListPackage> {
       builder: (context, state) {
         if (state.step == BookingStep.tahap1) {
           return ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
             itemCount: state.dataaddons?.length,
             itemBuilder: (context, index) {
               final isSelected = selected.contains(state.dataaddons![index]);

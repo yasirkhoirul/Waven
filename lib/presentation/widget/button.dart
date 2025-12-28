@@ -45,12 +45,12 @@ class LMobileButton extends StatelessWidget {
 }
 
 class LWebButton extends StatelessWidget {
-  
+  final Color? backgroundColor;
   final String label;
   final Widget? widge;
   final VoidCallback? onPressed;
   final IconData? icon;
-  const LWebButton({super.key, required this.label, this.onPressed, this.icon, this.widge});
+  const LWebButton({super.key, required this.label, this.onPressed, this.icon, this.widge,this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class LWebButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         minimumSize: Size(0,40),
         maximumSize: Size(200, 60),
-        backgroundColor: ColorTema.accentColor,
+        backgroundColor: backgroundColor?? ColorTema.accentColor,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),

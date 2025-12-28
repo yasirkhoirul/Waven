@@ -1,5 +1,5 @@
 class Constantclass{
-  static final List<String> paymentMethod = ['qris','transfer','cash'];
+  static final List<String> paymentMethod = ['qris','va','transfer','cash'];
   static final List<String> paymentType = ['Lunas','Dp'];
 
   
@@ -36,4 +36,10 @@ enum StatusInvoice{
 
   final String label;
   const StatusInvoice(this.label);
+}
+
+enum Platformdata{
+  web,
+  android,
+  ios
 }

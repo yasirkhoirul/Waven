@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/web.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/domain/entity/additional_info.dart';
 import 'package:waven/domain/entity/addons.dart';
@@ -36,7 +37,7 @@ class BookingCubit extends Cubit<BookingState> {
   Future getAllDropDown() async {
     emit(state.copyWith(step: BookingStep.loading));
     try {
-      final renpse = await getUnivdropdown.execute();
+      final renpse = await getUnivdropdown.execute(0,10);
       Logger().d("hasil ${renpse.first.name} ${renpse.last.name}");
       final addons = await getAddonsAll.execute();
       emit(
@@ -207,18 +208,30 @@ class BookingCubit extends Cubit<BookingState> {
     );
 
     try {
-      final image = await state.dataimage?.readAsBytes();
-      Logger().d("image dikirim dari cubic $image");
+      // Compress image before upload to avoid 413 error
+      List<int>? compressedImage;
+      if (state.dataimage != null) {
+        final bytes = await state.dataimage!.readAsBytes();
+        Logger().d("Original image size: ${bytes.length} bytes");
+        
+        // Compress to max 500KB with quality 70
+        compressedImage = await FlutterImageCompress.compressWithList(
+          bytes,
+          minWidth: 1024,
+          minHeight: 1024,
+          quality: 70,
+        );
+        Logger().d("Compressed image size: ${compressedImage.length} bytes");
+      }
+      
       final invoice = await postBooking.execute(
-        image:  image,
+        image: compressedImage,
         customer: customerdata,
         booking: bookingdata,
         additionalData: additonaldata,
       );
-      Logger().d("invoice di cubic = ${invoice.paymentQrUrl}");
       emit(state.copyWith(step: BookingStep.submitted, invoice: invoice));
     } catch (e) {
-      Logger().d("ini dari dio ${e}");
       if (e.toString().contains("401") ||
           e.toString().contains("Session Expired")) {
         emit(BookingSessionExpired());

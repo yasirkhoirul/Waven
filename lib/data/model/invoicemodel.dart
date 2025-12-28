@@ -20,16 +20,7 @@ class InvoiceModel {
 
   Map<String, dynamic> toJson() => _$InvoiceModelToJson(this);
 
-  Invoice toEntity(Uint8List datagambar) {
-    return Invoice(
-      message: message,
-      bookingDetail: data.bookingDetail.toEntity(),
-      paymentQrUrl: data.actions != null && data.actions!.isNotEmpty
-          ? data.actions!.first.url
-          : null,
-      gambarqr: datagambar
-    );
-  }
+  
 }
 
 @JsonSerializable()
@@ -37,7 +28,7 @@ class InvoiceData {
   @JsonKey(name: 'booking_detail')
   final BookingDetail bookingDetail;
 
-  final List<Action>? actions;
+  final ActionData? actions;
 
   InvoiceData({
     required this.bookingDetail,
@@ -128,4 +119,14 @@ class Action {
       _$ActionFromJson(json);
 
   Map<String, dynamic> toJson() => _$ActionToJson(this);
+}
+
+@JsonSerializable()
+class ActionData{
+  final String? token;
+  @JsonKey(name: 'redirect_url')
+  final String? redirectUrl;
+  const ActionData(this.token,this.redirectUrl);
+
+  factory ActionData.fromJson(Map<String,dynamic> json)=>_$ActionDataFromJson(json);
 }

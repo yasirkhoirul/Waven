@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:logger/logger.dart';
+import 'package:waven/common/constant.dart';
 import 'dart:typed_data';
 import 'package:waven/data/model/booking_request_model.dart';
 import 'package:waven/data/model/transactionmodel.dart';
@@ -22,8 +27,8 @@ class BookingRepositoryImpl implements BookingRepository {
   const BookingRepositoryImpl(this.dataRemote, {required this.dataLocal});
 
   @override
-  Future<List<UnivDropdown>> getUnivDropDown() async {
-    final data = await dataRemote.getUnivDropDown();
+  Future<List<UnivDropdown>> getUnivDropDown(int page,int limit,{String? search}) async {
+    final data = await dataRemote.getUnivDropDown(page,limit,search: search);
     try {
       final dataready = data.data.map((e) => e.toEntity()).toList();
       return dataready;
@@ -71,24 +76,59 @@ class BookingRepositoryImpl implements BookingRepository {
           additionalData.universityId,
           additionalData.location,
           additionalData.note,
+          kIsWeb?Platformdata.web.name:Platformdata.android.name
         ),
       );
       
       final response = await dataRemote.postBooking(payload,image: image);
-      Logger().d("Booking response received with QR URL: ${response.data.actions?.first.url}");
-      List<int>? qrImageBytes;
-      // Fetch QR code image bytes if midtransId exists
-      if (response.data.bookingDetail.midtransId != null) {
+      
+      // Prepare QR bytes and redirect to snap (web) if provided
+      Uint8List? qrImageBytes;
+      final redirectUrl = response.data.actions?.redirectUrl;
+      final midtransId = response.data.bookingDetail.midtransId;
+
+      // If web and redirect URL is present, open snap url in same tab
+      if (kIsWeb && redirectUrl != null && redirectUrl.isNotEmpty) {
         try {
-          qrImageBytes = await dataRemote.getQris(response.data.bookingDetail.midtransId!);
-          Logger().d("QR code image fetched successfully: ${qrImageBytes.length} bytes");
+          final uri = Uri.parse(redirectUrl);
+          await launchUrl(
+            uri,
+            mode: LaunchMode.platformDefault,
+            webOnlyWindowName: '_self',
+          );
         } catch (e) {
-          Logger().w("Warning: Failed to fetch QR image - $e");
-          // Don't throw, continue with invoice response
+          Logger().e('Failed to open redirect url: $e');
         }
       }
-      
-      return response.toEntity(Uint8List.fromList(qrImageBytes??[]));
+
+      // Try fetching QR image bytes when midtransId exists
+      if (midtransId != null && midtransId.isNotEmpty) {
+        try {
+          final bytes = await dataRemote.getQris(midtransId);
+          qrImageBytes = Uint8List.fromList(bytes);
+        } catch (e) {
+          Logger().e('Failed to fetch QR image: $e');
+          qrImageBytes = null;
+        }
+      }
+
+      // Build domain entity
+      final booking = response.data.bookingDetail;
+      final bookingEntity = BookingDetailEntity(
+        bookingId: booking.bookingId,
+        midtransId: booking.midtransId,
+        totalAmount: booking.totalAmount,
+        paidAmount: booking.paidAmount,
+        currency: booking.currency,
+        paymentMethod: booking.paymentMethod,
+        transactionTime: booking.transactionTime,
+        paymentStatus: booking.paymentStatus,
+        acquirer: booking.acquirer,
+        paymentQrUrl: midtransId,
+        gambarqr: qrImageBytes,
+      );
+
+      return Invoice(message: response.message, bookingDetail: bookingEntity);
     } catch (e) {
       rethrow;
     }

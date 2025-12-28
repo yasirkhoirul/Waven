@@ -28,7 +28,7 @@ abstract class DataRemote {
   Future<Signinresonse> signUP(User data);
   Future<Packagemodel> getPackage();
   Future<Portomodel> getPorto({String? idpackage});
-  Future<UnivDropModel> getUnivDropDown();
+  Future<UnivDropModel> getUnivDropDown(int page,int limit,{String? search});
   Future<DetailPortoModel> getDetailPorto(String idpackage);
   Future<Addonsmodel> getAddons();
   Future<InvoiceModel> postBooking(
@@ -156,17 +156,25 @@ class DataRemoteImpl implements DataRemote {
   }
 
   @override
-  Future<UnivDropModel> getUnivDropDown() async {
+  Future<UnivDropModel> getUnivDropDown(int page,int limit,{String? search}) async {
+    Logger().d("dipanggil dropdown");
     try {
-      final uri = Uri.https(baseuri, '/v1/master/universities/dropdown');
-      final response = await http.get(uri);
-
+      final uri = Uri.https(baseuri, '/v1/master/universities/dropdown',).replace(
+        queryParameters: {
+          'page':page.toString(),
+          'limit':limit.toString(),
+          if(search!=null)"search":search
+        }
+      );
+      final response = await http.get(uri,);
+      Logger().d(response);
       if (response.statusCode == 200) {
         return UnivDropModel.fromJson(jsonDecode(response.body));
       } else {
         throw response.statusCode.toString();
       }
     } catch (e) {
+      Logger().e(e.toString());
       throw Exception(e);
     }
   }
@@ -195,12 +203,8 @@ class DataRemoteImpl implements DataRemote {
     try {
       FormData formData;
       final isTransferMethod =
-          payload.bookingData.paymentMethod == Constantclass.paymentMethod[1];
+          payload.bookingData.paymentMethod == Constantclass.paymentMethod[2];
       final hasImage = image != null && image.isNotEmpty;
-
-      Logger().d(
-        "PostBooking - Payment Method: ${payload.bookingData.paymentMethod}, Has Image: $hasImage",
-      );
 
       if (hasImage && isTransferMethod) {
         Logger().d("Mengirim booking WITH image (Transfer method)");
@@ -219,9 +223,6 @@ class DataRemoteImpl implements DataRemote {
       }
 
       final response = await dio.dio.post('v1/bookings', data: formData);
-
-      Logger().d("Booking Response Status: ${response.statusCode}");
-      Logger().d("Booking Response Data: ${response.data}");
 
       final data = InvoiceModel.fromJson(response.data);
       return data;

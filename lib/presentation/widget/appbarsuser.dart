@@ -9,10 +9,22 @@ import 'package:waven/presentation/cubit/profile_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/button.dart';
 
-class AppbarsUser extends StatelessWidget {
+class AppbarsUser extends StatefulWidget {
   final VoidCallback? onmenupress;
   final Function(int) onpress;
   const AppbarsUser({super.key, required this.onpress, this.onmenupress});
+
+  @override
+  State<AppbarsUser> createState() => _AppbarsUserState();
+}
+
+class _AppbarsUserState extends State<AppbarsUser> {
+
+  @override
+  void initState() {
+    context.read<ProfileCubit>().onGetdata();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +45,7 @@ class AppbarsUser extends StatelessWidget {
                     children: [
                       TextButton(
                         onPressed: () {
-                          onpress(0);
+                          widget.onpress(0);
                         },
                         child: Text(
                           "Home",
@@ -46,7 +58,7 @@ class AppbarsUser extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          onpress(1);
+                          widget.onpress(1);
                         },
                         child: Text(
                           "package",
@@ -59,7 +71,7 @@ class AppbarsUser extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          onpress(2);
+                          widget.onpress(2);
                         },
                         child: Text(
                           "Gallery",

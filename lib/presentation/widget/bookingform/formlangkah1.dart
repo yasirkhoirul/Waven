@@ -6,9 +6,9 @@ import 'package:waven/common/color.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/common/imageconstant.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
+import 'package:waven/presentation/pages/signup_page.dart';
+import 'package:waven/presentation/widget/button.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
-
-
 
 class FormContent extends StatefulWidget {
   const FormContent({super.key});
@@ -73,29 +73,17 @@ class _FormContentState extends State<FormContent> {
             return Column(
               spacing: 10,
               children: [
-                DropdownButtonFormField<String>(
+                DropDownSearchUniv(
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "silahkan  masukkan tempat";
+                    if (value == null) {
+                      return "Universitas tidak boleh kosong";
                     }
                     return null;
                   },
-                  decoration: InputDecoration(
-                    labelStyle: GoogleFonts.robotoFlex(color: Colors.white),
-                    labelText: "Universitas",
-                    iconColor: Colors.white,
-                    border: OutlineInputBorder(),
-                  ),
-                  initialValue: _selectedUniversitas,
-                  items: state.data?.map((e) {
-                    return DropdownMenuItem<String>(
-                      value: e!.id,
-                      child: Text(e.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
+                  fontSize: 14,
+                  onChange: (univ) {
                     setState(() {
-                      _selectedUniversitas = value;
+                      _selectedUniversitas = univ?.id;
                     });
                   },
                 ),
@@ -121,17 +109,18 @@ class _FormContentState extends State<FormContent> {
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
-                  gridDelegate:
-                      SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount:  MediaQuery.of(context).size.width>650?5: 3, // 3 kolom seperti contoh
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        childAspectRatio: 2.3, // atur bentuk tombol
-                      ),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: MediaQuery.of(context).size.width > 650
+                        ? 5
+                        : 3, // 3 kolom seperti contoh
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 2.3, // atur bentuk tombol
+                  ),
                   itemCount: timeSlots.length,
                   itemBuilder: (context, index) {
                     bool isSelected = index == _selectedWaktuIndex;
-                                
+
                     return GestureDetector(
                       onTap: () {
                         setState(() {
@@ -172,11 +161,8 @@ class _FormContentState extends State<FormContent> {
                 ),
                 SizedBox(
                   width: double.maxFinite,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: ColorTema.accentColor,
-                    ),
-
+                  child: LWebButton(
+                    label: "Check Ketersediaan Jadwal",
                     onPressed: () {
                       if (_formkey.currentState!.validate()) {
                         Logger().d("selectedindex = $_selectedWaktuIndex");
@@ -209,19 +195,12 @@ class _FormContentState extends State<FormContent> {
                         }
                       }
                     },
-                    child: Text(
-                      "Kirim",
-                      style: GoogleFonts.robotoFlex(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
                   ),
                 ),
               ],
             );
           } else if (state.step == BookingStep.loading) {
-            return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
+            return Center(child: MyLottie(aset: ImagesPath.loadingwaven));
           } else if (state.step == BookingStep.error) {
             return Center(child: Text(state.errorMessage.toString()));
           } else {

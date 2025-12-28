@@ -12,6 +12,8 @@ DetailPortoModel _$DetailPortoModelFromJson(Map<String, dynamic> json) =>
       DataDetailPortoModel.fromJson(json['data'] as Map<String, dynamic>),
     );
 
+Map<String, dynamic> _$DetailPortoModelToJson(DetailPortoModel instance) =>
+    <String, dynamic>{'message': instance.message, 'data': instance.data};
 
 DataDetailPortoModel _$DataDetailPortoModelFromJson(
   Map<String, dynamic> json,
@@ -26,6 +28,16 @@ DataDetailPortoModel _$DataDetailPortoModelFromJson(
       .toList(),
 );
 
+Map<String, dynamic> _$DataDetailPortoModelToJson(
+  DataDetailPortoModel instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'title': instance.title,
+  'price': instance.price,
+  'banner_url': instance.banner_url,
+  'description': instance.description,
+  'benefits': instance.benefits,
+};
 
 Benefits _$BenefitsFromJson(Map<String, dynamic> json) => Benefits(
   id: json['id'] as String,
@@ -33,4 +45,8 @@ Benefits _$BenefitsFromJson(Map<String, dynamic> json) => Benefits(
   type: json['type'] as String,
 );
 
- 
+Map<String, dynamic> _$BenefitsToJson(Benefits instance) => <String, dynamic>{
+  'id': instance.id,
+  'description': instance.description,
+  'type': instance.type,
+};

@@ -62,6 +62,7 @@ AdditionalData _$AdditionalDataFromJson(Map<String, dynamic> json) =>
       json['university_id'] as String,
       json['location'] as String,
       json['note'] as String,
+      json['platform'] as String,
     );
 
 Map<String, dynamic> _$AdditionalDataToJson(AdditionalData instance) =>
@@ -69,4 +70,5 @@ Map<String, dynamic> _$AdditionalDataToJson(AdditionalData instance) =>
       'university_id': instance.universityId,
       'location': instance.location,
       'note': instance.note,
+      'platform': instance.platform,
     };

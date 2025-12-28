@@ -13,7 +13,7 @@ import 'package:waven/domain/entity/transaction.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
 
 abstract class BookingRepository {
-  Future<List<UnivDropdown>> getUnivDropDown();
+  Future<List<UnivDropdown>> getUnivDropDown(int page,int limit,{String? search});
   Future<List<Addons>> getAllAddons();
   Future<Invoice> submitBooking({
     required Customer customer,

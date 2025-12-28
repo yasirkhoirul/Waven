@@ -13,11 +13,16 @@ import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/bookingform/formlangkah1.dart';
 import 'package:waven/presentation/widget/bookingform/formlangkah2.dart';
 import 'package:waven/presentation/widget/bookingform/formlangkah3.dart';
+import 'package:waven/presentation/widget/button.dart';
 import 'package:waven/presentation/widget/divider.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 import 'package:waven/presentation/widget/progress_slider.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
+
+final NumberFormat _idrFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
 class BookingPage extends StatefulWidget {
   final String idpackage;
@@ -53,7 +58,6 @@ class _BookingPageState extends State<BookingPage> {
 
       case BookingStep.tahap1:
         return SizedBox(
-          height: 1200,
           key: const ValueKey('step_tahap1'),
           child: Column(
             spacing: 10,
@@ -64,7 +68,7 @@ class _BookingPageState extends State<BookingPage> {
                 sub: 'Pilih Paket dan Isi form',
                 subsub: 'Isi form lengkap untuk keep the slot!',
               ),
-              Expanded(child: Form2Content(idpackage: widget.idpackage)),
+              Form2Content(idpackage: widget.idpackage),
             ],
           ),
         );
@@ -85,7 +89,7 @@ class _BookingPageState extends State<BookingPage> {
           child: SizedBox(
             height: 300,
             width: 300,
-            child: MyLottie(aset: ImagesPath.loadinglottie),
+            child: MyLottie(aset: ImagesPath.loadingwaven),
           ),
         );
 
@@ -99,21 +103,249 @@ class _BookingPageState extends State<BookingPage> {
         );
 
       case BookingStep.submitted:
-        Logger().d("invoice di state = ${state.invoice}");
+        
         return SubmittedPage(
           key: const ValueKey('step_submitted'),
           state: state,
         );
 
       case BookingStep.tahap3:
-        return Center(
+        // Show upload for transfer, or confirmation for other methods
+        return Column(
           key: const ValueKey('step_tahap3'),
-          child: ElevatedButton(
-            onPressed: () {
-              context.read<BookingCubit>().onsubmit();
-            },
-            child: const Text("Submit"),
-          ),
+          spacing: 20,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            state.paymentMethod == 'transfer'?Header(
+                langkah: 'Terakhir',
+                sub: 'Lakukan pembayaran sesuai total harga yang tertera,',
+                subsub: 'informasi pembayaran dapat hubungi admin',
+              ):Header(
+                langkah: 'Terakhir',
+                sub: 'Silahkan Check Kembai Form Data',
+                subsub: 'Pastikan Tidak Ada Kesalahan',
+              ),
+            // Data Confirmation
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 0,
+              children: [
+                _ConfirmationItem('Nama', state.nama ?? '-'),
+                _ConfirmationItem('Universitas', state.univ ?? '-'),
+                _ConfirmationItem('Tanggal Foto', state.tanggal ?? '-'),
+                _ConfirmationItem(
+                  'Waktu Foto',
+                  '${state.starttime ?? '-'} - ${state.endtime ?? '-'}',
+                ),
+                if (state.packageEntity != null)
+                  _ConfirmationItem(
+                    state.packageEntity?.tittle??'',
+                    _idrFormat.format(state.packageEntity?.price ?? 0),
+                  ),
+                if (state.datadiplih != null)
+                  Column(
+                    children: state.datadiplih!
+                        .map(
+                          (e) => _ConfirmationItem(
+                            e.tittle,
+                            _idrFormat.format(e.price),
+                          ),
+                        )
+                        .toList(),
+                  ),
+            
+                Divider(color: Colors.white24, height: 24),
+                
+                _ConfirmationItem(
+                  'Total Dibayar',
+                  _idrFormat.format(state.amount ?? 0),
+                  isTotal: true,
+                ),
+              ],
+            ),
+
+            // Upload section for transfer only
+            if (state.paymentMethod == 'transfer')
+              Column(
+                spacing: 12,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+
+                  Text(
+                    'Silahkan Transfer Ke Rekening Berikut',
+                    style: GoogleFonts.robotoFlex(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  // Outlined account box with copyable top text and two bold lines below
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFF3F3F3F)),
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.transparent,
+                    ),
+                    child: Builder(builder: (context) {
+                      // Placeholder account data; replace with real values if available in state
+                      final bankName = 'BCA';
+                      final accountNumber = '1234567890';
+                      final accountHolder = 'Waven Studio';
+                      final topText = '$bankName  •  $accountNumber';
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SelectableText(
+                                  topText,
+                                  style: GoogleFonts.robotoFlex(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                visualDensity: VisualDensity.compact,
+                                icon: Icon(Icons.copy, color: Colors.white70, size: 18),
+                                onPressed: () async {
+                                  await Clipboard.setData(ClipboardData(text: accountNumber));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Nomor rekening disalin', style: GoogleFonts.robotoFlex(color: Colors.white)),
+                                      backgroundColor: Colors.black87,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          Divider(color: Colors.white24),
+                          Text(
+                            bankName,
+                            style: GoogleFonts.robotoFlex(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            accountHolder,
+                            style: GoogleFonts.robotoFlex(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                  Text(
+                    'Upload Bukti Transfer',
+                    style: GoogleFonts.robotoFlex(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      context.read<BookingCubit>().onTapImage();
+                    },
+                    child: Container(
+                      height: 300,
+                      padding: const EdgeInsets.all(20.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: state.dataimage != null
+                              ? ColorTema.accentColor
+                              : Colors.white54,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white10,
+                      ),
+                      child: state.dataimage == null
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.image_outlined,
+                                  color: Colors.white54,
+                                  size: 40,
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Tap untuk pilih bukti transfer',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.robotoFlex(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : FutureBuilder<Uint8List>(
+                              future: state.dataimage!.readAsBytes(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.memory(
+                                      snapshot.data!,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  );
+                                }
+                                return Center(
+                                  child: MyLottie(aset: ImagesPath.loadingwaven),
+                                );
+                              },
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+
+            // Submit button
+            LWebButton(
+              label: "Submit",
+              onPressed: () {
+                // Validate image for transfer
+                if (state.paymentMethod == 'transfer' &&
+                    state.dataimage == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Silahkan upload bukti transfer terlebih dahulu',
+                        style: GoogleFonts.robotoFlex(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                context.read<BookingCubit>().onsubmit();
+              },
+            ),
+
+            // Back button
+            LWebButton(
+              label: "Kembali",
+              onPressed: () {
+                context.read<BookingCubit>().goloaded();
+              },
+              backgroundColor: ColorTema.abu,
+            ),
+          ],
         );
 
       default:
@@ -369,7 +601,7 @@ class HeaderWa extends StatelessWidget {
               ),
               TextSpan(
                 text: "wa.me/6285331973131",
-                style:  TextStyle(
+                style: TextStyle(
                   color: ColorTema.accentColor,
                   fontWeight: FontWeight.bold,
                 ),
@@ -420,7 +652,11 @@ class SubmittedPage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Icon(Icons.check_circle, color: ColorTema.accentColor, size: 48),
+                Icon(
+                  Icons.check_circle,
+                  color: ColorTema.accentColor,
+                  size: 48,
+                ),
                 SizedBox(height: 12),
                 Text(
                   'Booking Berhasil!',
@@ -443,105 +679,7 @@ class SubmittedPage extends StatelessWidget {
             ),
           ),
 
-          // QR Code Section (if available)
-          if (state.invoice?.paymentQrUrl != null)
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white24),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Scan untuk Pembayaran',
-                    style: GoogleFonts.robotoFlex(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: !state.checkQris? QrImageDisplay(
-                      imageBytes:
-                          state.invoice?.gambarqr ?? Uint8List.fromList([]),
-                    ):Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Center(child: Text("Pembayaran udah berhasil ngap"),),
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
-
-          // Booking Details
-          if (state.invoice?.bookingDetail != null)
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white24),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 12,
-                children: [
-                  Text(
-                    'Detail Booking',
-                    style: GoogleFonts.robotoFlex(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Divider(color: Colors.white24),
-                  _DetailRow(
-                    'Booking ID',
-                    state.invoice!.bookingDetail.bookingId,
-                  ),
-                  if (state.invoice!.bookingDetail.midtransId != null)
-                    _DetailRow(
-                      'Midtrans ID',
-                      state.invoice!.bookingDetail.midtransId!,
-                    ),
-                  _DetailRow(
-                    'Total Amount',
-                    'Rp ${state.invoice!.bookingDetail.totalAmount}',
-                  ),
-                  _DetailRow(
-                    'Paid Amount',
-                    'Rp ${state.invoice!.bookingDetail.paidAmount}',
-                  ),
-                  _DetailRow(
-                    'Currency',
-                    state.invoice!.bookingDetail.currency ?? '-',
-                  ),
-
-                  _DetailRow(
-                    'Payment Method',
-                    state.invoice!.bookingDetail.paymentMethod.toUpperCase(),
-                  ),
-                  _DetailRow(
-                    'Status',
-                    state.invoice!.bookingDetail.paymentStatus,
-                  ),
-                  _DetailRow(
-                    'Transaction Time',
-                    state.invoice!.bookingDetail.transactionTime,
-                  ),
-                  if (state.invoice!.bookingDetail.acquirer != null)
-                    _DetailRow(
-                      'Acquirer',
-                      state.invoice!.bookingDetail.acquirer!,
-                    ),
-                ],
-              ),
-            ),
-
-          // Action Buttons
+          
           SizedBox(
             height: 48,
             child: OutlinedButton(
@@ -569,13 +707,23 @@ class SubmittedPage extends StatelessWidget {
                 backgroundColor: ColorTema.accentColor,
               ),
               onPressed: () {
-                if (state.invoice==null||state.invoice?.bookingDetail.bookingId== null||state.invoice?.bookingDetail.midtransId== null) {
-                  showDialog(context: context, builder: (context) => AlertDialog(
-                    title: Text("Terjadi Kesalahan"),
-                    content: Text("Silahkan check invoice kembali di history"),
-                  ));
-                }else{
-                  context.read<BookingCubit>().checkTransaction(state.invoice!.bookingDetail.bookingId, state.invoice!.bookingDetail.midtransId!);
+                if (state.invoice == null ||
+                    state.invoice?.bookingDetail.bookingId == null ||
+                    state.invoice?.bookingDetail.midtransId == null) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text("Terjadi Kesalahan"),
+                      content: Text(
+                        "Silahkan check invoice kembali di history",
+                      ),
+                    ),
+                  );
+                } else {
+                  context.read<BookingCubit>().checkTransaction(
+                    state.invoice!.bookingDetail.bookingId,
+                    state.invoice!.bookingDetail.midtransId!,
+                  );
                 }
               },
               child: Text(
@@ -621,6 +769,48 @@ class _DetailRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ConfirmationItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool isTotal;
+
+  const _ConfirmationItem(this.label, this.value, {this.isTotal = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: GoogleFonts.robotoFlex(
+                color: Colors.grey[400],
+                fontSize: 12,
+              ),
+            ),
+          ),
+          
+          Expanded(
+            flex: 3,
+            child: Text(
+              textAlign: TextAlign.end,
+              value,
+              style: GoogleFonts.robotoFlex(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: isTotal ? FontWeight.bold : FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

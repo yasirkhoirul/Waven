@@ -59,7 +59,7 @@ class MainApp extends StatelessWidget {
           // 4. Masukkan ke dalam Router
           final router = MyRouter.getrouter(authCubit);
         return MaterialApp.router(
-          theme: theme.light(),
+          theme: theme.dark(),
           routerConfig: router,
         );
       }

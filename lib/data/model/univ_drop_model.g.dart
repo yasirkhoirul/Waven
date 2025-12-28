@@ -14,7 +14,11 @@ UnivDropModel _$UnivDropModelFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
+Map<String, dynamic> _$UnivDropModelToJson(UnivDropModel instance) =>
+    <String, dynamic>{'message': instance.message, 'data': instance.data};
 
 DataUnivDropModel _$DataUnivDropModelFromJson(Map<String, dynamic> json) =>
     DataUnivDropModel(json['id'] as String, json['name'] as String);
 
+Map<String, dynamic> _$DataUnivDropModelToJson(DataUnivDropModel instance) =>
+    <String, dynamic>{'id': instance.id, 'name': instance.name};

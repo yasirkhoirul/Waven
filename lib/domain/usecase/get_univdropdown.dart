@@ -5,7 +5,7 @@ class GetUnivdropdown {
   final BookingRepository bookingRepository;
   const GetUnivdropdown(this.bookingRepository);
 
-  Future<List<UnivDropdown>> execute(){
-    return bookingRepository.getUnivDropDown();
+  Future<List<UnivDropdown>> execute(int page,int limit,{String? search}){
+    return bookingRepository.getUnivDropDown(page,limit,search: search);
   }
 }

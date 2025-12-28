@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:waven/common/color.dart';
 
 class ProgressSlider extends StatefulWidget {
   final int currentStep; // 0 = loaded, 1 = tahap1, 2 = tahap2
@@ -275,7 +276,7 @@ class _StepIndicatorState extends State<_StepIndicator>
         height: 40,
         decoration: BoxDecoration(
           color: widget.isCompleted
-              ? Colors.green
+              ? ColorTema.accentColor
               : widget.isActive
                   ? Colors.white
                   : Colors.white24,

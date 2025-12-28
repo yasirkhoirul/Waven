@@ -13,9 +13,18 @@ Addonsmodel _$AddonsmodelFromJson(Map<String, dynamic> json) => Addonsmodel(
       .toList(),
 );
 
+Map<String, dynamic> _$AddonsmodelToJson(Addonsmodel instance) =>
+    <String, dynamic>{'message': instance.message, 'data': instance.data};
 
 DataAddons _$DataAddonsFromJson(Map<String, dynamic> json) => DataAddons(
   json['id'] as String,
   json['title'] as String,
   (json['price'] as num).toDouble(),
 );
+
+Map<String, dynamic> _$DataAddonsToJson(DataAddons instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'price': instance.price,
+    };

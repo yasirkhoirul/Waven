@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,9 +22,10 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final limit = 10;
+  int page = 1;
   @override
   void initState() {
-    context.read<SignupCubit>().getUnivdrop();
     super.initState();
   }
 
@@ -53,26 +55,25 @@ class _SignupPageState extends State<SignupPage> {
           children: [
             Positioned.fill(child: Container(color: Colors.black)),
             Positioned(
-          bottom: tinggilottie * -0.40,
-          left: 0,
-          child: SizedBox(
-            height: tinggilottie,
-            width: tinggilottie,
-          
-            child: MyLottie(aset: ImagesPath.bgleftlottie),
-          ),
-        ),
-        Positioned(
-          
-          top: tinggilottie * -0.40,
-          right: 0,
-          child: SizedBox(
-            height: tinggilottie,
-            width: tinggilottie,
-          
-            child: MyLottie(aset: ImagesPath.bgrightlottie),
-          ),
-        ),
+              bottom: tinggilottie * -0.40,
+              left: 0,
+              child: SizedBox(
+                height: tinggilottie,
+                width: tinggilottie,
+
+                child: MyLottie(aset: ImagesPath.bgleftlottie),
+              ),
+            ),
+            Positioned(
+              top: tinggilottie * -0.40,
+              right: 0,
+              child: SizedBox(
+                height: tinggilottie,
+                width: tinggilottie,
+
+                child: MyLottie(aset: ImagesPath.bgrightlottie),
+              ),
+            ),
             Positioned(
               bottom: 0,
               right: 0,
@@ -287,23 +288,20 @@ class _FormSignUpState extends State<FormSignUp> {
               suffix: Icon(Icons.person, color: Colors.white),
             ),
           ),
-          DropdownButtonFormField<String>(
-            value: selectedUniversity,
-            hint: widget.reqstate == RequestState.loading
-                ? const Text("Loading...")
-                : const Text("Pilih Universitas"),
-            onChanged: widget.reqstate == RequestState.loading
-                ? null // Disable
-                : (value) {
+          BlocBuilder<SignupCubit, SignupState>(
+            builder: (context, state) {
+              if (state is SignupInitial) {
+                return DropDownSearchUniv(
+                  onChange: (UnivDropdown? p1) {
                     setState(() {
-                      selectedUniversity = value;
+                      selectedUniversity = p1?.name;
                     });
                   },
-            items: widget.reqstate == RequestState.loaded
-                ? widget.univ.map((e) {
-                    return DropdownMenuItem(value: e.id, child: Text(e.name));
-                  }).toList()
-                : const [], // Tidak ada item saat loading
+                );
+              } else {
+                return Text("Memuat Univ...");
+              }
+            },
           ),
           TextFormField(
             controller: phone,
@@ -311,8 +309,16 @@ class _FormSignUpState extends State<FormSignUp> {
             textInputAction: TextInputAction.next,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             validator: (value) {
-              if (value!.isEmpty) {
+              if (value == null || value.isEmpty) {
                 return "phone number tidak boleh kosong";
+              }
+              final v = value.trim();
+              // allow numbers starting with 62 or 0, otherwise invalid
+              if (!RegExp(r'^(62|0)\d+ *').hasMatch(v)) {
+                return "Nomor telepon harus dimulai dengan 62 atau 0";
+              }
+              if (v.replaceAll(RegExp(r'\D'), '').length < 9) {
+                return "phone number terlalu pendek";
               }
               return null;
             },
@@ -411,8 +417,10 @@ class _FormSignUpState extends State<FormSignUp> {
               ),
             ),
           ),
-          LWebButton(label: "Daftar",onPressed: () {
-             if (_keyform.currentState!.validate()) {
+          LWebButton(
+            label: "Daftar",
+            onPressed: () {
+              if (_keyform.currentState!.validate()) {
                 if (selectedUniversity == null) {
                   showDialog(
                     context: context,
@@ -423,18 +431,87 @@ class _FormSignUpState extends State<FormSignUp> {
                   );
                   return;
                 }
+                // normalize phone to start with 62
+                String normalizedPhone = phone.text.trim();
+                if (normalizedPhone.startsWith('0')) {
+                  normalizedPhone = '62' + normalizedPhone.substring(1);
+                } else if (!normalizedPhone.startsWith('62')) {
+                  normalizedPhone = '62' + normalizedPhone;
+                }
+
                 final User data = User(
                   email: email.text,
                   username: ur.text,
                   password: pw.text,
                   name: name.text,
                   university: selectedUniversity!,
-                  phonenumber: phone.text,
+                  phonenumber: normalizedPhone,
                 );
                 context.read<SignupCubit>().onSignup(data);
               }
-          },)
+            },
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class DropDownSearchUniv extends StatelessWidget {
+  final Function(UnivDropdown?) onChange;
+  final double? fontSize;
+  final UnivDropdown? initialValue;
+
+  final String? Function(UnivDropdown?)? validator;
+  const DropDownSearchUniv({super.key, required this.onChange, this.fontSize, this.initialValue, this.validator});
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownSearch<UnivDropdown>(
+      validator: validator,
+      dropdownBuilder: (context, selectedItem) {
+        final text = selectedItem?.name ?? "";
+        return DefaultTextStyle(
+          style: GoogleFonts.robotoFlex(
+            color: Colors.white,
+            fontSize: fontSize ?? 11,
+            fontWeight: FontWeight.w600,
+          ),
+          child: Text(text),
+        );
+      },
+      decoratorProps: DropDownDecoratorProps(
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+
+          hintStyle: GoogleFonts.robotoFlex(
+            color: Colors.white,
+            fontSize: fontSize ?? 11,
+            fontWeight: FontWeight.bold,
+          ),
+          hintText: "Pilih Universitas",
+        ),
+      ),
+      compareFn: (item1, item2) => item1.id == item2.id,
+
+      items: (filter, loadProps) async {
+        final page = (loadProps!.skip ~/ loadProps.take) + 1;
+        final data = await context.read<SignupCubit>().getUnivdrop(
+          page,
+          loadProps.take,
+          filter,
+        );
+        return data;
+      },
+      selectedItem: initialValue,
+      itemAsString: (item) => item.name,
+      onChanged: onChange,
+      popupProps: PopupProps.menu(
+        showSearchBox: true,
+        disableFilter: true,
+        infiniteScrollProps: InfiniteScrollProps(
+          loadProps: LoadProps(skip: 0, take: 2),
+        ),
       ),
     );
   }

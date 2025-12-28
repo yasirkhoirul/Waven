@@ -18,9 +18,9 @@ InvoiceData _$InvoiceDataFromJson(Map<String, dynamic> json) => InvoiceData(
   bookingDetail: BookingDetail.fromJson(
     json['booking_detail'] as Map<String, dynamic>,
   ),
-  actions: (json['actions'] as List<dynamic>?)
-      ?.map((e) => Action.fromJson(e as Map<String, dynamic>))
-      .toList(),
+  actions: json['actions'] == null
+      ? null
+      : ActionData.fromJson(json['actions'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$InvoiceDataToJson(InvoiceData instance) =>
@@ -66,3 +66,12 @@ Map<String, dynamic> _$ActionToJson(Action instance) => <String, dynamic>{
   'url': instance.url,
   'method': instance.method,
 };
+
+ActionData _$ActionDataFromJson(Map<String, dynamic> json) =>
+    ActionData(json['token'] as String?, json['redirect_url'] as String?);
+
+Map<String, dynamic> _$ActionDataToJson(ActionData instance) =>
+    <String, dynamic>{
+      'token': instance.token,
+      'redirect_url': instance.redirectUrl,
+    };

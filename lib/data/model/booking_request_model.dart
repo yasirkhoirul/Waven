@@ -105,8 +105,9 @@ class AdditionalData {
   final String location;
 
   final String note;
+  final String platform;
 
-  AdditionalData(this.universityId, this.location, this.note);
+  AdditionalData(this.universityId, this.location, this.note, this.platform);
 
   factory AdditionalData.fromJson(Map<String, dynamic> json) =>
       _$AdditionalDataFromJson(json);
