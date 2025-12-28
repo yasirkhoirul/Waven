@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/web.dart';
 import 'package:waven/common/color.dart';
@@ -22,7 +23,11 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
-final NumberFormat _idrFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+final NumberFormat _idrFormat = NumberFormat.currency(
+  locale: 'id_ID',
+  symbol: 'Rp ',
+  decimalDigits: 0,
+);
 
 class BookingPage extends StatefulWidget {
   final String idpackage;
@@ -103,7 +108,6 @@ class _BookingPageState extends State<BookingPage> {
         );
 
       case BookingStep.submitted:
-        
         return SubmittedPage(
           key: const ValueKey('step_submitted'),
           state: state,
@@ -116,15 +120,17 @@ class _BookingPageState extends State<BookingPage> {
           spacing: 20,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            state.paymentMethod == 'transfer'?Header(
-                langkah: 'Terakhir',
-                sub: 'Lakukan pembayaran sesuai total harga yang tertera,',
-                subsub: 'informasi pembayaran dapat hubungi admin',
-              ):Header(
-                langkah: 'Terakhir',
-                sub: 'Silahkan Check Kembai Form Data',
-                subsub: 'Pastikan Tidak Ada Kesalahan',
-              ),
+            state.paymentMethod == 'transfer'
+                ? Header(
+                    langkah: 'Terakhir',
+                    sub: 'Lakukan pembayaran sesuai total harga yang tertera,',
+                    subsub: 'informasi pembayaran dapat hubungi admin',
+                  )
+                : Header(
+                    langkah: 'Terakhir',
+                    sub: 'Silahkan Check Kembai Form Data',
+                    subsub: 'Pastikan Tidak Ada Kesalahan',
+                  ),
             // Data Confirmation
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +145,7 @@ class _BookingPageState extends State<BookingPage> {
                 ),
                 if (state.packageEntity != null)
                   _ConfirmationItem(
-                    state.packageEntity?.tittle??'',
+                    state.packageEntity?.tittle ?? '',
                     _idrFormat.format(state.packageEntity?.price ?? 0),
                   ),
                 if (state.datadiplih != null)
@@ -153,9 +159,9 @@ class _BookingPageState extends State<BookingPage> {
                         )
                         .toList(),
                   ),
-            
+
                 Divider(color: Colors.white24, height: 24),
-                
+
                 _ConfirmationItem(
                   'Total Dibayar',
                   _idrFormat.format(state.amount ?? 0),
@@ -170,7 +176,6 @@ class _BookingPageState extends State<BookingPage> {
                 spacing: 12,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-
                   Text(
                     'Silahkan Transfer Ke Rekening Berikut',
                     style: GoogleFonts.robotoFlex(
@@ -187,65 +192,78 @@ class _BookingPageState extends State<BookingPage> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.transparent,
                     ),
-                    child: Builder(builder: (context) {
-                      // Placeholder account data; replace with real values if available in state
-                      final bankName = 'BCA';
-                      final accountNumber = '1234567890';
-                      final accountHolder = 'Waven Studio';
-                      final topText = '$bankName  •  $accountNumber';
+                    child: Builder(
+                      builder: (context) {
+                        // Placeholder account data; replace with real values if available in state
+                        final bankName = 'BCA';
+                        final accountNumber = '1234567890';
+                        final accountHolder = 'Waven Studio';
+                        final topText = '$bankName  •  $accountNumber';
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SelectableText(
-                                  topText,
-                                  style: GoogleFonts.robotoFlex(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SelectableText(
+                                    topText,
+                                    style: GoogleFonts.robotoFlex(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              IconButton(
-                                padding: EdgeInsets.zero,
-                                visualDensity: VisualDensity.compact,
-                                icon: Icon(Icons.copy, color: Colors.white70, size: 18),
-                                onPressed: () async {
-                                  await Clipboard.setData(ClipboardData(text: accountNumber));
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Nomor rekening disalin', style: GoogleFonts.robotoFlex(color: Colors.white)),
-                                      backgroundColor: Colors.black87,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          Divider(color: Colors.white24),
-                          Text(
-                            bankName,
-                            style: GoogleFonts.robotoFlex(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  visualDensity: VisualDensity.compact,
+                                  icon: Icon(
+                                    Icons.copy,
+                                    color: Colors.white70,
+                                    size: 18,
+                                  ),
+                                  onPressed: () async {
+                                    await Clipboard.setData(
+                                      ClipboardData(text: accountNumber),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Nomor rekening disalin',
+                                          style: GoogleFonts.robotoFlex(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.black87,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            accountHolder,
-                            style: GoogleFonts.robotoFlex(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                            Divider(color: Colors.white24),
+                            Text(
+                              bankName,
+                              style: GoogleFonts.robotoFlex(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-                    }),
+                            SizedBox(height: 4),
+                            Text(
+                              accountHolder,
+                              style: GoogleFonts.robotoFlex(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                   Text(
                     'Upload Bukti Transfer',
@@ -306,7 +324,9 @@ class _BookingPageState extends State<BookingPage> {
                                   );
                                 }
                                 return Center(
-                                  child: MyLottie(aset: ImagesPath.loadingwaven),
+                                  child: MyLottie(
+                                    aset: ImagesPath.loadingwaven,
+                                  ),
                                 );
                               },
                             ),
@@ -679,62 +699,38 @@ class SubmittedPage extends StatelessWidget {
             ),
           ),
 
-          
-          SizedBox(
-            height: 48,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                backgroundColor: ColorTema.accentColor,
-              ),
-              onPressed: () {
-                // Navigate back or perform action
-                context.read<BookingCubit>().getAllDropDown();
-              },
-              child: Text(
-                'Selesai',
-                style: GoogleFonts.robotoFlex(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 48,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                backgroundColor: ColorTema.accentColor,
-              ),
-              onPressed: () {
-                if (state.invoice == null ||
-                    state.invoice?.bookingDetail.bookingId == null ||
-                    state.invoice?.bookingDetail.midtransId == null) {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text("Terjadi Kesalahan"),
-                      content: Text(
-                        "Silahkan check invoice kembali di history",
-                      ),
+          LWebButton(label: "Booking Lagi",onPressed: (){
+
+            context.read<BookingCubit>().getAllDropDown();
+          },),
+          LWebButton(
+            label: "Check",
+            onPressed: () {
+              if (state.invoice == null ||
+                  state.invoice?.bookingDetail.bookingId == null ||
+                  state.invoice?.bookingDetail.midtransId == null) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text("Haloo"),
+                    content: Row(
+                      spacing: 10,
+                      children: [
+                        Text("Silahkan check invoice kembali di history"),
+                        LWebButton(label: "OK",onPressed: (){
+                          context.go("/Profile");
+                        },)
+                      ],
                     ),
-                  );
-                } else {
-                  context.read<BookingCubit>().checkTransaction(
-                    state.invoice!.bookingDetail.bookingId,
-                    state.invoice!.bookingDetail.midtransId!,
-                  );
-                }
-              },
-              child: Text(
-                'Check',
-                style: GoogleFonts.robotoFlex(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-            ),
+                  ),
+                );
+              } else {
+                context.read<BookingCubit>().checkTransaction(
+                  state.invoice!.bookingDetail.bookingId,
+                  state.invoice!.bookingDetail.midtransId!,
+                );
+              }
+            },
           ),
         ],
       ),
@@ -796,7 +792,7 @@ class _ConfirmationItem extends StatelessWidget {
               ),
             ),
           ),
-          
+
           Expanded(
             flex: 3,
             child: Text(

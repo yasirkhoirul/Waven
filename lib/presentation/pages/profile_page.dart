@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/web.dart';
 import 'package:waven/common/color.dart';
@@ -769,7 +770,9 @@ class HeaderPage extends StatelessWidget {
             ),
             LWebButton(
               label: "Tambah booking",
-              onPressed: () {},
+              onPressed: () {
+                context.goNamed("packagelist");
+              },
               icon: Icons.add,
             ),
           ],
