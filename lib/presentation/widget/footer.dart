@@ -111,7 +111,7 @@ class Footer extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam dictum aliquet accumsan porta lectus ridiculus in mattis. Netus sodales in volutpat ullamcorper amet adipiscing fermentum.",
+                                  "Your graduation photoshoot partner, lets collaborate!",
                                   textAlign: TextAlign.start,
                                   style: GoogleFonts.plusJakartaSans(
                                     color: Colors.white,

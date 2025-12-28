@@ -198,10 +198,118 @@ class AppbarsUser extends StatelessWidget {
                       ),
                     ],
                   )
-                : IconButton(
-                    onPressed: onmenupress,
-                    icon: Icon(Icons.menu, color: Colors.white),
-                  ),
+                : BlocConsumer<TokenauthCubit, TokenauthState>(
+                        listener: (context, state) {
+                          if (state.tokens != null) {
+                            context.read<ProfileCubit>().onGetdata();
+                          }
+                        },
+                        builder: (context, state) {
+                          if (state.tokens != null) {
+                            return PopupMenuButton<String>(
+                              color: ColorTema.warnaDialog,
+                              onSelected: (value) {
+                                if (value == 'profile') {
+                                  context.goNamed('profile');
+                                } else if (value == 'logout') {
+                                  context.read<TokenauthCubit>().onLogout();
+                                }
+                              },
+                              itemBuilder: (ctx) => [
+                                PopupMenuItem(
+                                  value: 'profile',
+                                  child:
+                                      BlocBuilder<ProfileCubit, ProfileState>(
+                                        builder: (context, state) {
+                                          if (state.requestState ==
+                                              RequestState.loaded) {
+                                            return ItemDropDown(
+                                              name: state.data!.name,
+                                              leading: CircleAvatar(
+                                                radius: 18,
+                                                backgroundColor:
+                                                    ColorTema.accentColor,
+                                                child: Text(
+                                                  state.data!.name[0],
+                                                  style: GoogleFonts.robotoFlex(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            return Text(
+                                              "Memuat",
+                                              style: GoogleFonts.robotoFlex(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            );
+                                          }
+                                        },
+                                      ),
+                                ),
+                                PopupMenuItem(
+                                  value: 'logout',
+                                  child: ItemDropDown(
+                                    name: "Logout",
+                                    leading: Icon(
+                                      Icons.logout,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              child: CircleAvatar(
+                                backgroundColor: Color(0xFF00A76F),
+                                radius: 18,
+                                child: BlocBuilder<ProfileCubit, ProfileState>(
+                                  builder: (context, state) {
+                                    if (state.requestState ==
+                                        RequestState.loaded) {
+                                      final name = state.data?.name ?? '';
+                                      final initial = name.isNotEmpty
+                                          ? name[0]
+                                          : '';
+                                      return Text(
+                                        initial,
+                                        style: GoogleFonts.robotoFlex(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    } else if (state.requestState ==
+                                        RequestState.error) {
+                                      return Icon(
+                                        Icons.error,
+                                        color: Colors.white,
+                                        size: 16,
+                                      );
+                                    } else {
+                                      return SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
+                          } else {
+                            return LWebButton(label: "Login",onPressed: (){
+                              context.go("/login");
+                            },);
+                          }
+                        },
+                      ),
           ],
         ),
       ),

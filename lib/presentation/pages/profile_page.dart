@@ -184,18 +184,15 @@ class _MainContentProfileState extends State<MainContentProfile> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          height: 100,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: HeaderPage(
-              onrefresh: () {
-                setState(() {
-                  currentindex = 0;
-                  higheghtpage = 0;
-                });
-              },
-            ),
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: HeaderPage(
+            onrefresh: () {
+              setState(() {
+                currentindex = 0;
+                higheghtpage = 0;
+              });
+            },
           ),
         ),
         Padding(
@@ -208,7 +205,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
             },
             builder: (context, state) {
               if (state.step == RequestState.loading && state.listdata.isEmpty) {
-                return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
+                return Center(child: MyLottie(aset: ImagesPath.loadingwaven));
               }
 
               if (state.step == RequestState.error) {
@@ -291,7 +288,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
                                 ),
                               );
                             } else if (state.step == RequestState.loading) {
-                              return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
+                              return Center(child: MyLottie(aset: ImagesPath.loadingwaven));
                             } else {
                               return Container();
                             }
@@ -306,6 +303,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
           ),
         ),
         Row(
+          spacing: 10,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
@@ -530,7 +528,7 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
                         ],
                       ),
                     ),
-                    FooterContentPage(idinvoice: data.id),
+                    FooterContentPage(idinvoice: data.id,dataStatus:data.status),
                   ],
                 ),
               ),
@@ -544,7 +542,8 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
 
 class FooterContentPage extends StatelessWidget {
   final String idinvoice;
-  const FooterContentPage({super.key, required this.idinvoice});
+  final String dataStatus;
+  const FooterContentPage({super.key, required this.idinvoice, required this.dataStatus});
 
   @override
   Widget build(BuildContext context) {
@@ -564,28 +563,28 @@ class FooterContentPage extends StatelessWidget {
         'bg': ColorTema.accentColor,
         "icon": Icons.download,
         "label": "Foto Original",
-        "action": () {
+        "action":dataStatus == "LUNAS"? () {
           print("Payment ditekan");
-        },
+        }:null,
       },
       {
         'bg': Color(0xFF448AFF),
         "icon": Icons.menu,
         "label": "List Foto Diedit",
-        "action": () {
+        "action": dataStatus == "LUNAS"?() {
           showDialog(
             context: context,
             builder: (context) => Dialogtextinput(idDetailInvoice: idinvoice),
           );
-        },
+        }:null,
       },
       {
         'bg': Color(0xFF5900A7),
         "icon": Icons.download,
         "label": "Edited Foto",
-        "action": () {
-          print("Settings ditekan");
-        },
+        "action": dataStatus == "LUNAS"? () {
+          
+        }:null,
       },
     ];
     Widget customMenuButton(Map item) {
@@ -748,36 +747,32 @@ class HeaderPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: Text(
-            "Session Kamu",
-            style: GoogleFonts.robotoFlex(
-              color: ColorTema.abu,
-              fontWeight: FontWeight.w600,
-              fontSize: panjanglayar > 430 ? 22 : 18,
-            ),
-            textAlign: panjanglayar > 430 ? TextAlign.start : TextAlign.center,
+        Text(
+          "Session Kamu",
+          style: GoogleFonts.robotoFlex(
+            color: ColorTema.abu,
+            fontWeight: FontWeight.w600,
+            fontSize: panjanglayar > 430 ? 22 : 18,
           ),
+          textAlign: panjanglayar > 430 ? TextAlign.start : TextAlign.center,
         ),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                onPressed: () {
-                  onrefresh();
-                  context.read<ListInvoiceCubit>().getRefresh();
-                  context.read<ListInvoiceCubit>().getLoad(1, 2);
-                },
-                icon: Icon(Icons.refresh, color: Colors.white),
-              ),
-              LWebButton(
-                label: "Tambah booking",
-                onPressed: () {},
-                icon: Icons.add,
-              ),
-            ],
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              onPressed: () {
+                onrefresh();
+                context.read<ListInvoiceCubit>().getRefresh();
+                context.read<ListInvoiceCubit>().getLoad(1, 2);
+              },
+              icon: Icon(Icons.refresh, color: Colors.white),
+            ),
+            LWebButton(
+              label: "Tambah booking",
+              onPressed: () {},
+              icon: Icons.add,
+            ),
+          ],
         ),
       ],
     );
@@ -918,7 +913,7 @@ class _HeaderProfileState extends State<HeaderProfile> {
             ),
           );
         } else {
-          return MyLottie(aset: ImagesPath.loadinglottie);
+          return MyLottie(aset: ImagesPath.loadingwaven);
         }
       },
     );

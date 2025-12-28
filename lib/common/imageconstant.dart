@@ -14,6 +14,7 @@ class ImagesPath {
   static final String bgleftlottie = "assets/lottie/kiri.json";
   static final String bgrightlottie = "assets/lottie/kanan.json";
   static final String loadinglottie = "assets/lottie/loading.json";
+  static final String loadingwaven = "assets/lottie/loadingwaven.json";
 
   static final String logolocation = "assets/logo/location.svg";
   static final String logoaddons = "assets/logo/addons.svg";
@@ -21,4 +22,8 @@ class ImagesPath {
   static final String logouniv = "assets/logo/univ.svg";
   static final String logowaktu = "assets/logo/waktu.svg";
   static final String google = "assets/logo/google.svg";
+  static final String botnavhome = "assets/logo/mynaui_home.svg";
+  static final String botnavpackage = "assets/logo/solar_wallet-linear.svg";
+  static final String botnavgalery = "assets/logo/carbon_ticket.svg";
+  static final String botnavticket = "assets/logo/tdesign_user.svg";
 }

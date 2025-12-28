@@ -9,6 +9,7 @@ import 'package:waven/domain/entity/user.dart';
 import 'package:waven/presentation/cubit/signup_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/appbars.dart';
+import 'package:waven/presentation/widget/button.dart';
 import 'package:waven/presentation/widget/frostglass.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 
@@ -410,10 +411,8 @@ class _FormSignUpState extends State<FormSignUp> {
               ),
             ),
           ),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(backgroundColor: Color(0xFF00A76F)),
-            onPressed: () {
-              if (_keyform.currentState!.validate()) {
+          LWebButton(label: "Daftar",onPressed: () {
+             if (_keyform.currentState!.validate()) {
                 if (selectedUniversity == null) {
                   showDialog(
                     context: context,
@@ -434,12 +433,7 @@ class _FormSignUpState extends State<FormSignUp> {
                 );
                 context.read<SignupCubit>().onSignup(data);
               }
-            },
-            child: Text(
-              "SignUp",
-              style: GoogleFonts.robotoFlex(color: Colors.white),
-            ),
-          ),
+          },)
         ],
       ),
     );

@@ -67,7 +67,7 @@ class _PackageListPageState extends State<PackageListPage> {
                     child: SizedBox(
                       height: 400,
                       width: 400,
-                      child: MyLottie(aset: ImagesPath.loadinglottie),
+                      child: MyLottie(aset: ImagesPath.loadingwaven),
                     ),
                   );
                 } else if (state is PackageAllError) {
@@ -83,60 +83,7 @@ class _PackageListPageState extends State<PackageListPage> {
                       return Column(
                         children: [
                           // Header Section
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 70),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          "Package",
-                                          style: GoogleFonts.robotoFlex(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize:
-                                                MediaQuery.of(
-                                                      context,
-                                                    ).size.width >
-                                                    900
-                                                ? 48
-                                                : 14,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Home / Package",
-                                        style: GoogleFonts.robotoFlex(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w100,
-                                          fontSize:
-                                              MediaQuery.of(context).size.width >
-                                                  900
-                                              ? 18
-                                              : 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  AnimatedDividerCurve(
-                                    color: Colors.white,
-                                    height: 1,
-                                    duration: Duration(seconds: 1),
-                                    curve: Curves.easeOutBack,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          HeaderItem(),
                           // Content Section
                           Expanded(
                             child: _buildPackageContent(constrains, state),
@@ -163,14 +110,16 @@ class _PackageListPageState extends State<PackageListPage> {
     if (constrains.maxWidth < 870) {
       return ListView.builder(
         padding: EdgeInsets.all(20),
-        itemBuilder: (context, index) => SizedBox(
+        itemBuilder: (context, index) {
+          
+          return SizedBox(
           height: 270,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: _PackageCard(package: state.data[index], ismobile: true),
           ),
-        ),
-        itemCount: state.data.length,
+        );},
+        itemCount: state.data.length + 1,
       );
     } else {
       return SizedBox(
@@ -178,6 +127,70 @@ class _PackageListPageState extends State<PackageListPage> {
         child: Center(child: GridPackage(data: state.data)),
       );
     }
+  }
+}
+
+class HeaderItem extends StatelessWidget {
+  const HeaderItem({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.7,
+      
+      child: Padding(
+        padding: const EdgeInsets.only(top: 70),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Package",
+                    style: GoogleFonts.robotoFlex(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize:
+                          MediaQuery.of(
+                                context,
+                              ).size.width >
+                              900
+                          ? 48
+                          : 14,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  "Home / Package",
+                  style: GoogleFonts.robotoFlex(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w100,
+                    fontSize:
+                        MediaQuery.of(context).size.width >
+                            900
+                        ? 18
+                        : 14,
+                  ),
+                ),
+              ],
+            ),
+            AnimatedDividerCurve(
+              color: Colors.white,
+              height: 1,
+              duration: Duration(seconds: 1),
+              curve: Curves.easeOutBack,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -219,7 +232,7 @@ class _PackageCardGrid extends StatelessWidget {
           return FrostGlassAnimated(
             width: double.infinity,
             child: Center(
-              child: CircularProgressIndicator(color: ColorTema.accentColor),
+              child: MyLottie(aset: ImagesPath.loadingwaven),
             ),
           );
         }
@@ -239,20 +252,24 @@ class _PackageCardGrid extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Image
-              ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                child: SizedBox(
-                  height: 200,
-                  child: CachedNetworkImage(
-                    imageUrl: detail.bannerUrl,
-                    fit: BoxFit.cover,
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[800],
-                      child: Icon(Icons.error, color: Colors.white),
-                    ),
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[800],
-                      child: Center(child: CircularProgressIndicator()),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20), bottom: Radius.circular(20)),
+                  child: SizedBox(
+                    height: 300,
+                    width: 300,
+                    child: CachedNetworkImage(
+                      imageUrl: detail.bannerUrl,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[800],
+                        child: Icon(Icons.error, color: Colors.white),
+                      ),
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[800],
+                        child: Center(child: MyLottie(aset: ImagesPath.loadingwaven)),
+                      ),
                     ),
                   ),
                 ),
@@ -406,7 +423,7 @@ class _PackageCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
                       color: Colors.grey[800],
-                      child: const Center(child: CircularProgressIndicator()),
+                      child: Center(child: MyLottie(aset: ImagesPath.loadingwaven)),
                     ),
                     errorWidget: (context, url, error) => Container(
                       color: Colors.grey[800],

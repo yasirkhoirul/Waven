@@ -41,7 +41,7 @@ class _PortoPageState extends State<PortoPage> {
               child: SizedBox(
                 height: 400,
                 width: 400,
-                child: MyLottie(aset: ImagesPath.loadinglottie),
+                child: MyLottie(aset: ImagesPath.loadingwaven),
               ),
             );
           } else if (state is PortoAllError) {
@@ -156,7 +156,7 @@ class PortoCard extends StatelessWidget {
                     imageUrl: porto.url,
                     fit: BoxFit.contain,
                     placeholder: (context, url) => Center(
-                      child: CircularProgressIndicator(),
+                      child: MyLottie(aset: ImagesPath.loadingwaven),
                     ),
                   ),
                 ),
@@ -213,7 +213,7 @@ class PortoCard extends StatelessWidget {
                   width: double.maxFinite,
                   placeholder: (context, url) => Container(
                     color: Colors.grey[800],
-                    child: const Center(child: CircularProgressIndicator()),
+                    child: Center(child: MyLottie(aset: ImagesPath.loadingwaven)),
                   ),
                   errorWidget: (context, url, error) => Container(
                     color: Colors.grey[800],

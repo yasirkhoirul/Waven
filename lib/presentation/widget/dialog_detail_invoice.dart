@@ -8,6 +8,10 @@ import 'package:waven/presentation/cubit/detail_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/widget/dialog_transaction.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
+import 'package:intl/intl.dart';
+
+// Top-level Indonesian currency formatter
+final NumberFormat _idrFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
 class InvoiceDialog extends StatefulWidget {
   final String id;
@@ -31,242 +35,262 @@ class _InvoiceDialogState extends State<InvoiceDialog> {
         constraints: BoxConstraints(minWidth: 600, maxWidth: 800),
         child: Card(
           color: Color(0xFF3E3E3E),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: BlocConsumer<DetailInvoiceCubit, DetailInvoiceState>(
-              listener: (context, state) {
-                if (state is SessionExpired) {
-                  context.read<TokenauthCubit>().onLogout();
-                }
-              },
-              builder: (context, state) {
-                if (state is DetailInvoiceLoading) {
-                  return Center(
-                    child: SizedBox(
-                      height: 100,
-                      child: MyLottie(aset: ImagesPath.loadinglottie),
-                    ),
-                  );
-                }
-
-                if (state is DetailInvoiceerror) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.error, color: Colors.red, size: 40),
-                        SizedBox(height: 10),
-                        Text(
-                          state.message,
-                          style: GoogleFonts.robotoFlex(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (state is! DetailInvoiceLoaded) {
-                  return Center(
-                    child: Text(
-                      'No data',
-                      style: GoogleFonts.robotoFlex(color: Colors.white),
-                    ),
-                  );
-                }
-
-                final data = state.data;
-                return SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(height: 5),
-                      Text(
-                        "Detail Pembayaran",
-                        style: GoogleFonts.robotoFlex(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+          child: Column(
+            children: [
+              SizedBox(height: 5),
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Detail Pembayaran",
+                      style: GoogleFonts.robotoFlex(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
-                      SizedBox(height: 25),
-                      Card(
-                        color: Color(0xFF595959),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Row(
+                    ),
+                    IconButton(onPressed: (){context.pop();}, icon: Icon(Icons.cancel,color: Colors.white,))
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: BlocConsumer<DetailInvoiceCubit, DetailInvoiceState>(
+                    listener: (context, state) {
+                      if (state is SessionExpired) {
+                        context.read<TokenauthCubit>().onLogout();
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is DetailInvoiceLoading) {
+                        return Center(
+                          child: SizedBox(
+                            height: 100,
+                            child: MyLottie(aset: ImagesPath.loadingwaven),
+                          ),
+                        );
+                      }
+                
+                      if (state is DetailInvoiceerror) {
+                        return Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ItemText(
-                                      jenis: 'Nama Client',
-                                      isi: data.clientName,
-                                    ),
-                                    ItemText(
-                                      jenis: 'Universitas',
-                                      isi: data.university,
-                                    ),
-                                    ItemText(
-                                      jenis: 'Status Bayar',
-                                      isi: data.status,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ItemText(
-                                      jenis: 'Package',
-                                      isi: data.packageName,
-                                    ),
-                                    ItemText(
-                                      jenis: 'Extra',
-                                      isi: data.extra.isNotEmpty
-                                          ? data.extra
-                                                .map((e) => e.name)
-                                                .join(', ')
-                                          : 'Tidak ada',
-                                    ),
-                                  ],
+                              Icon(Icons.error, color: Colors.red, size: 40),
+                              SizedBox(height: 10),
+                              Text(
+                                state.message,
+                                style: GoogleFonts.robotoFlex(
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Divider(height: 1),
-                      SizedBox(height: 5),
-                      Column(
-                        spacing: 10,
-                        children: [
-                          RowItem(
-                            jenis: 'Total Bayar',
-                            isi: 'Rp ${data.totalAmount.toStringAsFixed(0)}',
+                        );
+                      }
+                
+                      if (state is! DetailInvoiceLoaded) {
+                        return Center(
+                          child: Text(
+                            'No data',
+                            style: GoogleFonts.robotoFlex(color: Colors.white),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      Divider(height: 1),
-                      SizedBox(height: 5),
-                      Column(
-                        spacing: 10,
-                        children: [
-                          RowItem(
-                            jenis: 'Sudah Bayar',
-                            isi: 'Rp ${data.paidAmount.toStringAsFixed(0)}',
-                          ),
-                          RowItem(
-                            jenis: 'Kurang Bayar',
-                            isi: 'Rp ${data.unpaidAmount.toStringAsFixed(0)}',
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 15),
-                      Divider(height: 1),
-                      SizedBox(height: 15),
-                      Text(
-                        "Riwayat Transaksi",
-                        style: GoogleFonts.robotoFlex(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        height: 400,
-                        decoration: BoxDecoration(
-                          color: Color(0xFF595959),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: data.transactions.isEmpty
-                            ? Center(
-                                child: Text(
-                                  'Tidak ada transaksi',
-                                  style: GoogleFonts.robotoFlex(
-                                    color: Colors.white60,
-                                    fontSize: 12,
-                                  ),
+                        );
+                      }
+                
+                      final data = state.data;
+                      return SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(height: 25),
+                            Card(
+                              color: Color(0xFF595959),
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        spacing: 10,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ItemText(
+                                            jenis: 'Nama Client',
+                                            isi: data.clientName,
+                                          ),
+                                          ItemText(
+                                            jenis: 'Universitas',
+                                            isi: data.university,
+                                          ),
+                                          ItemText(
+                                            jenis: 'Status Bayar',
+                                            isi: data.status,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        spacing: 10,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ItemText(
+                                            jenis: 'Package',
+                                            isi: data.packageName,
+                                          ),
+                                          ItemText(
+                                            jenis: 'Extra',
+                                            isi: data.extra.isNotEmpty
+                                                ? data.extra
+                                                      .map((e) => e.name)
+                                                      .join(', ')
+                                                : 'Tidak ada',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              )
-                            : ListView.builder(
-                                padding: EdgeInsets.all(10),
-                                itemCount: data.transactions.length,
-                                itemBuilder: (context, index) {
-                                  final transaction = data.transactions[index];
-                                  return TransactionHistoryItem(
-                                    transaction: transaction,
-                                  );
-                                },
                               ),
-                      ),
-                      SizedBox(height: 15),
-                      Divider(height: 1),
-                      SizedBox(height: 15),
-                      Row(
-                        spacing: 10,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          OulinedGreen(),
-                          data.status == "LUNAS" || data.status == "CANCELLED"
-                              ? Container()
-                              : PopupMenuButton(
-                                  onSelected: (value) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => DialogTransaction(
-                                        idinvoice: widget.id,
-                                        type: value,
-                                        transactiontype: data.status,
-                                        onTransactionSuccess: () {
-                                          context
-                                              .read<DetailInvoiceCubit>()
-                                              .refreshDetail();
-                                        },
-                                      ),
-                                    );
-                                  },
-                                  itemBuilder: (context) => ['Transfer', 'Qris']
-                                      .map(
-                                        (e) => PopupMenuItem(
-                                          value: e,
-                                          child: Text(e),
-                                        ),
-                                      )
-                                      .toList(),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Bayar",
-                                        style: GoogleFonts.robotoFlex(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.check_circle,
-                                        color: Colors.white,
-                                      ),
-                                    ],
-                                  ),
+                            ),
+                            SizedBox(height: 5),
+                            Divider(height: 1),
+                            SizedBox(height: 5),
+                            Column(
+                              spacing: 10,
+                              children: [
+                                RowItem(
+                                  jenis: 'Total Bayar',
+                                  isi: _idrFormat.format(data.totalAmount),
                                 ),
-                        ],
-                      ),
-                    ],
+                              ],
+                            ),
+                            SizedBox(height: 5),
+                            Divider(height: 1),
+                            SizedBox(height: 5),
+                            Column(
+                              spacing: 10,
+                              children: [
+                                RowItem(
+                                  jenis: 'Sudah Bayar',
+                                  isi: _idrFormat.format(data.paidAmount),
+                                ),
+                                RowItem(
+                                  jenis: 'Kurang Bayar',
+                                  isi: _idrFormat.format(data.unpaidAmount),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 15),
+                            Divider(height: 1),
+                            SizedBox(height: 15),
+                            Text(
+                              "Riwayat Transaksi",
+                              style: GoogleFonts.robotoFlex(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            data.transactions.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      'Tidak ada transaksi',
+                                      style: GoogleFonts.robotoFlex(
+                                        color: Colors.white60,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    padding: EdgeInsets.all(10),
+                                    itemCount: data.transactions.length,
+                                    itemBuilder: (context, index) {
+                                      final transaction =
+                                          data.transactions[index];
+                                      return TransactionHistoryItem(
+                                        transaction: transaction,
+                                      );
+                                    },
+                                  ),
+                            SizedBox(height: 15),
+                            Divider(height: 1),
+                            SizedBox(height: 15),
+                            Row(
+                              spacing: 10,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                OulinedGreen(),
+                                data.status == "LUNAS" ||
+                                        data.status == "CANCELLED"
+                                    ? Container()
+                                    : PopupMenuButton(
+                                        onSelected: (value) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                DialogTransaction(
+                                                  idinvoice: widget.id,
+                                                  type: value,
+                                                  transactiontype: data.status,
+                                                  onTransactionSuccess: () {
+                                                    context
+                                                        .read<
+                                                          DetailInvoiceCubit
+                                                        >()
+                                                        .refreshDetail();
+                                                  },
+                                                ),
+                                          );
+                                        },
+                                        itemBuilder: (context) =>
+                                            ['Transfer', 'Qris']
+                                                .map(
+                                                  (e) => PopupMenuItem(
+                                                    value: e,
+                                                    child: Text(e),
+                                                  ),
+                                                )
+                                                .toList(),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Bayar",
+                                              style: GoogleFonts.robotoFlex(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            Icon(
+                                              Icons.check_circle,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -384,7 +408,7 @@ class TransactionHistoryItem extends StatelessWidget {
   }
 
   String _formatCurrency(int amount) {
-    return 'Rp ${amount.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}';
+    return _idrFormat.format(amount);
   }
 
   @override

@@ -228,7 +228,7 @@ class _LayoutLoginState extends State<LayoutLogin>
                     padding: const EdgeInsets.all(20),
                     child: FrostGlassAnimated(
                       width: 800,
-                      height: 500,
+                      
                       child: Padding(
                         padding: const EdgeInsets.all(50),
                         child: Column(
@@ -251,7 +251,7 @@ class _LayoutLoginState extends State<LayoutLogin>
                                   "Masukkan password dan username untuk masuk",
                               style: GoogleFonts.robotoFlex(
                                 color: Colors.white,
-                                fontSize: 11,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w100,
                               ),
 
@@ -294,7 +294,7 @@ class _LayoutLoginState extends State<LayoutLogin>
                                               height: 100,
                                               width: 100,
                                               child: MyLottie(
-                                                aset: ImagesPath.loadinglottie,
+                                                aset: ImagesPath.loadingwaven,
                                               ),
                                             ),
                                           );

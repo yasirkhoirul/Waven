@@ -39,6 +39,7 @@ class _WavenHomePageState extends State<WavenHomePage> {
       body: CustomScrollView(
         slivers: [
           AppSliver(accentColor: accentColor),
+          
           SliverList.builder(
             itemCount: 4,
             itemBuilder: (context, index) {
@@ -337,6 +338,7 @@ class WidgetChoose extends StatelessWidget {
                   return SizedBox(
                     width: 900,
                     child: GridView.builder(
+                      physics: isSmall? NeverScrollableScrollPhysics():null,
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 300,

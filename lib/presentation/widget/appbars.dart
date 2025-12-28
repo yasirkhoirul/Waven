@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/common/imageconstant.dart';
+import 'package:waven/presentation/widget/button.dart';
 
-class Appbars extends StatelessWidget{
+class Appbars extends StatelessWidget {
   final bool isloginpage;
   const Appbars({super.key, required this.isloginpage});
 
@@ -19,28 +20,23 @@ class Appbars extends StatelessWidget{
           children: [
             InkWell(
               onTap: () => context.go('/home'),
-              child: Image.asset(ImagesPath.logotekspng,)),
-            isloginpage? ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF00A76F)
-              ),
-              onPressed: (){
-                context.go("/signup");
-              }, child: Text("Signup",style: GoogleFonts.robotoFlex(
-              color: Colors.white,
-              fontWeight: FontWeight.bold
-            ),)):ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF00A76F)
-              ),
-              onPressed: (){
-                context.go("/login");
-              }, child: Text("Login",style: GoogleFonts.robotoFlex(
-              color: Colors.white,
-              fontWeight: FontWeight.bold
-            ),))
+              child: Image.asset(ImagesPath.logotekspng),
+            ),
+            isloginpage
+                ? LWebButton(
+                    label: "Signup",
+                    onPressed: () {
+                      context.go("/signup");
+                    },
+                  )
+                : LWebButton(
+                    label: "Login",
+                    onPressed: () {
+                      context.go("/login");
+                    },
+                  ),
           ],
-        )
+        ),
       ),
     );
   }

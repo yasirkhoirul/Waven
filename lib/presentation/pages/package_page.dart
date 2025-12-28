@@ -67,7 +67,7 @@ class _PackagePageState extends State<PackagePage> {
                   ),
                 );
               } else if (state is PackageDetailLoading) {
-                return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
+                return Center(child: MyLottie(aset: ImagesPath.loadingwaven));
               } else if (state is PackageDetailError) {
                 return Center(child: Text(state.message));
               } else {
@@ -109,7 +109,7 @@ class PackagePortoContent extends StatelessWidget {
                     CachedNetworkImage(imageUrl: state.data[index].url),
               );
             } else {
-              return Center(child: MyLottie(aset: ImagesPath.loadinglottie));
+              return Center(child: MyLottie(aset: ImagesPath.loadingwaven));
             }
           },
         ),

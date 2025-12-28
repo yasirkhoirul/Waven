@@ -31,7 +31,7 @@ class _GalleryPageState extends State<GalleryPage> {
             child: SizedBox(
               height: 400,
               width: 400,
-              child: MyLottie(aset: ImagesPath.loadinglottie),
+              child: MyLottie(aset: ImagesPath.loadingwaven),
             ),
           );
         } else if (state is PackageAllError) {

@@ -57,9 +57,10 @@ class LWebButton extends StatelessWidget {
      
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        minimumSize: Size(0, 47.37),
+        minimumSize: Size(0,40),
+        maximumSize: Size(200, 60),
         backgroundColor: ColorTema.accentColor,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       onPressed: onPressed,
@@ -72,12 +73,14 @@ class LWebButton extends StatelessWidget {
             Icon(icon, size: 20, color: Colors.white),
             const SizedBox(width: 8),
           ],
-          Text(
-            label,
-            style: GoogleFonts.robotoFlex(
-              color: Colors.white,
-              fontSize: 15, // 20% smaller than 16 ~ 15
-              fontWeight: FontWeight.bold,
+          Flexible(
+            child: Text(
+              label,
+              style: GoogleFonts.robotoFlex(
+                color: Colors.white,
+                fontSize: 15, // 20% smaller than 16 ~ 15
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           if(widge!=null)...[
@@ -98,7 +101,7 @@ class MButtonWeb extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        minimumSize: Size(163, 42),
+        minimumSize: Size(0, 36),
         backgroundColor: ColorTema.accentColor,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -109,14 +112,14 @@ class MButtonWeb extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 20, color: Colors.white),
+            Icon(icon, size: 12, color: Colors.white),
             const SizedBox(width: 8),
           ],
           Text(
             label,
             style: GoogleFonts.robotoFlex(
               color: Colors.white,
-              fontSize: 14, // 20% smaller than 16 ~ 15
+              fontSize: 12, // 20% smaller than 16 ~ 15
               fontWeight: FontWeight.bold,
             ),
           ),
