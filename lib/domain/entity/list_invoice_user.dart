@@ -10,11 +10,9 @@ class ListInvoiceUserEntity extends Equatable {
     required this.metadata,
     required this.data,
   });
-  
-  @override
-  List<Object?> get props => [message,metadata,data];
 
-  
+  @override
+  List<Object?> get props => [message, metadata, data];
 }
 
 class MetadataEntity {
@@ -38,6 +36,8 @@ class BookingDataEntity {
   final String startTime;
   final String endTime;
   final String location;
+  final String editedRelustPhoto;
+  final String photoReslutUrl;
 
   BookingDataEntity({
     required this.id,
@@ -48,6 +48,8 @@ class BookingDataEntity {
     required this.startTime,
     required this.endTime,
     required this.location,
+    required this.editedRelustPhoto,
+    required this.photoReslutUrl,
   });
 }
 
@@ -55,8 +57,5 @@ class AddonNameEntity {
   final String id;
   final String name;
 
-  AddonNameEntity({
-    required this.id,
-    required this.name,
-  });
+  AddonNameEntity({required this.id, required this.name});
 }

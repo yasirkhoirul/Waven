@@ -1,10 +1,14 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:waven/common/color.dart';
+import 'package:waven/domain/entity/list_gdrive.dart';
 import 'package:waven/presentation/cubit/detail_invoice_cubit.dart';
+import 'package:waven/presentation/cubit/google_drive_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
+import 'package:waven/presentation/widget/button.dart';
 
 class Dialogtextinput extends StatefulWidget {
   final String idDetailInvoice;
@@ -17,6 +21,39 @@ class Dialogtextinput extends StatefulWidget {
 class _DialogtextinputState extends State<Dialogtextinput> {
   final TextEditingController editedphototeks = TextEditingController();
   final GlobalKey<FormState> _fomkey = GlobalKey<FormState>();
+  final List<GoogleDriveFileEntity> selectedFiles = [];
+
+  @override
+  void initState() {
+    
+    super.initState();
+  }
+
+  void _addSelectedFile(GoogleDriveFileEntity file) {
+    if (!selectedFiles.any((f) => f.id == file.id)) {
+      setState(() {
+        selectedFiles.add(file);
+      });
+    }
+  }
+
+  void _removeSelectedFile(GoogleDriveFileEntity file) {
+    setState(() {
+      selectedFiles.removeWhere((f) => f.id == file.id);
+    });
+  }
+
+  String _getSelectedFilesAsString() {
+    return selectedFiles
+        .map((file) {
+          // Hapus extension (bagian di belakang titik)
+          final nameWithoutExt = file.name.contains('.')
+              ? file.name.substring(0, file.name.lastIndexOf('.'))
+              : file.name;
+          return nameWithoutExt;
+        })
+        .join(',');
+  }
 
   @override
   void dispose() {
@@ -94,68 +131,112 @@ class _DialogtextinputState extends State<Dialogtextinput> {
                             fontSize: 14,
                           ),
                         ),
-                        TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "tidak boleh kosong ya";
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
+                        Text(
+                          "Silahkan pilih gambar lewat berikut:",
+                          style: GoogleFonts.robotoFlex(
+                            color: ColorTema.accentColor,
+                            fontSize: 14,
                           ),
-                          controller: editedphototeks,
-                          style: GoogleFonts.robotoFlex(color: Colors.white),
-                          maxLines: 4,
                         ),
-                        OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(10),
+                        DropdownSearch<GoogleDriveFileEntity>(
+                          compareFn: (item1, item2) => item1.id == item2.id,
+                          itemAsString: (item) => item.name,
+                          popupProps: PopupProps.menu(
+                            showSearchBox: true,
+                            disableFilter: true,
+                            infiniteScrollProps: InfiniteScrollProps(
+                              loadProps: LoadProps(skip: 0,take: 10)
+                            )
+                          ),
+                          items: (filter, loadProps) async{
+                            final page = (loadProps!.skip ~/ loadProps.take) + 1;
+                            return context.read<GoogleDriveCubit>().getDataReturn(widget.idDetailInvoice, page, loadProps.take,search: filter);
+                          },
+                          onChanged: (GoogleDriveFileEntity? item) {
+                            if (item != null) {
+                              _addSelectedFile(item);
+                            }
+                          },
+                        ),
+                     
+                        if (selectedFiles.isNotEmpty)
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey, width: 1),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            side: BorderSide(
-                              color: ColorTema.accentColor,
-                              width: 2,
+                            padding: EdgeInsets.all(12),
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: selectedFiles
+                                  .map(
+                                    (file) => Container(
+                                      decoration: BoxDecoration(
+                                        color: ColorTema.accentColor,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            file.name,
+                                            style: GoogleFonts.robotoFlex(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          GestureDetector(
+                                            onTap: () => _removeSelectedFile(file),
+                                            child: Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
                           ),
-                          onPressed: () {
-                            if (_fomkey.currentState!.validate()) {
+                        if (selectedFiles.isEmpty)
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey, width: 1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: EdgeInsets.all(12),
+                            child: Text(
+                              "Tidak ada file yang dipilih",
+                              style: GoogleFonts.robotoFlex(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      
+                        LWebButton(label: "Kirim",onPressed: (){
+                          if (selectedFiles.isNotEmpty) {
                               context
                                   .read<DetailInvoiceCubit>()
                                   .onSubmitEditedPhoto(
                                     widget.idDetailInvoice,
-                                    editedphototeks.text,
+                                    _getSelectedFilesAsString().trim(),
                                   );
                             }
-                          },
-                          child: Text(
-                            "Kirim",
-                            style: GoogleFonts.robotoFlex(
-                              color: ColorTema.accentColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(10),
-                            ),
-                            side: BorderSide(color: Colors.red, width: 2),
-                          ),
-                          onPressed: () {
-                            context.pop();
-                          },
-                          child: Text(
-                            "Batal",
-                            style: GoogleFonts.robotoFlex(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                        },),
+                        LWebButton(label: "Batal",onPressed: (){
+                          context.pop();
+                        },
+                        backgroundColor: Colors.redAccent,
+                        )
                       ],
                     );
                   },

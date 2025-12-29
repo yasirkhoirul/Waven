@@ -17,6 +17,7 @@ import 'package:waven/domain/usecase/get_check_tanggal.dart';
 import 'package:waven/domain/usecase/get_check_transaction.dart';
 import 'package:waven/domain/usecase/get_detail_invoice.dart';
 import 'package:waven/domain/usecase/get_detail_package.dart';
+import 'package:waven/domain/usecase/get_list_gdrive.dart';
 import 'package:waven/domain/usecase/get_list_invoice_user.dart';
 import 'package:waven/domain/usecase/get_package_all.dart';
 import 'package:waven/domain/usecase/get_porto_all.dart';
@@ -32,6 +33,7 @@ import 'package:waven/domain/usecase/post_transaction.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
 import 'package:waven/presentation/cubit/detail_invoice_cubit.dart';
+import 'package:waven/presentation/cubit/google_drive_cubit.dart';
 import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/package_all_cubit.dart';
 import 'package:waven/presentation/cubit/package_detail_cubit.dart';
@@ -56,6 +58,7 @@ Future<void> init()async{
   locator.registerCachedFactory(() => ProfileCubit(locator()),);
   locator.registerCachedFactory(() => DetailInvoiceCubit(locator(),locator()),);
   locator.registerCachedFactory(() => TransactionCubit(locator(), postTransaction: locator(), getCheckTransaction: locator()),);
+  locator.registerCachedFactory(() => GoogleDriveCubit(locator()),);
   locator.registerCachedFactory(() => BookingCubit(locator(), getAddonsAll: locator(), postBooking: locator(), getCheckTanggal: locator(), imagePickers: locator(), getCheckTransaction: locator()),);
 
   //usecase
@@ -76,6 +79,7 @@ Future<void> init()async{
   locator.registerLazySingleton(() => GetCheckTransaction(locator()),);
   locator.registerLazySingleton(() => PostTransaction(locator()),);
   locator.registerLazySingleton(() => PostEditedPhoto(locator()),);
+  locator.registerLazySingleton(() => GetListGdrive(locator()),);
 
   //repositoy
   locator.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(dataRemote: locator(), dataLocal: locator()),);

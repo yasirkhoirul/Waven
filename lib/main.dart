@@ -7,6 +7,7 @@ import 'package:waven/presentation/cubit/asset_loader_cubit.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
 import 'package:waven/presentation/cubit/detail_invoice_cubit.dart';
+import 'package:waven/presentation/cubit/google_drive_cubit.dart';
 import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/package_all_cubit.dart';
 import 'package:waven/presentation/cubit/package_detail_cubit.dart';
@@ -37,6 +38,7 @@ void main() async{
       BlocProvider(create: (context) => getisinstance<TransactionCubit>(),),
       BlocProvider(create: (context) => getisinstance<DetailInvoiceCubit>(),),
       BlocProvider(create: (context) => getisinstance<TransactionCubit>(),),
+      BlocProvider(create: (context) => getisinstance<GoogleDriveCubit>(),)
     ], child: const MainApp())
   );
 }

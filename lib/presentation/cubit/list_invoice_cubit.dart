@@ -14,24 +14,18 @@ class ListInvoiceCubit extends Cubit<ListInvoiceState> {
   void getLoad(int page,int limit)async{
     emit(state.copyWith(step: RequestState.loading));
     try {
-      Logger().d("Loading page: $page dengan limit: $limit");
       final data = await getListInvoiceUser.execute(page, limit);
-      Logger().d("Data diterima: ${data.data.length} items");
-      Logger().d("Current state listdata: ${state.listdata.length} items");
+      Logger().d("ini adlaah dari cubit : ${data.data.first.photoReslutUrl}");
       
       // Jika page pertama, replace semua data
       if (page == 1) {
-        Logger().d("Page 1 - Replace semua data");
         emit(ListInvoiceState(
           step: RequestState.loaded,
           data: data,
           listdata: data.data,
         ));
       } else {
-        // Jika page > 1, append data yang baru
-        Logger().d("Page $page - Append data baru");
         final newList = [...state.listdata, ...data.data];
-        Logger().d("Total setelah append: ${newList.length} items");
         emit(ListInvoiceState(
           step: RequestState.loaded,
           data: data,

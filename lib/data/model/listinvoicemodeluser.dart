@@ -35,11 +35,7 @@ class Metadata {
   final int page;
   final int limit;
 
-  Metadata({
-    required this.count,
-    required this.page,
-    required this.limit,
-  });
+  Metadata({required this.count, required this.page, required this.limit});
 
   factory Metadata.fromJson(Map<String, dynamic> json) =>
       _$MetadataFromJson(json);
@@ -47,11 +43,7 @@ class Metadata {
   Map<String, dynamic> toJson() => _$MetadataToJson(this);
 
   MetadataEntity toEntity() {
-    return MetadataEntity(
-      count: count,
-      page: page,
-      limit: limit,
-    );
+    return MetadataEntity(count: count, page: page, limit: limit);
   }
 }
 
@@ -63,6 +55,10 @@ class BookingData {
   final String university;
   final String status;
   final String date;
+  @JsonKey(name: "photo_result_url")
+  final String? photoResultUrl;
+  @JsonKey(name: "edited_photo_result_url")
+  final String? editedPhotoRelsultUrl;
   @JsonKey(name: 'start_time')
   final String startTime;
   @JsonKey(name: 'end_time')
@@ -78,6 +74,8 @@ class BookingData {
     required this.startTime,
     required this.endTime,
     required this.location,
+    required this.photoResultUrl,
+    required this.editedPhotoRelsultUrl,
   });
 
   factory BookingData.fromJson(Map<String, dynamic> json) =>
@@ -95,8 +93,8 @@ class BookingData {
       startTime: startTime,
       endTime: endTime,
       location: location,
+      editedRelustPhoto: editedPhotoRelsultUrl ?? '',
+      photoReslutUrl: photoResultUrl ?? '',
     );
   }
 }
-
-

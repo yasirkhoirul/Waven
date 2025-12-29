@@ -45,6 +45,8 @@ BookingData _$BookingDataFromJson(Map<String, dynamic> json) => BookingData(
   startTime: json['start_time'] as String,
   endTime: json['end_time'] as String,
   location: json['location'] as String,
+  photoResultUrl: json['photo_result_url'] as String?,
+  editedPhotoRelsultUrl: json['edited_photo_result_url'] as String?,
 );
 
 Map<String, dynamic> _$BookingDataToJson(BookingData instance) =>
@@ -54,6 +56,8 @@ Map<String, dynamic> _$BookingDataToJson(BookingData instance) =>
       'university': instance.university,
       'status': instance.status,
       'date': instance.date,
+      'photo_result_url': instance.photoResultUrl,
+      'edited_photo_result_url': instance.editedPhotoRelsultUrl,
       'start_time': instance.startTime,
       'end_time': instance.endTime,
       'location': instance.location,

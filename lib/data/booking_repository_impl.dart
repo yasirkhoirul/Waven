@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,6 +14,7 @@ import 'package:waven/domain/entity/booking.dart';
 import 'package:waven/domain/entity/customer.dart';
 import 'package:waven/domain/entity/detail_invoice.dart';
 import 'package:waven/domain/entity/invoice.dart';
+import 'package:waven/domain/entity/list_gdrive.dart';
 import 'package:waven/domain/entity/list_invoice_user.dart';
 import 'package:waven/domain/entity/transaction.dart';
 import 'package:waven/domain/entity/univ_dropdown.dart';
@@ -27,8 +26,12 @@ class BookingRepositoryImpl implements BookingRepository {
   const BookingRepositoryImpl(this.dataRemote, {required this.dataLocal});
 
   @override
-  Future<List<UnivDropdown>> getUnivDropDown(int page,int limit,{String? search}) async {
-    final data = await dataRemote.getUnivDropDown(page,limit,search: search);
+  Future<List<UnivDropdown>> getUnivDropDown(
+    int page,
+    int limit, {
+    String? search,
+  }) async {
+    final data = await dataRemote.getUnivDropDown(page, limit, search: search);
     try {
       final dataready = data.data.map((e) => e.toEntity()).toList();
       return dataready;
@@ -53,7 +56,7 @@ class BookingRepositoryImpl implements BookingRepository {
     required Customer customer,
     required Booking bookingdata,
     required AdditionalInfo additionalData,
-    List<int>? image
+    List<int>? image,
   }) async {
     try {
       final payload = BookingRequestModel(
@@ -76,12 +79,12 @@ class BookingRepositoryImpl implements BookingRepository {
           additionalData.universityId,
           additionalData.location,
           additionalData.note,
-          kIsWeb?Platformdata.web.name:Platformdata.android.name
+          kIsWeb ? Platformdata.web.name : Platformdata.android.name,
         ),
       );
-      
-      final response = await dataRemote.postBooking(payload,image: image);
-      
+
+      final response = await dataRemote.postBooking(payload, image: image);
+
       // Prepare QR bytes and redirect to snap (web) if provided
       Uint8List? qrImageBytes;
       final redirectUrl = response.data.actions?.redirectUrl;
@@ -133,9 +136,9 @@ class BookingRepositoryImpl implements BookingRepository {
       rethrow;
     }
   }
-  
+
   @override
-  Future<bool> checkTanggal(String tanggal, String start, String end) async{
+  Future<bool> checkTanggal(String tanggal, String start, String end) async {
     try {
       final response = await dataRemote.checkBooking(tanggal, start, end);
       return response;
@@ -145,11 +148,13 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<ListInvoiceUserEntity> getlistinvoiceuser(int page, int limit) async{
+  Future<ListInvoiceUserEntity> getlistinvoiceuser(int page, int limit) async {
     try {
-      
       final data = await dataRemote.getlistinvoice(page, limit);
-      Logger().d("iniadalah repo invoice ${data}");
+      Logger().d("iniadalah repo invoice ${data.data.first.photoResultUrl}");
+      Logger().d(
+        "iniadalah repo entity invoice ${data.toEntity().data.first.photoReslutUrl}",
+      );
       return data.toEntity();
     } catch (e) {
       rethrow;
@@ -157,7 +162,7 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<DetailInvoiceDataEntity> getInvoice(String idinvoice)async {
+  Future<DetailInvoiceDataEntity> getInvoice(String idinvoice) async {
     try {
       final data = await dataRemote.getDetailInvoice(idinvoice);
       final dataready = data.data.toEntity();
@@ -166,9 +171,9 @@ class BookingRepositoryImpl implements BookingRepository {
       rethrow;
     }
   }
-  
+
   @override
-  Future<bool> checkTransaction(String bookingid, String gatewayid) async{
+  Future<bool> checkTransaction(String bookingid, String gatewayid) async {
     try {
       final data = await dataRemote.getCheckTransaction(bookingid, gatewayid);
       return data;
@@ -176,30 +181,77 @@ class BookingRepositoryImpl implements BookingRepository {
       rethrow;
     }
   }
-  
+
   @override
-  Future<TransactionEntityDetail> postTransaction(TransactionRequest payload,String idinvoice,{Uint8List? images}) async{
+  Future<TransactionEntityDetail> postTransaction(
+    TransactionRequest payload,
+    String idinvoice, {
+    Uint8List? images,
+  }) async {
     try {
-      final data = await dataRemote.postTransaction(payload, idinvoice, image: images);
+      final data = await dataRemote.postTransaction(
+        payload,
+        idinvoice,
+        image: images,
+      );
       Logger().d("data already model transaction ${data.data.actions}");
       List<int> gambarqr = [];
       if (payload.paymentMethod == "qris") {
-        Logger().d("data qris yang diterima ${data.data.actions?.first.url??''}");
-         gambarqr = await dataRemote.getQris(data.data.transactiondetail.midtransId??'');
+        Logger().d(
+          "data qris yang diterima ${data.data.actions?.first.url ?? ''}",
+        );
+        gambarqr = await dataRemote.getQris(
+          data.data.transactiondetail.midtransId ?? '',
+        );
         Logger().d("data qris gambar yang didapat ${gambarqr}");
       }
-      return TransactionEntityDetail(message: "Sukses",gambarqr: Uint8List.fromList(gambarqr),paymentQrUrl: data.data.transactiondetail.midtransId??'');
+      return TransactionEntityDetail(
+        message: "Sukses",
+        gambarqr: Uint8List.fromList(gambarqr),
+        paymentQrUrl: data.data.transactiondetail.midtransId ?? '',
+      );
     } catch (e) {
       rethrow;
     }
   }
-  
+
   @override
-  Future<String> postEditedPhoto(String listEditedPhoto, String idinvoice) async{
+  Future<String> postEditedPhoto(
+    String listEditedPhoto,
+    String idinvoice,
+  ) async {
     try {
-      final response = await dataRemote.postEditedPhoto(listEditedPhoto, idinvoice);
+      final response = await dataRemote.postEditedPhoto(
+        listEditedPhoto,
+        idinvoice,
+      );
       return response;
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ListGdriveEntity> getGoogleDriveFiles(
+    String bookingId,
+    int page,
+    int limit,
+     {
+    String? search,
+  }) async {
+    try {
+      final response = await dataRemote.getGoogleDriveFiles(
+        bookingId,
+        page: page,
+        limit: limit,
+        search: search,
+      );
+      Logger().d(
+        "Google Drive files retrieved from remote: ${response.data.length} files",
+      );
+      return response.toEntity();
+    } catch (e) {
+      Logger().e("Error fetching Google Drive files in repository: $e");
       rethrow;
     }
   }

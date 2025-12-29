@@ -9,6 +9,7 @@ import 'package:waven/data/model/booking_request_model.dart';
 import 'package:waven/data/model/checktransactionmodel.dart';
 import 'package:waven/data/model/detailinvoice.dart';
 import 'package:waven/data/model/detailportomodel.dart';
+import 'package:waven/data/model/google_drive_model.dart' as gd;
 import 'package:waven/data/model/invoicemodel.dart';
 import 'package:waven/data/model/listinvoicemodeluser.dart';
 import 'package:waven/data/model/packagemodel.dart';
@@ -47,6 +48,12 @@ abstract class DataRemote {
     {List<int>? image}
   );
   Future<String> postEditedPhoto(String listedited,String idinvoice);
+  Future<gd.GoogleDriveResponse> getGoogleDriveFiles(
+    String bookingId, {
+    int page = 1,
+    int limit = 10,
+    String? search,
+  });
 }
 
 class DataRemoteImpl implements DataRemote {
@@ -319,6 +326,7 @@ class DataRemoteImpl implements DataRemote {
         'v1/bookings/invoices',
         queryParameters: {'page': page, 'limit': limit},
       );
+      
       if (data.data.toString().contains("no bookings")) {
         return ListInvoiceModelUser(
           message: "no booking",
@@ -326,7 +334,7 @@ class DataRemoteImpl implements DataRemote {
           data: [],
         );
       }
-
+      Logger().i("ini adalah hasil dari from json ${ListInvoiceModelUser.fromJson(data.data).data.first.photoResultUrl} ");
       return ListInvoiceModelUser.fromJson(data.data);
     } catch (e) {
       throw Exception(e);
@@ -424,6 +432,38 @@ class DataRemoteImpl implements DataRemote {
       return "${data.data} sukses dikirim";
     } catch (e) {
       throw Exception(e);
+    }
+  }
+
+  @override
+  Future<gd.GoogleDriveResponse> getGoogleDriveFiles(
+    String bookingId, {
+    int page = 1,
+    int limit = 10,
+    String? search,
+  }) async {
+    try {
+      final response = await dio.dio.get(
+        'v1/admin/bookings/$bookingId/files',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (search != null) 'search': search,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Logger().d("Google Drive files retrieved: ${response.data}");
+        return gd.GoogleDriveResponse.fromJson(response.data);
+      } else {
+        throw Exception("Failed to fetch Google Drive files: ${response.statusCode}");
+      }
+    } on DioException catch (e) {
+      Logger().e("DioException while fetching Google Drive files: ${e.message}");
+      throw Exception("Error fetching Google Drive files: ${e.message}");
+    } catch (e) {
+      Logger().e("Exception while fetching Google Drive files: $e");
+      throw Exception("Unexpected error: $e");
     }
   }
 }

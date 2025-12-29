@@ -6,6 +6,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/web.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:waven/common/color.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/common/imageconstant.dart';
@@ -265,6 +267,7 @@ class _MainContentProfileState extends State<MainContentProfile> {
                         return BlocBuilder<ListInvoiceCubit, ListInvoiceState>(
                           builder: (context, state) {
                             if (state.step == RequestState.loaded) {
+                              Logger().i("ini adalah state dari page ${state.listdata.first.photoReslutUrl}");
                               final startIndex = indexpage * 2;
                               if (startIndex >= state.listdata.length) return Container();
                               final availableItemsCount = state.listdata.length - startIndex;
@@ -424,7 +427,8 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constrainss) {
-        Logger().d("tinggi item adalah : ${constrainss.minHeight}");
+        
+        Logger().d(" ini adalah foto ${data.photoReslutUrl}");
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: RepaintBoundary(
@@ -529,7 +533,7 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
                         ],
                       ),
                     ),
-                    FooterContentPage(idinvoice: data.id,dataStatus:data.status),
+                    FooterContentPage(idinvoice: data.id,dataStatus:data.status,editedPhoto: data.editedRelustPhoto,oriPhoto: data.photoReslutUrl,),
                   ],
                 ),
               ),
@@ -544,10 +548,22 @@ class Itemlistinvoicebuilderpagnation extends StatelessWidget {
 class FooterContentPage extends StatelessWidget {
   final String idinvoice;
   final String dataStatus;
-  const FooterContentPage({super.key, required this.idinvoice, required this.dataStatus});
+  final String editedPhoto;
+  final String oriPhoto;
+  const FooterContentPage({super.key, required this.idinvoice, required this.dataStatus, required this.editedPhoto, required this.oriPhoto});
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _openDrive(String urls) async {
+    final Uri url = Uri.parse(urls);
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication, // buka di browser / app Drive
+    )) {
+      throw 'Tidak bisa membuka link';
+    }
+  }
+    Logger().d("$oriPhoto ini isnya dan ${oriPhoto.isEmpty}");
     final menuButtons = [
       {
         'bg': Color(0xFF27A693),
@@ -564,28 +580,28 @@ class FooterContentPage extends StatelessWidget {
         'bg': ColorTema.accentColor,
         "icon": Icons.download,
         "label": "Foto Original",
-        "action":dataStatus == "LUNAS"? () {
-          print("Payment ditekan");
-        }:null,
+        "action":dataStatus != "LUNAS"|| oriPhoto.isEmpty? null:() {
+          _openDrive(oriPhoto);
+        },
       },
       {
         'bg': Color(0xFF448AFF),
         "icon": Icons.menu,
         "label": "List Foto Diedit",
-        "action": dataStatus == "LUNAS"?() {
+        "action": dataStatus != "LUNAS"|| oriPhoto.isEmpty?null:() {
           showDialog(
             context: context,
             builder: (context) => Dialogtextinput(idDetailInvoice: idinvoice),
           );
-        }:null,
+        },
       },
       {
         'bg': Color(0xFF5900A7),
         "icon": Icons.download,
         "label": "Edited Foto",
-        "action": dataStatus == "LUNAS"? () {
-          
-        }:null,
+        "action": dataStatus != "LUNAS"||editedPhoto.isEmpty?null: () {
+          _openDrive(editedPhoto);
+        },
       },
     ];
     Widget customMenuButton(Map item) {
