@@ -74,7 +74,7 @@ class DataRemoteImpl implements DataRemote {
         },
       );
       Logger().d(response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200&&response.headers['x-access-token']!=null&&response.headers['x-refresh-token']!=null) {
         return Signinresonse(
           response.headers['x-access-token']!,
           response.headers['x-refresh-token']!,
@@ -97,7 +97,7 @@ class DataRemoteImpl implements DataRemote {
         headers: {'content-type': 'application/json'},
         body: jsonEncode(data),
       );
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 &&response.headers['x-access-token']!=null&&response.headers['x-refresh-token']!=null) {
         return Signinresonse(
           response.headers['x-access-token']!,
           response.headers['x-refresh-token']!,

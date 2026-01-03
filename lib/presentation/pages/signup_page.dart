@@ -54,26 +54,7 @@ class _SignupPageState extends State<SignupPage> {
         child: Stack(
           children: [
             Positioned.fill(child: Container(color: Colors.black)),
-            Positioned(
-              bottom: tinggilottie * -0.40,
-              left: 0,
-              child: SizedBox(
-                height: tinggilottie,
-                width: tinggilottie,
-
-                child: MyLottie(aset: ImagesPath.bgleftlottie),
-              ),
-            ),
-            Positioned(
-              top: tinggilottie * -0.40,
-              right: 0,
-              child: SizedBox(
-                height: tinggilottie,
-                width: tinggilottie,
-
-                child: MyLottie(aset: ImagesPath.bgrightlottie),
-              ),
-            ),
+          
             Positioned(
               bottom: 0,
               right: 0,

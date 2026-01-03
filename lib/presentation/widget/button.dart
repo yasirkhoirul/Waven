@@ -58,7 +58,7 @@ class LWebButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         minimumSize: Size(0,40),
-        maximumSize: Size(200, 60),
+        maximumSize: Size(250, 60),
         backgroundColor: backgroundColor?? ColorTema.accentColor,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

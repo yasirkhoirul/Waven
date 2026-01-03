@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:waven/common/theme/theme.dart';
 import 'package:waven/common/theme/util.dart';
+import 'package:waven/common/utils/deeplink_handler.dart';
 import 'package:waven/presentation/cubit/asset_loader_cubit.dart';
 import 'package:waven/presentation/cubit/auth_cubit.dart';
 import 'package:waven/presentation/cubit/booking_cubit.dart';
@@ -21,7 +22,7 @@ import 'injection.dart' as injection;
 final GetIt getisinstance = GetIt.instance;
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-
+  await DeepLinkHandler().initialize();
   injection.init();
   runApp(
     MultiBlocProvider(providers: [
@@ -37,7 +38,6 @@ void main() async{
       BlocProvider(create: (context) => getisinstance<ProfileCubit>(),),
       BlocProvider(create: (context) => getisinstance<TransactionCubit>(),),
       BlocProvider(create: (context) => getisinstance<DetailInvoiceCubit>(),),
-      BlocProvider(create: (context) => getisinstance<TransactionCubit>(),),
       BlocProvider(create: (context) => getisinstance<GoogleDriveCubit>(),)
     ], child: const MainApp())
   );
@@ -48,8 +48,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = View.of(context).platformDispatcher.platformBrightness;
-
     TextTheme textTheme = createTextTheme(context, "Roboto Flex", "Roboto Flex");
 
     MaterialTheme theme = MaterialTheme(textTheme);

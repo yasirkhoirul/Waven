@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:waven/common/constant.dart';
+import 'package:waven/common/utils/deeplink_handler.dart';
 import 'package:waven/domain/entity/profile.dart';
 import 'package:waven/domain/usecase/get_profile.dart';
 
@@ -21,5 +22,20 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  
+  void listen(){
+    DeepLinkHandler().onPaymentResult = (bookingId,status,params){
+    emit(
+      state.copywith(
+        bookingId: bookingId,
+        status: status
+      )
+    );
+  };
+  }
+  void onCloseDialogDeepLink(){
+    emit(state.copywith(
+      status: null,
+      bookingId: null
+    ));
+  }
 }

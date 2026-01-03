@@ -12,6 +12,7 @@ import 'package:waven/common/color.dart';
 import 'package:waven/common/constant.dart';
 import 'package:waven/common/imageconstant.dart';
 import 'package:waven/domain/entity/list_invoice_user.dart';
+import 'package:waven/domain/entity/profile.dart';
 import 'package:waven/presentation/cubit/list_invoice_cubit.dart';
 import 'package:waven/presentation/cubit/profile_cubit.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
@@ -24,6 +25,7 @@ import 'package:waven/presentation/widget/frostglass.dart';
 import 'package:waven/presentation/widget/lottieanimation.dart';
 
 class ProfilePage extends StatelessWidget {
+
   const ProfilePage({super.key});
   @override
   Widget build(BuildContext context) {
@@ -61,6 +63,15 @@ class HeaderLayout extends StatefulWidget {
 }
 
 class _HeaderLayoutState extends State<HeaderLayout> {
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if(!context.mounted)return;
+      context.read<ProfileCubit>().listen();
+    },);
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -73,6 +84,20 @@ class _HeaderLayoutState extends State<HeaderLayout> {
             children: [
               BlocConsumer<ProfileCubit, ProfileState>(
                 listener: (context, state) {
+                  if(state.bookingId != null && state.status != null){
+                    final bool isSucces = (state.status!.toLowerCase() == 'success' || state.status!.toLowerCase() == 'settlement');
+                    showDialog(context: context, builder: (context) => AlertDialog(
+                      icon: isSucces? Icon(Icons.check_circle_outline):Icon(Icons.cancel_outlined),
+                      content: isSucces? Text("Pembayaran Berhasil"):Text("Pembayaran Gagal"),
+                      actions: [
+                        TextButton(onPressed: (){
+                          context.read<ProfileCubit>().onCloseDialogDeepLink();
+                          context.pop();
+                        }, child: Text("OK"))
+                      ],
+                    ),);
+                    context.read<ListInvoiceCubit>().getLoad(1,2);
+                  }
                   if (state is SessionExpired) {
                     context.read<TokenauthCubit>().onLogout();
                   }

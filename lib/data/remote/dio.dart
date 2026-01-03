@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:waven/data/remote/data_local_impl.dart'; // Ganti sesuai package local storage bapak
 
 class DioClient {
   late Dio _dio;
   final DataLocal dataLocal;
+  final Function()? onAuthorized;
 
   // 1. Masukkan URL API Bapak disini
   final String baseUrl = "https://waven-development.site/";
@@ -12,7 +14,7 @@ class DioClient {
   // Variable untuk mencegah refresh token berkali-kali bersamaan
   bool _isRefreshing = false;
 
-  DioClient(this.dataLocal) {
+  DioClient(this.dataLocal,{this.onAuthorized}) {
     // Setup dasar Dio
     _dio = Dio(
       BaseOptions(
@@ -78,6 +80,7 @@ class DioClient {
                   return handler.next(error);
                 }
               } else {
+                onAuthorized?.call();
                 return handler.next(error);
               }
             }

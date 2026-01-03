@@ -94,7 +94,9 @@ Future<void> init()async{
   locator.registerLazySingleton(() => FlutterSecureStorage(),);
 
   //dio client 
-  locator.registerLazySingleton(() => DioClient(locator()) ,);
+  locator.registerLazySingleton(() => DioClient(locator(),onAuthorized: () {
+    locator<TokenauthCubit>().onLogout();
+  },) ,);
   
   //imgage picker
   locator.registerLazySingleton(() => ImagePicker(),);

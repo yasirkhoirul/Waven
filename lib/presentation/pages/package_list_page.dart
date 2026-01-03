@@ -39,26 +39,7 @@ class _PackageListPageState extends State<PackageListPage> {
 
       child: Stack(
         children: [
-          Positioned(
-            bottom: tinggilottie * -0.25,
-            left: 0,
-            child: SizedBox(
-              height: tinggilottie,
-              width: tinggilottie,
-
-              child: MyLottie(aset: ImagesPath.bgleftlottie),
-            ),
-          ),
-          Positioned(
-            top: tinggilottie * -0.25,
-            right: 0,
-            child: SizedBox(
-              height: tinggilottie,
-              width: tinggilottie,
-
-              child: MyLottie(aset: ImagesPath.bgrightlottie),
-            ),
-          ),
+         
           Positioned.fill(
             child: BlocBuilder<PackageAllCubit, PackageAllState>(
               builder: (context, state) {
@@ -80,15 +61,15 @@ class _PackageListPageState extends State<PackageListPage> {
                 } else if (state is PackageAllLoaded) {
                   return LayoutBuilder(
                     builder: (context, constrains) {
-                      return Column(
-                        children: [
-                          // Header Section
-                          HeaderItem(),
-                          // Content Section
-                          Expanded(
-                            child: _buildPackageContent(constrains, state),
-                          ),
-                        ],
+                      return SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            // Header Section
+                            HeaderItem(),
+                            // Content Section
+                            _buildPackageContent(constrains, state),
+                          ],
+                        ),
                       );
                     },
                   );
@@ -109,6 +90,8 @@ class _PackageListPageState extends State<PackageListPage> {
   ) {
     if (constrains.maxWidth < 870) {
       return ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
         padding: EdgeInsets.all(20),
         itemBuilder: (context, index) {
           
@@ -119,13 +102,10 @@ class _PackageListPageState extends State<PackageListPage> {
             child: _PackageCard(package: state.data[index], ismobile: true),
           ),
         );},
-        itemCount: state.data.length + 1,
+      itemCount: state.data.length,
       );
     } else {
-      return SizedBox(
-        height: 700,
-        child: Center(child: GridPackage(data: state.data)),
-      );
+      return GridPackage(data: state.data);
     }
   }
 }
@@ -202,6 +182,8 @@ class GridPackage extends StatelessWidget {
   Widget build(BuildContext context) {
     final lebarlayar = MediaQuery.of(context).size.width;
     return GridView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 200, vertical: 75),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: lebarlayar < 1200 ? 2 : 3,

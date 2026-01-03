@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:waven/common/utils/deeplink_handler.dart';
 import 'package:waven/presentation/cubit/tokenauth_cubit.dart';
 import 'package:waven/presentation/notifier/auth_notifier.dart';
 import 'package:waven/presentation/pages/booking_page.dart';
@@ -18,6 +19,27 @@ class MyRouter {
       refreshListenable: CubitListenable(cubit),
       initialLocation: "/splash",
       routes: [
+        GoRoute(
+          path: '/payment-result',
+          name: 'payment-result',
+          redirect: (context, state) {
+            // Extract payment parameters from deep link
+            final params = state.uri.queryParameters;
+            final orderId = params['order_id'];
+            final status = params['transaction_status'];            
+            // Trigger deep link handler callback
+            if (orderId != null && status != null) {
+              DeepLinkHandler().onPaymentResult?.call(
+                orderId,
+                status,
+                params,
+              );
+            }
+            
+            // Redirect to dashboard after handling callback
+            return '/Profile';
+          },
+        ),
         GoRoute(path: "/splash", builder: (context, state) => SplashPage()),
         GoRoute(path: "/login", builder: (context, state) => LoginPage()),
         GoRoute(path: "/signup", builder: (context, state) => SignupPage()),
@@ -96,7 +118,7 @@ class MyRouter {
         final token = cubit.state.tokens;
         final isLoggedIn = token != null;
         // Routes yang boleh diakses saat belum login
-        final allowedRoutesWhenLoggedOut = ['/login', '/signup', '/home', '/Gallery', '/splash'];
+        final allowedRoutesWhenLoggedOut = ['/login', '/signup', '/home', '/Gallery', '/splash','/packagelist'];
 
         // Jika di splash screen, biarkan saja
         if (state.uri.toString() == '/splash') {

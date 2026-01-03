@@ -146,35 +146,7 @@ class _LayoutLoginState extends State<LayoutLogin>
     return Stack(
       children: [
         Positioned.fill(child: Container(color: Colors.black)),
-        Positioned(
-          bottom: widget.tinggilottie * -0.25,
-          left: 0,
-          child: SlideTransition(
-            position: _leftBottomAnimation,
-            child: SizedBox(
-              height: widget.tinggilottie,
-              width: widget.tinggilottie,
-
-              child: MyLottie(aset: ImagesPath.bgleftlottie),
-            ),
-          ),
-        ),
-        Positioned(
-          top: widget.tinggilottie * -0.25,
-          right: 0,
-          child: SlideTransition(
-            position: _rightTopAnimation,
-            child: SizedBox(
-              height: widget.tinggilottie,
-              width: widget.tinggilottie,
-
-              child: Hero(
-                tag: 'kiri',
-                child: MyLottie(aset: ImagesPath.bgrightlottie),
-              ),
-            ),
-          ),
-        ),
+       
         Positioned(
           bottom: 0,
           right: 0,
