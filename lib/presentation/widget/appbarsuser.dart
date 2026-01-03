@@ -61,7 +61,7 @@ class _AppbarsUserState extends State<AppbarsUser> {
                           widget.onpress(1);
                         },
                         child: Text(
-                          "package",
+                          "Package",
                           style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
                             fontWeight: FontWeight.w100,
