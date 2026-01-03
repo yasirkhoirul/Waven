@@ -11,26 +11,36 @@
 
 ## 📱 Screenshots
 
-> **Note:** Tambahkan screenshots berikut di folder `assets/screenshots/`
+### Mobile App Views
 
-### Mobile Views
-```
-assets/screenshots/
-├── 1_splash.png          # Splash screen loading
-├── 2_login.png           # Login page
-├── 3_home.png            # Home/Package list
-├── 4_booking_step1.png   # Booking - Select date & time
-├── 5_booking_step2.png   # Booking - Select package & add-ons
-├── 6_booking_step3.png   # Booking - Confirmation & payment method
-├── 7_upload_proof.png    # Upload transfer proof (for bank transfer)
-├── 8_invoice.png         # Invoice details
-└── 9_qris_payment.png    # QRIS payment screen
-```
+| Halaman | Screenshot | Deskripsi |
+|---------|-----------|-----------|
+| **Login** | ![Login Mobile](assets/screenshot/loginPageMobile.png) | Halaman login dengan email/password |
+| **Sign Up** | ![Sign Up Mobile](assets/screenshot/SignUpPageMobile.png) | Registrasi user baru |
+| **Package List** | ![Package Mobile](assets/screenshot/packageMobile.png) | Daftar paket fotografi tersedia |
+| **Package Detail** | ![Detail Package Mobile](assets/screenshot/detailPackagePage.png) | Informasi lengkap paket & harga |
+| **Galeri Portfolio** | ![Galeri Mobile](assets/screenshot/galeriMobile.png) | Portfolio fotografi profesional |
+| **Booking Form** | ![Booking Form Mobile](assets/screenshot/bookingFormMobile.png) | Form booking multi-step |
+| **User Profile** | ![Profile Mobile](assets/screenshot/profileMobile.png) | Profil user & riwayat booking |
+| **Dashboard** | ![Dashboard Mobile](assets/screenshot/dashboardMobile.png) | Overview status booking & invoice |
 
-### Web Views
-- Desktop responsive layout
-- Full booking flow dengan multi-step form
-- Invoice & transaction management dashboard
+### Web / Desktop Views
+
+| Halaman | Screenshot | Deskripsi |
+|---------|-----------|-----------|
+| **Login Web** | ![Login Web](assets/screenshot/loginPageWeb.png) | Responsive login untuk desktop |
+| **Package List** | ![Package Web](assets/screenshot/packageWeb.png) | Grid view packages di web |
+| **Package Detail** | ![Detail Package Web](assets/screenshot/detailPackageWeb.png) | Detail package dengan full layout |
+| **Booking Form** | ![Booking Form Web](assets/screenshot/bookingFormWeb.png) | Multi-step form dengan sidebar |
+| **Dashboard** | ![Dashboard Web](assets/screenshot/dashboardWeb.png) | Dashboard dengan analytics & invoices |
+
+---
+
+**✅ Responsive Design**
+- 📱 Mobile-first approach
+- 💻 Desktop optimized layout
+- 🎨 Dark theme UI
+- ⚡ Fast & smooth animations
 
 ---
 
