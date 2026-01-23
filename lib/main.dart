@@ -53,7 +53,6 @@ class MainApp extends StatelessWidget {
     MaterialTheme theme = MaterialTheme(textTheme);
     return Builder(
       builder: (context) {
-        // 3. Ambil instance Cubit
           final authCubit = context.read<TokenauthCubit>();
           
           // 4. Masukkan ke dalam Router

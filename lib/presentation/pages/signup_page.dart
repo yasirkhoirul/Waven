@@ -275,7 +275,7 @@ class _FormSignUpState extends State<FormSignUp> {
                 return DropDownSearchUniv(
                   onChange: (UnivDropdown? p1) {
                     setState(() {
-                      selectedUniversity = p1?.name;
+                      selectedUniversity = p1?.id;
                     });
                   },
                 );
